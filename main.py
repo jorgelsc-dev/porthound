@@ -1,0 +1,100 @@
+import threading
+import sqlite3
+import time
+
+# Conexión a SQLite en memoria para los datos temporales
+memory_db = sqlite3.connect(":memory:", check_same_thread=False)
+memory_cursor = memory_db.cursor()
+
+# Creación de la tabla en memoria
+memory_cursor.execute('''
+    CREATE TABLE IF NOT EXISTS worker_data (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        host TEXT,
+        port INTEGER,
+        created TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+''')
+memory_db.commit()
+
+# Conexión a SQLite físico para persistencia
+disk_db = sqlite3.connect("workers.db", check_same_thread=False)
+disk_cursor = disk_db.cursor()
+
+# Creación de la tabla en disco
+disk_cursor.execute('''
+    CREATE TABLE IF NOT EXISTS targets (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        host TEXT,
+        port INTEGER,
+        created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+''')
+disk_db.commit()
+
+class WorkerThread(threading.Thread):
+    def __init__(self):
+        super().__init__(daemon=True)
+        self.running = True
+        self.condition = threading.Condition()
+    
+    def run(self):
+        while self.running:
+            try:
+                print("Ejecutando tarea...")
+                host = "192.168.1.1"
+                port = 80
+                with memory_db:
+                    memory_cursor.execute("INSERT INTO worker_data (host, port) VALUES (?, ?)", (host, port))
+                with self.condition:
+                    self.condition.wait(4)  # Espera 4 segundos
+            except Exception as e:
+                print(f"Error interno: {e}, pero el hilo sigue ejecutándose.")
+    
+    def stop(self):
+        self.running = False
+        with self.condition:
+            self.condition.notify_all()
+
+class DatabaseWorker(threading.Thread):
+    def __init__(self):
+        super().__init__(daemon=True)
+        self.running = True
+    
+    def run(self):
+        while self.running:
+            try:
+                with memory_db:
+                    memory_cursor.execute("SELECT * FROM worker_data")
+                    rows = memory_cursor.fetchall()
+                    
+                    for row in rows:
+                        with disk_db:
+                            disk_cursor.execute("INSERT INTO targets (host, port) VALUES (?, ?)", (row[1], row[2]))
+                        memory_cursor.execute("DELETE FROM worker_data WHERE id = ?", (row[0],))
+                time.sleep(2)  # Procesa cada 2 segundos
+            except Exception as e:
+                print(f"Error en DatabaseWorker: {e}")
+    
+    def stop(self):
+        self.running = False
+
+# Crear y lanzar los hilos
+worker_thread = WorkerThread()
+db_worker_thread = DatabaseWorker()
+worker_thread.start()
+db_worker_thread.start()
+
+try:
+    while True:
+        with worker_thread.condition:
+            worker_thread.condition.wait(1)
+except KeyboardInterrupt:
+    print("Deteniendo el programa...")
+    worker_thread.stop()
+    db_worker_thread.stop()
+    worker_thread.join()
+    db_worker_thread.join()
+    memory_db.close()
+    disk_db.close()

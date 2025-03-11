@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRUD</title>
+    <link href="../bootstrap-4.0.0-dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="../d3.v7.min.js"></script>
+    <style>
+        .form-container {
+            width: 30%;
+        }
+        .cards-container {
+            width: 70%;
+        }
+        .form-container, .cards-container {
+            padding: 10px;
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="container py-4">
+        <h1 class="mb-4">Escaneos de Red</h1>
+        <div class="row">
+            <div class="col-12 col-md-4 form-container">
+                <h4 id="formTitle">Nuevo Escaneo</h4>
+                <form id="scanForm">
+                    <input type="hidden" id="scanId">
+                    <div class="mb-3">
+                        <label class="form-label">Título</label>
+                        <input type="text" class="form-control" id="title" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">IP</label>
+                        <input type="text" class="form-control" id="ip" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Puerto</label>
+                        <input type="number" class="form-control" id="port" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Estado</label>
+                        <select class="form-select" id="status">
+                            <option value="open">Open</option>
+                            <option value="closed">Closed</option>
+                            <option value="filtered">Filtered</option>
+                        </select>
+                    </div>
+                    <button type="button" class="btn btn-primary" onclick="saveScan()">Guardar</button>
+                    <button type="button" class="btn btn-secondary" onclick="resetForm()">Cancelar</button>
+                </form>
+            </div>
+            <div class="col-12 col-md-8 cards-container">
+                <div id="cards-container" class="row row-cols-1 row-cols-md-3 g-4"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let scans = [];
+        let currentScan = null;
+        
+        function showForm(scan = null) {
+            if(scan) {
+                document.getElementById('formTitle').textContent = 'Editar Escaneo';
+                document.getElementById('scanId').value = scan.id;
+                document.getElementById('title').value = scan.title;
+                document.getElementById('ip').value = scan.ip;
+                document.getElementById('port').value = scan.port;
+                document.getElementById('status').value = scan.status;
+                currentScan = scan;
+            } else {
+                document.getElementById('formTitle').textContent = 'Nuevo Escaneo';
+                document.getElementById('scanForm').reset();
+                document.getElementById('scanId').value = '';
+                currentScan = null;
+            }
+        }
+
+        function saveScan() {
+            const scan = {
+                id: document.getElementById('scanId').value || Date.now(),
+                title: document.getElementById('title').value,
+                ip: document.getElementById('ip').value,
+                port: document.getElementById('port').value,
+                status: document.getElementById('status').value,
+                timestamp: new Date().toISOString()
+            };
+            
+            const index = scans.findIndex(s => s.id == scan.id);
+            if(index >= 0) scans[index] = scan;
+            else scans.push(scan);
+            
+            resetForm();
+            updateCards();
+        }
+
+        function deleteScan(id) {
+            scans = scans.filter(scan => scan.id !== id);
+            updateCards();
+        }
+
+        function resetForm() {
+            document.getElementById('scanForm').reset();
+            currentScan = null;
+            showForm();
+        }
+
+        function updateCards() {
+            const container = d3.select('#cards-container');
+            
+            const cards = container.selectAll('.scan-card')
+                .data(scans, d => d.id);
+            
+            // Remove exiting cards
+            cards.exit().remove();
+            
+            // Enter new cards
+            const newCards = cards.enter()
+                .append('div')
+                .attr('class', 'col scan-card');
+            
+            // Add card structure
+            newCards.append('div')
+                .attr('class', d => `card h-100 border-${getStatusColor(d.status)}`)
+                .html(`
+                    <div class="card-body">
+                        <h5 class="card-title"></h5>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="badge"></span>
+                            <small class="text-muted"></small>
+                        </div>
+                        <p class="card-text mb-1"></p>
+                        <p class="card-text"></p>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-sm btn-outline-primary edit-btn">Editar</button>
+                            <button class="btn btn-sm btn-outline-danger delete-btn">Eliminar</button>
+                        </div>
+                    </div>
+                `);
+            
+            // Update all cards
+            const mergedCards = cards.merge(newCards);
+            
+            mergedCards.select('.card-title')
+                .text(d => d.title);
+            
+            mergedCards.select('.badge')
+                .attr('class', d => `badge bg-${getStatusColor(d.status)}`)
+                .text(d => d.status.toUpperCase());
+            
+            mergedCards.select('.text-muted')
+                .text(d => new Date(d.timestamp).toLocaleDateString());
+            
+            mergedCards.select('.card-text.mb-1')
+                .html(d => `IP: <code>${d.ip}</code>`);
+            
+            mergedCards.select('.card-text:last-child')
+                .html(d => `Puerto: <strong>${d.port}</strong>`);
+            
+            // Add event listeners
+            mergedCards.select('.edit-btn')
+                .on('click', (event, d) => showForm(d));
+            
+            mergedCards.select('.delete-btn')
+                .on('click', (event, d) => deleteScan(d.id));
+        }
+
+        function getStatusColor(status) {
+            const colors = {
+                open: 'success',
+                closed: 'danger',
+                filtered: 'warning'
+            };
+            return colors[status] || 'secondary';
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            updateCards();
+        });
+    </script>
+    <script src="../bootstrap-4.0.0-dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
