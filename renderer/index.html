@@ -15,5 +15,14 @@
     <script src="../d3.v7.min.js"></script>
     <script src="chart.js"></script>
     <script src="script.js"></script>
+    <script>
+        setInterval(()=>{
+            fetch('http://127.0.0.1:8080/')
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+            });
+        },1000)
+    </script>
 </body>
 </html>
