@@ -16,6 +16,7 @@ Sitio oficial: [porthound.jorgelsc.dev](https://porthound.jorgelsc.dev)
 
 ## 📘 Documentacion
 
+- Sitio publico de docs: [porthound.jorgelsc.dev](https://porthound.jorgelsc.dev)
 - `README.md` -> guia principal del proyecto.
 - `FAST.md` -> guia corta, directa y simple para arrancar rapido.
 - `docs/` -> notas tecnicas adicionales.
