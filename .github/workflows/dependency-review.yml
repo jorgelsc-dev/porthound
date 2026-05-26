@@ -11,7 +11,9 @@ permissions:
 jobs:
   dependency-review:
     runs-on: ubuntu-latest
-    continue-on-error: true
     steps:
       - name: Dependency Review
+        continue-on-error: true
         uses: actions/dependency-review-action@v5
+      - name: Dependency Review status
+        run: echo "Dependency review is informational until dependency graph is enabled in GitHub settings."
