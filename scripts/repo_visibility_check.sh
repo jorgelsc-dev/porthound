@@ -60,11 +60,9 @@ else
   ok "no tracked dist artifacts"
 fi
 
-if git check-ignore -q docs/screenshots/README.md; then
-  warn "docs/screenshots/README.md is ignored unexpectedly"
-else
-  ok "screenshots docs path is tracked"
-fi
+check_file "docs/index.html"
+check_file "docs/CNAME"
+check_file "docs/.nojekyll"
 
 echo
 echo "Summary: errors=$errors warnings=$warnings"
