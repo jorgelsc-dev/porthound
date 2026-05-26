@@ -1,0 +1,63 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "porthound"
+version = "0.2.0"
+description = "PortHound new-generation network scanner built on wsbuilder."
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "PortHound Authors" }]
+dependencies = ["wsbuilder>=0.9.1"]
+keywords = ["network", "scanner", "security", "tcp", "udp", "banner"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Information Technology",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+]
+
+[project.urls]
+Homepage = "https://porthound.jorgelsc.dev"
+Documentation = "https://porthound.jorgelsc.dev"
+Repository = "https://github.com/jorgelsc-dev/porthound"
+Issues = "https://github.com/jorgelsc-dev/porthound/issues"
+Changelog = "https://github.com/jorgelsc-dev/porthound/blob/main/CHANGELOG.md"
+
+[project.scripts]
+porthound = "manage:main"
+
+[tool.setuptools]
+py-modules = [
+  "agent",
+  "app",
+  "banner_rules",
+  "country_centroids",
+  "framework",
+  "geoip_seed",
+  "getDBNIC",
+  "manage",
+  "master",
+  "scan_payloads",
+  "runtime_paths",
+  "server",
+  "settings",
+  "ws_demo",
+]
+include-package-data = true
+
+[tool.setuptools.data-files]
+"porthound/data" = [
+  "data/banner_probe_requests.json",
+  "data/banner_regex_rules.json",
+  "data/country_centroids.json",
+  "data/geoip_blocks.seed.jsonl.gz",
+  "data/ip_presets.json",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]

@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="PortHound official documentation and project landing page.">
+  <title>PortHound Documentation</title>
+  <style>
+    :root {
+      --bg: #08111f;
+      --panel: rgba(14, 22, 38, 0.84);
+      --panel-2: rgba(20, 32, 52, 0.9);
+      --text: #e9eef7;
+      --muted: #9fb2cc;
+      --accent: #7dd3fc;
+      --accent-2: #a78bfa;
+      --line: rgba(125, 211, 252, 0.18);
+      --shadow: 0 30px 70px rgba(0, 0, 0, 0.35);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      font: 16px/1.6 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(167, 139, 250, 0.18), transparent 28%),
+        radial-gradient(circle at top right, rgba(125, 211, 252, 0.16), transparent 30%),
+        linear-gradient(180deg, #07101e 0%, #0b1526 55%, #060c16 100%);
+    }
+
+    main {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 72px 24px 56px;
+    }
+
+    .hero {
+      display: grid;
+      gap: 28px;
+      grid-template-columns: 1.4fr 1fr;
+      align-items: center;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.03);
+      color: var(--accent);
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    h1 {
+      margin: 18px 0 14px;
+      font-size: clamp(3rem, 7vw, 5.5rem);
+      line-height: 0.95;
+      letter-spacing: -0.05em;
+    }
+
+    .lead {
+      max-width: 62ch;
+      color: var(--muted);
+      font-size: 1.05rem;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, var(--panel), var(--panel-2));
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+    }
+
+    .card {
+      padding: 24px;
+    }
+
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 24px;
+    }
+
+    .meta {
+      padding: 16px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .meta span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 6px;
+    }
+
+    .meta strong {
+      font-size: 1rem;
+      color: var(--text);
+    }
+
+    .links {
+      display: grid;
+      gap: 12px;
+      margin-top: 22px;
+    }
+
+    a.link {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      text-decoration: none;
+      color: var(--text);
+      padding: 16px 18px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      transition: transform 140ms ease, border-color 140ms ease, background 140ms ease;
+    }
+
+    a.link:hover {
+      transform: translateY(-1px);
+      border-color: rgba(125, 211, 252, 0.35);
+      background: rgba(125, 211, 252, 0.08);
+    }
+
+    .section {
+      margin-top: 28px;
+      padding: 24px;
+    }
+
+    h2 {
+      margin: 0 0 14px;
+      font-size: 1.2rem;
+      letter-spacing: -0.02em;
+    }
+
+    ul {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--muted);
+    }
+
+    li + li { margin-top: 8px; }
+
+    .footer {
+      margin-top: 22px;
+      color: var(--muted);
+      font-size: 0.94rem;
+    }
+
+    .accent {
+      color: var(--accent);
+    }
+
+    @media (max-width: 840px) {
+      .hero {
+        grid-template-columns: 1fr;
+      }
+
+      .meta-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="hero">
+      <div>
+        <div class="badge">PortHound official site</div>
+        <h1>Network scanning for authorized operations.</h1>
+        <p class="lead">
+          PortHound is the new-generation network scanner built on <span class="accent">wsbuilder</span>.
+          It provides master, agent, and standalone flows, with HTTP and WebSocket control, banner grabbing,
+          and SQLite-backed persistence.
+        </p>
+
+        <div class="meta-grid">
+          <div class="meta">
+            <span>Official domain</span>
+            <strong>porthound.jorgelsc.dev</strong>
+          </div>
+          <div class="meta">
+            <span>Repository</span>
+            <strong>jorgelsc-dev/porthound</strong>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel card">
+        <h2>Quick access</h2>
+        <div class="links">
+          <a class="link" href="./index.md"><span>Markdown docs index</span><span>→</span></a>
+          <a class="link" href="../README.md"><span>Project README</span><span>→</span></a>
+          <a class="link" href="../GETTING_STARTED.md"><span>Getting started</span><span>→</span></a>
+          <a class="link" href="https://github.com/jorgelsc-dev/porthound"><span>Source code</span><span>→</span></a>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel section">
+      <h2>Documentation</h2>
+      <ul>
+        <li><a href="./scanning.md">Scanning</a></li>
+        <li><a href="./banners.md">Banner grabbing</a></li>
+        <li><a href="./websocket.md">WebSocket</a></li>
+        <li><a href="./repository_visibility.md">Repository visibility</a></li>
+      </ul>
+      <p class="footer">
+        Responsible use only. Use PortHound only on systems you own or where you have explicit authorization.
+      </p>
+    </section>
+  </main>
+</body>
+</html>
