@@ -98,8 +98,6 @@ RUNTIME_ENTRIES=(
   "data"
   "docs"
   "README.md"
-  "INSTALL.md"
-  "DEPLOYMENT.md"
   "LICENSE"
   "SECURITY.md"
 )
@@ -117,13 +115,11 @@ cat > "${STAGE_DIR}/START_HERE.txt" <<'EOF'
 PortHound package
 ==================
 
-Quick start:
-  python3 manage.py
-
 Main docs:
   README.md
-  INSTALL.md
-  DEPLOYMENT.md
+
+Quick start:
+  python3 manage.py
 EOF
 
 mkdir -p "${OUTPUT_DIR}"

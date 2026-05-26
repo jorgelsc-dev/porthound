@@ -8,10 +8,6 @@ on:
     paths:
       - "docs/**"
       - "README.md"
-      - "GETTING_STARTED.md"
-      - "INSTALL.md"
-      - "DEPLOYMENT.md"
-      - "FAST.md"
 
 permissions:
   contents: read
