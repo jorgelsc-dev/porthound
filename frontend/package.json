@@ -11,9 +11,9 @@
   },
   "main": "index.js",
   "dependencies": {
-    "core-js": "^3.8.3",
+    "core-js": "^3.49.0",
     "register-service-worker": "^1.7.2",
-    "vue": "^3.2.13",
+    "vue": "^3.5.34",
     "vue-router": "^4.2.5",
     "vuetify": "^3.5.0",
     "@mdi/font": "^7.3.67"
@@ -25,8 +25,8 @@
     "@vue/cli-plugin-eslint": "~5.0.0",
     "@vue/cli-plugin-pwa": "~5.0.0",
     "@vue/cli-service": "~5.0.0",
-    "eslint": "^7.32.0",
-    "eslint-plugin-vue": "^8.0.3"
+    "eslint": "^10.4.0",
+    "eslint-plugin-vue": "^10.9.1"
   },
   "eslintConfig": {
     "root": true,
