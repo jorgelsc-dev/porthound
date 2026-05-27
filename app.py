@@ -1081,6 +1081,44 @@ def discover_reverse_dns_domains(ip_value):
     }
 
 
+# DNS helpers are centralized in dns.py. Keep the legacy names here so the
+# rest of the application can stay stable while the resolver stack evolves.
+from dns import (  # noqa: E402
+    DNS_QCLASS_ANY,
+    DNS_QCLASS_IN,
+    DNS_QTYPE_A,
+    DNS_QTYPE_AAAA,
+    DNS_QTYPE_ANY,
+    DNS_QTYPE_CNAME,
+    DNS_QTYPE_PTR,
+    DNS_RESOLVER_HINTS,
+    DNS_TIMEOUT_SECONDS,
+    DNS_USE_SYSTEM_RESOLVER,
+    build_local_dns_server,
+    dns_a_lookup_for_host,
+    dns_build_query,
+    dns_dot_query,
+    dns_doh_query,
+    dns_parse_response,
+    dns_ptr_lookup_for_ip,
+    dns_query,
+    dns_read_name,
+    dns_skip_name,
+    dns_tcp_query,
+    dns_udp_query,
+    discover_reverse_dns_domains as _discover_reverse_dns_domains,
+    encode_dns_name,
+    filter_domains_for_ip_socket,
+    iter_resolver_specs,
+    normalize_domain_candidate,
+    normalize_nslookup_host,
+    parse_resolver_spec,
+    resolve_ipv4_addresses_for_host,
+)
+
+discover_reverse_dns_domains = _discover_reverse_dns_domains
+
+
 def infer_hops_from_observed_ttl(observed_ttl):
     try:
         ttl_value = int(observed_ttl)

@@ -74,3 +74,23 @@ AGENT_TLS_CHECK_HOSTNAME = _as_bool(
     _env("PORTHOUND_AGENT_TLS_CHECK_HOSTNAME", "1"),
     default=True,
 )
+
+_dns_resolvers_raw = str(
+    _env(
+        "PORTHOUND_DNS_RESOLVERS",
+        "udp://1.1.1.1,udp://8.8.8.8,udp://9.9.9.9",
+    )
+).strip()
+DNS_RESOLVERS = tuple(
+    item.strip()
+    for item in _dns_resolvers_raw.split(",")
+    if item.strip()
+)
+DNS_TIMEOUT_SECONDS = max(
+    0.3,
+    _as_float(_env("PORTHOUND_DNS_TIMEOUT_SECONDS", "1.4"), 1.4),
+)
+DNS_USE_SYSTEM_RESOLVER = _as_bool(
+    _env("PORTHOUND_DNS_USE_SYSTEM_RESOLVER", "1"),
+    default=True,
+)
