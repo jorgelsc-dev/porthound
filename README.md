@@ -1,6 +1,6 @@
 # PortHound
 
-PortHound es un escaner de red en Python para auditorias autorizadas. Esta version usa `wsbuilder` como base HTTP/WebSocket y organiza el proyecto en modos `master`, `agent` y `standalone`.
+PortHound es un escaner de red en Python para auditorias autorizadas. Esta version usa `wsbuilder` como base HTTP/WebSocket y corre en modo unico `standalone`.
 
 Sitio oficial: [https://porthound.jorgelsc.dev](https://porthound.jorgelsc.dev)
 
@@ -10,7 +10,7 @@ Distribucion PyPI: `porthound`
 
 Comando principal: `porthound`
 
-Palabras clave: `python`, `network-scanner`, `port-scanner`, `cybersecurity`, `banner-grabbing`, `sqlite`, `websocket`, `master/agent`.
+Palabras clave: `python`, `network-scanner`, `port-scanner`, `cybersecurity`, `banner-grabbing`, `sqlite`, `websocket`.
 
 ## Resumen
 
@@ -48,7 +48,7 @@ Reglas:
 
 - Python 3.12 o superior.
 - `wsbuilder>=0.17.7`.
-- Puertos de red abiertos entre nodos si usas `master` y `agent`.
+- Acceso local al puerto HTTP configurado (por defecto `127.0.0.1:45678`).
 
 ## Instalacion
 
@@ -68,49 +68,25 @@ env/bin/python manage.py
 
 ## Inicio rapido
 
-### 1. Arrancar el master
+### 1. Arrancar PortHound
 
 ```bash
-env/bin/python manage.py --role master --db-path Master.db
+env/bin/python manage.py --db-path Standalone.db
 ```
 
 Valores por defecto:
 
 - `host`: `127.0.0.1`
 - `port`: `45678`
-- `db`: `Master.db`
+- `db`: `Standalone.db`
 
 ### 2. Usar la interfaz local
 
 - UI/API: `http://127.0.0.1:45678`
-- Vista de agentes: `http://127.0.0.1:45678/cluster/agents/`
+## Ejecucion
 
-### 3. Conectar un agente
-
-```bash
-env/bin/python manage.py '<BASE64_DEL_MASTER>'
-```
-
-La cadena base64 contiene la credencial de enrolamiento generada por el master.
-
-## Modos de ejecucion
-
-### Master
-
-```bash
-porthound --role master --host 0.0.0.0 --port 45678 --db-path ./Master.db
-```
-
-### Agent
-
-```bash
-porthound --role agent --master http://127.0.0.1:45678 --agent-id <id> --agent-token <token>
-```
-
-### Standalone
-
-- Usa `manage.py` sin enrolamiento si solo quieres correr el stack local.
-- El modo standalone conserva la base local del rol y no depende de un master remoto.
+- `manage.py` arranca siempre en modo `standalone`.
+- Puedes ajustar base de datos y opciones HTTP por CLI/env vars.
 
 ## Escaneo
 
@@ -144,7 +120,7 @@ porthound --role agent --master http://127.0.0.1:45678 --agent-id <id> --agent-t
 
 - WebSocket: `ws://HOST:PORT/ws/`
 - HTTP API: disponible desde el mismo servidor.
-- La API controla scans, agentes y vistas de estado.
+- La API controla scans y vistas de estado locales.
 
 Comportamientos comunes:
 
@@ -274,9 +250,7 @@ networksetup -setdnsservers "Wi-Fi" 10.10.0.2 10.10.0.3
 ## Datos y persistencia
 
 - Los datos de reglas y mapas viven en `data/`.
-- La DB por defecto del master es `Master.db`.
-- La DB del agente usa `Agent.db`.
-- La DB standalone usa `Standalone.db`.
+- La DB por defecto es `Standalone.db`.
 
 ## Empaquetado
 
@@ -309,8 +283,8 @@ PortHound solo debe usarse en sistemas propios o con autorizacion explicita. El 
 ## Estructura
 
 - `manage.py`: launcher principal.
-- `master.py`: arranque del nodo master.
-- `agent.py`: arranque del nodo agent.
+- `master.py`: runtime web principal (usado en modo standalone).
+- `agent.py`: modulo legado de runtime distribuido.
 - `server.py`: API de escaneo.
 - `app.py`: aplicacion base.
 - `views.py`: fachada publica de la capa web.
