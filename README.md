@@ -47,7 +47,7 @@ Reglas:
 ## Requisitos
 
 - Python 3.12 o superior.
-- `wsbuilder>=0.17.7`.
+- `wsbuilder>=0.18.0`.
 - Acceso local al puerto HTTP configurado (por defecto `127.0.0.1:45678`).
 
 ## Instalacion
@@ -287,6 +287,7 @@ PortHound solo debe usarse en sistemas propios o con autorizacion explicita. El 
 - `agent.py`: modulo legado de runtime distribuido.
 - `server.py`: API de escaneo.
 - `app.py`: aplicacion base.
+- `utils.py`: helpers compartidos.
 - `views.py`: fachada publica de la capa web.
 - `dns.py`: resolucion DNS y utilidades de transporte.
 - `data/`: datasets.

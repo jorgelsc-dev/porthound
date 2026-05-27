@@ -549,7 +549,7 @@ export default {
       error: "",
       loading: false,
       lastUpdated: "",
-      mapUid: Math.random().toString(36).slice(2, 10),
+      mapUid: this.buildMapUid(),
       mapWidth: 920,
       mapHeight: 470,
       mapPadding: 18,
@@ -838,6 +838,17 @@ export default {
     }
   },
   methods: {
+    buildMapUid() {
+      if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+        return crypto.randomUUID().replace(/-/g, "").slice(0, 8);
+      }
+      if (typeof crypto !== "undefined" && typeof crypto.getRandomValues === "function") {
+        const buffer = new Uint8Array(4);
+        crypto.getRandomValues(buffer);
+        return Array.from(buffer, (value) => value.toString(16).padStart(2, "0")).join("");
+      }
+      return `map-${Date.now().toString(36)}`;
+    },
     assetBaseUrl() {
       const base =
         typeof process !== "undefined" && process.env && process.env.BASE_URL
