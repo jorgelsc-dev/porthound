@@ -28,7 +28,8 @@
     "eslint": "^8.57.1",
     "eslint-plugin-vue": "^10.9.1",
     "graphemer": "^1.4.0",
-    "is-path-inside": "^3.0.3"
+    "is-path-inside": "^3.0.3",
+    "text-table": "^0.2.0"
   },
   "eslintConfig": {
     "root": true,

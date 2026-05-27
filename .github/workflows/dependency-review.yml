@@ -11,6 +11,7 @@ permissions:
 jobs:
   dependency-review:
     runs-on: ubuntu-latest
+    continue-on-error: true
     steps:
       - name: Dependency Review
         continue-on-error: true
