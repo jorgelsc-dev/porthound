@@ -313,6 +313,7 @@ PortHound solo debe usarse en sistemas propios o con autorizacion explicita. El 
 - `agent.py`: arranque del nodo agent.
 - `server.py`: API de escaneo.
 - `app.py`: aplicacion base.
+- `utils.py`: helpers compartidos.
 - `views.py`: fachada publica de la capa web.
 - `dns.py`: resolucion DNS y utilidades de transporte.
 - `data/`: datasets.
