@@ -66,6 +66,9 @@ ENV_FLAG_MAP = {
     "agent_http_timeout": "PORTHOUND_AGENT_HTTP_TIMEOUT",
     "agent_task_lease_seconds": "PORTHOUND_AGENT_TASK_LEASE_SECONDS",
     "agent_tls_check_hostname": "PORTHOUND_AGENT_TLS_CHECK_HOSTNAME",
+    "dns_resolvers": "PORTHOUND_DNS_RESOLVERS",
+    "dns_timeout_seconds": "PORTHOUND_DNS_TIMEOUT_SECONDS",
+    "dns_use_system_resolver": "PORTHOUND_DNS_USE_SYSTEM_RESOLVER",
 }
 
 
@@ -227,6 +230,9 @@ def parse_args():
     parser.add_argument("--agent-http-timeout", type=float)
     parser.add_argument("--agent-task-lease-seconds", type=int)
     parser.add_argument("--agent-tls-check-hostname", choices=BOOL_CHOICES)
+    parser.add_argument("--dns-resolvers")
+    parser.add_argument("--dns-timeout-seconds", type=float)
+    parser.add_argument("--dns-use-system-resolver", choices=BOOL_CHOICES)
     parser.add_argument(
         "--agent-enroll",
         "--enroll",

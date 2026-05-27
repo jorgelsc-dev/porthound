@@ -33,6 +33,7 @@ porthound = "manage:main"
 [tool.setuptools]
 py-modules = [
   "agent",
+  "dns",
   "app",
   "banner_rules",
   "country_centroids",
@@ -45,6 +46,7 @@ py-modules = [
   "runtime_paths",
   "server",
   "settings",
+  "views",
   "ws_demo",
 ]
 include-package-data = true
