@@ -247,13 +247,9 @@ export default {
         { key: "response_plain", label: "Banner" },
       ],
       quickLinks: [
-        { label: "Map", to: "/map" },
-        { label: "Agents", to: "/agents" },
         { label: "Targets", to: "/targets" },
-        { label: "Explorer", to: "/explorer" },
         { label: "Ports", to: "/ports" },
         { label: "Banners", to: "/banners" },
-        { label: "Tags", to: "/tags" },
         { label: "API", to: "/api" },
       ],
       targetFilters: {

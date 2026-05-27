@@ -10,8 +10,8 @@
         </div>
         <div class="d-flex flex-wrap ga-3 mt-4">
           <v-btn color="primary" variant="flat" to="/targets">Create Target</v-btn>
-          <v-btn color="success" variant="outlined" to="/map">Open Atlas</v-btn>
-          <v-btn color="info" variant="outlined" to="/explorer">Open Explorer</v-btn>
+          <v-btn color="success" variant="outlined" to="/ports">View Ports</v-btn>
+          <v-btn color="info" variant="outlined" to="/banners">View Banners</v-btn>
           <v-btn color="secondary" variant="text" to="/api">API Docs</v-btn>
         </div>
         <v-alert

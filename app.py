@@ -7288,11 +7288,7 @@ def run_agent_mode():
 
 
 def main():
-    role = current_role()
-    if role == "agent":
-        run_agent_mode()
-        return
-    run_master_mode(enable_local_scanners=(role == "standalone"))
+    run_master_mode(enable_local_scanners=True)
 
 
 if __name__ == "__main__":
