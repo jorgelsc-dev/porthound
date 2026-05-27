@@ -11,12 +11,12 @@
   },
   "main": "index.js",
   "dependencies": {
+    "@mdi/font": "^7.3.67",
     "core-js": "^3.49.0",
     "register-service-worker": "^1.7.2",
     "vue": "^3.5.34",
     "vue-router": "^4.2.5",
-    "vuetify": "^4.0.7",
-    "@mdi/font": "^7.3.67"
+    "vuetify": "^4.0.7"
   },
   "devDependencies": {
     "@babel/core": "^7.12.16",
@@ -26,15 +26,19 @@
     "@vue/cli-plugin-pwa": "~5.0.0",
     "@vue/cli-service": "~5.0.0",
     "eslint": "^8.57.1",
-    "eslint-plugin-vue": "^10.9.1"
+    "eslint-plugin-vue": "^10.9.1",
+    "graphemer": "^1.4.0",
+    "is-path-inside": "^3.0.3"
   },
   "eslintConfig": {
     "root": true,
     "env": {
+      "browser": true,
+      "es2021": true,
       "node": true
     },
     "extends": [
-      "plugin:vue/vue3-essential",
+      "plugin:vue/essential",
       "eslint:recommended"
     ],
     "parserOptions": {

@@ -46,8 +46,8 @@ Reglas:
 
 ## Requisitos
 
-- Python 3.11 o superior.
-- `wsbuilder>=0.9.1`.
+- Python 3.12 o superior.
+- `wsbuilder>=0.17.7`.
 - Puertos de red abiertos entre nodos si usas `master` y `agent`.
 
 ## Instalacion
