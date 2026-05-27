@@ -221,8 +221,7 @@
         <li><a href="https://github.com/jorgelsc-dev/porthound/blob/main/README.md#escaneo">Scanning</a></li>
         <li><a href="https://github.com/jorgelsc-dev/porthound/blob/main/README.md#banner-grabbing">Banner grabbing</a></li>
         <li><a href="https://github.com/jorgelsc-dev/porthound/blob/main/README.md#api-y-websocket">API and WebSocket</a></li>
-        <li><a href="#dns-and-records">DNS and records</a></li>
-        <li><a href="#code-layout">Code layout</a></li>
+        <li><a href="https://github.com/jorgelsc-dev/porthound/blob/main/README.md#dns-y-registros">DNS and records</a></li>
         <li><a href="https://github.com/jorgelsc-dev/porthound/blob/main/README.md#despliegue">Deployment</a></li>
       </ul>
       <p class="footer">
@@ -230,7 +229,7 @@
       </p>
     </section>
 
-    <section class="panel section" id="dns-and-records">
+    <section class="panel section">
       <h2>DNS and records</h2>
       <p class="footer" style="margin-top:0">
         PortHound can use your own DNS resolvers for host discovery and reverse lookups. The embedded local DNS
@@ -247,19 +246,8 @@
         requires administrator privileges.
       </p>
       <div class="links" style="margin-top:18px">
-        <a class="link" href="#dns-and-records"><span>Full DNS guide</span><span>→</span></a>
+        <a class="link" href="https://github.com/jorgelsc-dev/porthound/blob/main/README.md#dns-y-registros"><span>Full DNS guide</span><span>→</span></a>
       </div>
-    </section>
-
-    <section class="panel section" id="code-layout">
-      <h2>Code layout</h2>
-      <ul>
-        <li><strong><code>utils.py</code>:</strong> shared helpers for time, roles, and target normalization.</li>
-        <li><strong><code>views.py</code>:</strong> public web facade for the HTTP/WebSocket surface.</li>
-        <li><strong><code>dns.py</code>:</strong> resolver transports and DNS record lookup helpers.</li>
-        <li><strong><code>app.py</code>:</strong> application bootstrap and legacy compatibility layer.</li>
-        <li><strong><code>server.py</code>:</strong> scan API and target persistence logic.</li>
-      </ul>
     </section>
   </main>
 </body>

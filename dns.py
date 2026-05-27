@@ -435,10 +435,6 @@ def dns_dot_query(name_value, qtype, resolver_value, timeout_seconds=1.4):
             timeout=float(timeout_seconds or DNS_TIMEOUT_SECONDS),
         )
         context = ssl.create_default_context()
-        if hasattr(ssl, "TLSVersion") and hasattr(context, "minimum_version"):
-            context.minimum_version = ssl.TLSVersion.TLSv1_2
-        else:
-            context.options |= ssl.OP_NO_TLSv1 | ssl.OP_NO_TLSv1_1
         server_hostname = resolver if not REGEX_IPV4_EXACT.match(resolver) else None
         if server_hostname is None:
             context.check_hostname = False
