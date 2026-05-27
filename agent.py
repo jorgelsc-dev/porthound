@@ -13,6 +13,9 @@ import settings
 
 
 def _resolve_app_module():
+    module = sys.modules.get("views")
+    if module is not None:
+        return module
     module = sys.modules.get("app")
     if module is not None:
         return module
@@ -24,7 +27,10 @@ def _resolve_app_module():
         and hasattr(main_module, "scan_db")
     ):
         return main_module
-    import app as imported_app_module
+    try:
+        import views as imported_app_module
+    except Exception:
+        import app as imported_app_module
 
     return imported_app_module
 

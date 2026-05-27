@@ -221,11 +221,33 @@
         <li><a href="https://github.com/jorgelsc-dev/porthound/blob/main/README.md#escaneo">Scanning</a></li>
         <li><a href="https://github.com/jorgelsc-dev/porthound/blob/main/README.md#banner-grabbing">Banner grabbing</a></li>
         <li><a href="https://github.com/jorgelsc-dev/porthound/blob/main/README.md#api-y-websocket">API and WebSocket</a></li>
+        <li><a href="https://github.com/jorgelsc-dev/porthound/blob/main/README.md#dns-y-registros">DNS and records</a></li>
         <li><a href="https://github.com/jorgelsc-dev/porthound/blob/main/README.md#despliegue">Deployment</a></li>
       </ul>
       <p class="footer">
         Responsible use only. Use PortHound only on systems you own or where you have explicit authorization.
       </p>
+    </section>
+
+    <section class="panel section">
+      <h2>DNS and records</h2>
+      <p class="footer" style="margin-top:0">
+        PortHound can use your own DNS resolvers for host discovery and reverse lookups. The embedded local DNS
+        server is lightweight and publishes <span class="accent">A</span> and <span class="accent">AAAA</span>
+        records for labs or internal names.
+      </p>
+      <ul>
+        <li><strong>Resolvers:</strong> <code>udp://</code>, <code>tcp://</code>, <code>dot://</code>, <code>doh://</code>.</li>
+        <li><strong>Environment:</strong> set <code>PORTHOUND_DNS_RESOLVERS</code>, <code>PORTHOUND_DNS_TIMEOUT_SECONDS</code>, and <code>PORTHOUND_DNS_USE_SYSTEM_RESOLVER</code>.</li>
+        <li><strong>Records:</strong> use <code>A</code>, <code>AAAA</code>, <code>CNAME</code>, <code>MX</code>, <code>NS</code>, <code>TXT</code>, <code>SRV</code>, <code>PTR</code>, and <code>CAA</code> in your real DNS zone.</li>
+      </ul>
+      <p class="footer">
+        The example resolver usually listens on <code>5300</code> in labs because port <code>53</code> often
+        requires administrator privileges.
+      </p>
+      <div class="links" style="margin-top:18px">
+        <a class="link" href="https://github.com/jorgelsc-dev/porthound/blob/main/README.md#dns-y-registros"><span>Full DNS guide</span><span>→</span></a>
+      </div>
     </section>
   </main>
 </body>
