@@ -157,59 +157,6 @@
 
     li + li { margin-top: 8px; }
 
-    code {
-      padding: 0.15rem 0.35rem;
-      border-radius: 8px;
-      background: rgba(255, 255, 255, 0.06);
-      color: #dff6ff;
-      font-size: 0.94em;
-    }
-
-    pre {
-      margin: 16px 0 0;
-      padding: 18px 20px;
-      overflow: auto;
-      border-radius: 18px;
-      background: rgba(4, 10, 18, 0.75);
-      border: 1px solid rgba(125, 211, 252, 0.14);
-      color: #d8e6f5;
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
-    }
-
-    pre code {
-      padding: 0;
-      background: transparent;
-      color: inherit;
-      font-size: 0.9rem;
-      line-height: 1.65;
-    }
-
-    .grid-2 {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 18px;
-    }
-
-    .stack {
-      display: grid;
-      gap: 16px;
-    }
-
-    .callout {
-      margin-top: 16px;
-      padding: 16px 18px;
-      border-radius: 18px;
-      background: rgba(125, 211, 252, 0.08);
-      border: 1px solid rgba(125, 211, 252, 0.18);
-      color: var(--text);
-    }
-
-    .section h3 {
-      margin: 20px 0 10px;
-      font-size: 1rem;
-      color: #f2f7ff;
-    }
-
     .footer {
       margin-top: 22px;
       color: var(--muted);
@@ -220,38 +167,12 @@
       color: var(--accent);
     }
 
-    .toc {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 10px;
-    }
-
-    .toc a {
-      display: block;
-      padding: 12px 14px;
-      border-radius: 14px;
-      background: rgba(255, 255, 255, 0.04);
-      color: var(--text);
-      text-decoration: none;
-      border: 1px solid rgba(255, 255, 255, 0.06);
-    }
-
-    .toc a:hover {
-      border-color: rgba(125, 211, 252, 0.35);
-      background: rgba(125, 211, 252, 0.08);
-    }
-
     @media (max-width: 840px) {
       .hero {
         grid-template-columns: 1fr;
       }
 
       .meta-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .grid-2,
-      .toc {
         grid-template-columns: 1fr;
       }
     }
@@ -284,309 +205,49 @@
       <div class="panel card">
         <h2>Quick access</h2>
         <div class="links">
-          <a class="link" href="#overview"><span>Overview</span><span>→</span></a>
-          <a class="link" href="#installation"><span>Installation</span><span>→</span></a>
-          <a class="link" href="#dns-and-records"><span>DNS guide</span><span>→</span></a>
-          <a class="link" href="#troubleshooting"><span>Troubleshooting</span><span>→</span></a>
+          <a class="link" href="https://github.com/jorgelsc-dev/porthound/blob/main/README.md"><span>Project README</span><span>→</span></a>
+          <a class="link" href="https://github.com/jorgelsc-dev/porthound/blob/main/README.md#inicio-rapido"><span>Quick start</span><span>→</span></a>
+          <a class="link" href="https://github.com/jorgelsc-dev/porthound/blob/main/README.md#empaquetado"><span>Packaging</span><span>→</span></a>
           <a class="link" href="https://github.com/jorgelsc-dev/porthound"><span>Source code</span><span>→</span></a>
         </div>
       </div>
     </section>
 
-    <section class="panel section" id="overview">
-      <h2>Documentation map</h2>
-      <div class="toc">
-        <a href="#overview">Overview</a>
-        <a href="#architecture">Architecture</a>
-        <a href="#installation">Installation</a>
-        <a href="#runtime-modes">Runtime modes</a>
-        <a href="#configuration">Configuration</a>
-        <a href="#cli">CLI</a>
-        <a href="#dns-and-records">DNS and records</a>
-        <a href="#api">API and WebSocket</a>
-        <a href="#packaging">Packaging</a>
-        <a href="#troubleshooting">Troubleshooting</a>
-        <a href="#security">Security</a>
-        <a href="#code-layout">Code layout</a>
-      </div>
+    <section class="panel section">
+      <h2>Documentation</h2>
+      <ul>
+        <li><a href="https://github.com/jorgelsc-dev/porthound/blob/main/README.md#resumen">Overview</a></li>
+        <li><a href="https://github.com/jorgelsc-dev/porthound/blob/main/README.md#flujo-de-ramas">Branch flow</a></li>
+        <li><a href="https://github.com/jorgelsc-dev/porthound/blob/main/README.md#escaneo">Scanning</a></li>
+        <li><a href="https://github.com/jorgelsc-dev/porthound/blob/main/README.md#banner-grabbing">Banner grabbing</a></li>
+        <li><a href="https://github.com/jorgelsc-dev/porthound/blob/main/README.md#api-y-websocket">API and WebSocket</a></li>
+        <li><a href="https://github.com/jorgelsc-dev/porthound/blob/main/README.md#dns-y-registros">DNS and records</a></li>
+        <li><a href="https://github.com/jorgelsc-dev/porthound/blob/main/README.md#despliegue">Deployment</a></li>
+      </ul>
       <p class="footer">
         Responsible use only. Use PortHound only on systems you own or where you have explicit authorization.
       </p>
     </section>
 
-    <section class="panel section" id="architecture">
-      <h2>Architecture</h2>
-      <div class="grid-2">
-        <div class="stack">
-          <h3>Core layers</h3>
-          <ul>
-            <li><code>app.py</code> holds the legacy bootstrap and top-level runtime helpers.</li>
-            <li><code>views.py</code> is the public web facade for HTTP and WebSocket surfaces.</li>
-            <li><code>utils.py</code> contains shared helpers used by app, server, and agent code.</li>
-            <li><code>dns.py</code> centralizes resolver transport, parsing, and lookup logic.</li>
-          </ul>
-        </div>
-        <div class="stack">
-          <h3>Runtime nodes</h3>
-          <ul>
-            <li><code>master.py</code> starts the master node.</li>
-            <li><code>agent.py</code> starts the agent node and enrollment loop.</li>
-            <li><code>server.py</code> exposes the scan API and persistence layer.</li>
-            <li><code>frontend/</code> is the Vue 3 user interface bundled on top of the API.</li>
-          </ul>
-        </div>
-      </div>
-      <div class="callout">
-        The web layer is intentionally separated from utility helpers so the application can stay readable and the
-        documentation can point to stable responsibilities instead of one large monolith.
-      </div>
-    </section>
-
-    <section class="panel section" id="installation">
-      <h2>Installation</h2>
-      <div class="grid-2">
-        <div>
-          <h3>PyPI</h3>
-          <pre><code>python3 -m pip install porthound</code></pre>
-        </div>
-        <div>
-          <h3>Local checkout</h3>
-          <pre><code>python3 -m venv env
-env/bin/python -m pip install --upgrade pip
-env/bin/python manage.py</code></pre>
-        </div>
-      </div>
-      <div class="callout">
-        PortHound requires Python 3.12 or newer and the <code>wsbuilder</code> runtime.
-      </div>
-    </section>
-
-    <section class="panel section" id="runtime-modes">
-      <h2>Runtime modes</h2>
-      <div class="grid-2">
-        <div class="stack">
-          <h3>Master</h3>
-          <pre><code>porthound --role master --host 0.0.0.0 --port 45678 --db-path ./Master.db</code></pre>
-          <p class="footer">Used to coordinate scans, API access, and agent orchestration.</p>
-        </div>
-        <div class="stack">
-          <h3>Agent</h3>
-          <pre><code>porthound --role agent --master http://127.0.0.1:45678 --agent-id &lt;id&gt; --agent-token &lt;token&gt;</code></pre>
-          <p class="footer">Pulls tasks from a master and executes work on the local runtime.</p>
-        </div>
-      </div>
-      <h3>Standalone</h3>
-      <p class="footer" style="margin-top:0">
-        Standalone mode keeps the local master-like workflow but does not require a remote agent enrollment chain.
-      </p>
-    </section>
-
-    <section class="panel section" id="configuration">
-      <h2>Configuration</h2>
-      <div class="grid-2">
-        <div class="stack">
-          <h3>General</h3>
-          <ul>
-            <li><code>PORTHOUND_HOST</code> and <code>PORTHOUND_PORT</code> control bind address and port.</li>
-            <li><code>PORTHOUND_DB_PATH</code> selects the active SQLite database.</li>
-            <li><code>PORTHOUND_ROLE</code> sets the runtime role: <code>master</code>, <code>agent</code>, or <code>standalone</code>.</li>
-            <li><code>PORTHOUND_API_TOKEN</code> protects admin endpoints.</li>
-          </ul>
-        </div>
-        <div class="stack">
-          <h3>TLS and agent</h3>
-          <ul>
-            <li><code>PORTHOUND_TLS_ENABLED</code> enables TLS for the master node.</li>
-            <li><code>PORTHOUND_CA</code> or <code>PORTHOUND_CA_ONELINE</code> define the CA chain.</li>
-            <li><code>PORTHOUND_AGENT_CERT</code> and <code>PORTHOUND_AGENT_KEY</code> enable client certificates.</li>
-            <li><code>PORTHOUND_AGENT_TOKEN</code> is the enrollment secret for agent mode.</li>
-          </ul>
-        </div>
-      </div>
-    </section>
-
-    <section class="panel section" id="cli">
-      <h2>CLI</h2>
-      <div class="grid-2">
-        <div class="stack">
-          <h3>Useful flags</h3>
-          <ul>
-            <li><code>--role</code>, <code>--host</code>, <code>--port</code>, <code>--db-path</code></li>
-            <li><code>--master</code>, <code>--agent-id</code>, <code>--agent-token</code></li>
-            <li><code>--dns-resolvers</code>, <code>--dns-timeout-seconds</code>, <code>--dns-use-system-resolver</code></li>
-          </ul>
-        </div>
-        <div class="stack">
-          <h3>Environment override pattern</h3>
-          <pre><code>export PORTHOUND_ROLE="master"
-export PORTHOUND_HOST="0.0.0.0"
-export PORTHOUND_PORT="45678"
-export PORTHOUND_DNS_RESOLVERS="udp://10.0.0.2:53,tcp://10.0.0.2:53"</code></pre>
-        </div>
-      </div>
-    </section>
-
-    <section class="panel section" id="dns-and-records">
+    <section class="panel section">
       <h2>DNS and records</h2>
-      <div class="grid-2">
-        <div class="stack">
-          <h3>Resolver transports</h3>
-          <ul>
-            <li><code>udp://</code> for plain DNS</li>
-            <li><code>tcp://</code> for TCP DNS</li>
-            <li><code>dot://</code> or <code>tls://</code> for DNS over TLS</li>
-            <li><code>doh://</code> for DNS over HTTPS</li>
-          </ul>
-        </div>
-        <div class="stack">
-          <h3>PortHound DNS config</h3>
-          <pre><code>export PORTHOUND_DNS_RESOLVERS="udp://10.0.0.2:53,tcp://10.0.0.2:53,dot://dns.example.org:853,doh://dns.example.org/dns-query"
-export PORTHOUND_DNS_TIMEOUT_SECONDS="1.4"
-export PORTHOUND_DNS_USE_SYSTEM_RESOLVER="1"</code></pre>
-        </div>
-      </div>
-
-      <h3>Record types</h3>
-      <div class="grid-2">
-        <div>
-          <ul>
-            <li><code>A</code>: IPv4 address.</li>
-            <li><code>AAAA</code>: IPv6 address.</li>
-            <li><code>CNAME</code>: alias to another name.</li>
-            <li><code>MX</code>: mail exchange host.</li>
-            <li><code>NS</code>: authoritative nameserver.</li>
-          </ul>
-        </div>
-        <div>
-          <ul>
-            <li><code>TXT</code>: arbitrary text and verification metadata.</li>
-            <li><code>SRV</code>: service discovery records.</li>
-            <li><code>PTR</code>: reverse DNS mapping.</li>
-            <li><code>CAA</code>: certificate issuance policy.</li>
-          </ul>
-        </div>
-      </div>
-
-      <h3>Local DNS example</h3>
-      <pre><code>from dns import build_local_dns_server
-
-records = {
-    "scan.local": ["10.10.0.10"],
-    "dashboard.local": ["10.10.0.11", "::1"],
-}
-
-dns_server = build_local_dns_server(records=records, host="0.0.0.0", port=5300)
-dns_server.start()</code></pre>
-
-      <div class="callout">
-        Port <code>53</code> usually needs administrator privileges. In labs, using <code>5300</code> is simpler and you can route clients to it through DHCP or a port forward.
-      </div>
-
-      <h3>Client configuration</h3>
-      <div class="grid-2">
-        <div class="stack">
-          <h3>Linux</h3>
-          <pre><code>sudo resolvectl dns eth0 10.10.0.2
-sudo resolvectl domain eth0 '~local'</code></pre>
-        </div>
-        <div class="stack">
-          <h3>Windows</h3>
-          <ul>
-            <li>Configure DNS manually on the adapter.</li>
-            <li>Use <code>10.10.0.2</code> as preferred DNS and <code>10.10.0.3</code> as alternate DNS.</li>
-            <li>Push DHCP option 6 and search domain option 15 when using a router or DHCP server.</li>
-          </ul>
-        </div>
-      </div>
-      <div class="grid-2">
-        <div class="stack">
-          <h3>macOS</h3>
-          <pre><code>networksetup -setdnsservers "Wi-Fi" 10.10.0.2 10.10.0.3</code></pre>
-        </div>
-        <div class="stack">
-          <h3>Router / DHCP</h3>
-          <ul>
-            <li>Set the DNS handed out by DHCP to your internal resolver.</li>
-            <li>Add the private suffix to the search domain list.</li>
-            <li>Prefer the internal resolver over the ISP DNS for private zones.</li>
-          </ul>
-        </div>
-      </div>
-    </section>
-
-    <section class="panel section" id="api">
-      <h2>API and WebSocket</h2>
-      <div class="grid-2">
-        <div class="stack">
-          <h3>Local endpoints</h3>
-          <ul>
-            <li><code>http://HOST:PORT/</code> for the UI and API base.</li>
-            <li><code>http://HOST:PORT/ws/</code> for the WebSocket endpoint.</li>
-            <li><code>GET /protocols/</code> to inspect active runtime protocols.</li>
-          </ul>
-        </div>
-        <div class="stack">
-          <h3>Behavior</h3>
-          <ul>
-            <li>Text frames are echoed back.</li>
-            <li>Binary frames are echoed with a binary prefix.</li>
-            <li>Aliased messages can be persisted in the local demo/chat storage.</li>
-          </ul>
-        </div>
-      </div>
-    </section>
-
-    <section class="panel section" id="packaging">
-      <h2>Packaging and deployment</h2>
-      <div class="grid-2">
-        <div class="stack">
-          <h3>Debian</h3>
-          <pre><code>./packaging/deb/build.sh
-sudo apt install ./dist/deb/porthound_&lt;version&gt;-1_all.deb</code></pre>
-        </div>
-        <div class="stack">
-          <h3>ZIP</h3>
-          <pre><code>./packaging/zip/build.sh
-unzip dist/zip/porthound_&lt;version&gt;-1.zip
-cd porthound_&lt;version&gt;-1
-python3 manage.py</code></pre>
-        </div>
-      </div>
-      <div class="callout">
-        GitHub Pages is the public documentation surface. The repo keeps code, packaging, and support files; the landing page explains the whole project for users and reviewers.
-      </div>
-    </section>
-
-    <section class="panel section" id="troubleshooting">
-      <h2>Troubleshooting</h2>
+      <p class="footer" style="margin-top:0">
+        PortHound can use your own DNS resolvers for host discovery and reverse lookups. The embedded local DNS
+        server is lightweight and publishes <span class="accent">A</span> and <span class="accent">AAAA</span>
+        records for labs or internal names.
+      </p>
       <ul>
-        <li>If a DNS resolver is unreachable, move to the next entry in <code>PORTHOUND_DNS_RESOLVERS</code>.</li>
-        <li>If you cannot bind to port <code>53</code>, use <code>5300</code> in the local DNS example.</li>
-        <li>If admin endpoints reject requests, set <code>PORTHOUND_API_TOKEN</code> or use loopback only.</li>
-        <li>If the agent cannot connect to the master, verify that <code>PORTHOUND_MASTER</code> uses <code>http://</code> and a reachable host.</li>
-        <li>If TLS validation fails, check the CA file or the inline CA value before changing client settings.</li>
+        <li><strong>Resolvers:</strong> <code>udp://</code>, <code>tcp://</code>, <code>dot://</code>, <code>doh://</code>.</li>
+        <li><strong>Environment:</strong> set <code>PORTHOUND_DNS_RESOLVERS</code>, <code>PORTHOUND_DNS_TIMEOUT_SECONDS</code>, and <code>PORTHOUND_DNS_USE_SYSTEM_RESOLVER</code>.</li>
+        <li><strong>Records:</strong> use <code>A</code>, <code>AAAA</code>, <code>CNAME</code>, <code>MX</code>, <code>NS</code>, <code>TXT</code>, <code>SRV</code>, <code>PTR</code>, and <code>CAA</code> in your real DNS zone.</li>
       </ul>
-    </section>
-
-    <section class="panel section" id="security">
-      <h2>Security</h2>
-      <ul>
-        <li>Use PortHound only on assets you own or have explicit authorization to test.</li>
-        <li>Protect the master API with <code>PORTHOUND_API_TOKEN</code> in non-loopback deployments.</li>
-        <li>Prefer internal DNS for private zones and avoid exposing internal names to public resolvers.</li>
-        <li>Keep agent enrollment tokens secret and rotate them when an agent is reissued.</li>
-      </ul>
-    </section>
-
-    <section class="panel section" id="code-layout">
-      <h2>Code layout</h2>
-      <ul>
-        <li><strong><code>utils.py</code>:</strong> shared helpers for time, roles, and target normalization.</li>
-        <li><strong><code>views.py</code>:</strong> public web facade for the HTTP/WebSocket surface.</li>
-        <li><strong><code>dns.py</code>:</strong> resolver transports and DNS record lookup helpers.</li>
-        <li><strong><code>app.py</code>:</strong> application bootstrap and legacy compatibility layer.</li>
-        <li><strong><code>server.py</code>:</strong> scan API and target persistence logic.</li>
-      </ul>
+      <p class="footer">
+        The example resolver usually listens on <code>5300</code> in labs because port <code>53</code> often
+        requires administrator privileges.
+      </p>
+      <div class="links" style="margin-top:18px">
+        <a class="link" href="https://github.com/jorgelsc-dev/porthound/blob/main/README.md#dns-y-registros"><span>Full DNS guide</span><span>→</span></a>
+      </div>
     </section>
   </main>
 </body>
