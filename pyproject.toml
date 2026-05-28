@@ -3,7 +3,7 @@ requires = ["setuptools>=82.0.1", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "porthound"
+name = "porthound4"
 version = "0.2.0"
 description = "PortHound new-generation network scanner built on wsbuilder."
 readme = "README.md"

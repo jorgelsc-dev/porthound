@@ -6,7 +6,7 @@ Sitio oficial: [https://porthound.jorgelsc.dev](https://porthound.jorgelsc.dev)
 
 Repositorio: [https://github.com/jorgelsc-dev/porthound](https://github.com/jorgelsc-dev/porthound)
 
-Distribucion PyPI: `porthound`
+Distribucion PyPI: `porthound4`
 
 Comando principal: `porthound`
 
@@ -55,7 +55,7 @@ Reglas:
 ### Desde PyPI
 
 ```bash
-python3 -m pip install porthound
+python3 -m pip install porthound4
 ```
 
 ### Entorno local
