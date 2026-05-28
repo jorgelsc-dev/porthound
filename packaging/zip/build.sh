@@ -82,7 +82,10 @@ copy_entry() {
 
 RUNTIME_ENTRIES=(
   "manage.py"
+  "dns.py"
   "app.py"
+  "utils.py"
+  "views.py"
   "master.py"
   "agent.py"
   "server.py"

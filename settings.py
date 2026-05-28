@@ -26,17 +26,16 @@ def _as_float(value, default):
         return float(default)
 
 
-HOST = str(_env("PORTHOUND_HOST", _env("HOST", "0.0.0.0"))).strip() or "0.0.0.0"
+HOST = str(_env("PORTHOUND_HOST", _env("HOST", "127.0.0.1"))).strip() or "127.0.0.1"
 PORT = _as_int(_env("PORTHOUND_PORT", _env("PORT", "45678")), 45678)
-SCAN_DB_PATH = str(_env("PORTHOUND_DB_PATH", "Database.db")).strip() or "Database.db"
+SCAN_DB_PATH = str(_env("PORTHOUND_DB_PATH", "Standalone.db")).strip() or "Standalone.db"
 DEBUG = _as_bool(_env("PORTHOUND_DEBUG", "1"), default=True)
 API_TOKEN = str(_env("PORTHOUND_API_TOKEN", "")).strip()
 API_REQUIRE_TOKEN = _as_bool(_env("PORTHOUND_API_REQUIRE_TOKEN", "0"), default=False)
 CORS_ALLOW_ORIGIN = str(_env("PORTHOUND_CORS_ALLOW_ORIGIN", "")).strip()
 
-ROLE = str(_env("PORTHOUND_ROLE", "master")).strip().lower() or "master"
-if ROLE not in {"master", "agent", "standalone"}:
-    ROLE = "master"
+# PortHound now runs in standalone mode only.
+ROLE = "standalone"
 
 PORTHOUND_CA = str(_env("PORTHOUND_CA", "")).strip()
 PORTHOUND_CA_ONELINE = str(_env("PORTHOUND_CA_ONELINE", "")).strip()
@@ -72,5 +71,25 @@ AGENT_TASK_STALL_SECONDS = max(
 )
 AGENT_TLS_CHECK_HOSTNAME = _as_bool(
     _env("PORTHOUND_AGENT_TLS_CHECK_HOSTNAME", "1"),
+    default=True,
+)
+
+_dns_resolvers_raw = str(
+    _env(
+        "PORTHOUND_DNS_RESOLVERS",
+        "udp://1.1.1.1,udp://8.8.8.8,udp://9.9.9.9",
+    )
+).strip()
+DNS_RESOLVERS = tuple(
+    item.strip()
+    for item in _dns_resolvers_raw.split(",")
+    if item.strip()
+)
+DNS_TIMEOUT_SECONDS = max(
+    0.3,
+    _as_float(_env("PORTHOUND_DNS_TIMEOUT_SECONDS", "1.4"), 1.4),
+)
+DNS_USE_SYSTEM_RESOLVER = _as_bool(
+    _env("PORTHOUND_DNS_USE_SYSTEM_RESOLVER", "1"),
     default=True,
 )

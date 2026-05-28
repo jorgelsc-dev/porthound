@@ -1,4 +1,5 @@
 import json
+import re
 import sqlite3
 import threading
 import tempfile
@@ -13,6 +14,7 @@ import framework
 import getDBNIC
 import manage
 import server
+import utils
 
 
 class _MemorySocket:
@@ -148,6 +150,97 @@ class TestLegacyHttpRequestRead(unittest.TestCase):
         self.assertEqual(path, "/target/")
         self.assertEqual(len(parsed_body), len(body))
         self.assertIn(large_padding[:256], parsed_body)
+
+
+class TestSharedNormalizeTargetPayload(unittest.TestCase):
+    def setUp(self):
+        self.cidr_match = re.compile(r"^(\d{1,3}\.){3}\d{1,3}/\d{1,2}$")
+        self.valid_target_types = {"common", "not_common", "full"}
+        self.valid_target_protos = {"tcp", "udp", "sctp"}
+        self.valid_target_statuses = {"active", "paused", "stopped"}
+        self.valid_target_port_modes = {"range", "common", "not_common", "full"}
+        self.valid_target_agent_modes = {"all", "local", "agent"}
+        self.base_payload = {
+            "network": "10.10.10.9/24",
+            "type": "COMMON",
+            "proto": "stcp",
+            "timesleep": "1.5",
+            "status": "ACTIVE",
+        }
+
+    @staticmethod
+    def _port_config(_output, proto):
+        return {
+            "port_mode": "range",
+            "port_start": 1,
+            "port_end": 1024 if proto == "sctp" else 443,
+        }
+
+    @staticmethod
+    def _agent_config(_output):
+        return {"agent_mode": "all", "agent_id": ""}
+
+    def test_normalize_target_payload_canonicalizes_expected_fields(self):
+        payload = dict(self.base_payload)
+        payload["id"] = "7"
+        normalized = utils.normalize_target_payload(
+            payload,
+            require_id=True,
+            cidr_match=self.cidr_match,
+            valid_target_types=self.valid_target_types,
+            valid_target_protos=self.valid_target_protos,
+            valid_target_statuses=self.valid_target_statuses,
+            valid_target_port_modes=self.valid_target_port_modes,
+            valid_target_agent_modes=self.valid_target_agent_modes,
+            normalize_target_port_config=self._port_config,
+            normalize_target_agent_config=self._agent_config,
+        )
+
+        self.assertEqual(normalized["id"], 7)
+        self.assertEqual(normalized["network"], "10.10.10.0/24")
+        self.assertEqual(normalized["type"], "common")
+        self.assertEqual(normalized["proto"], "sctp")
+        self.assertEqual(normalized["timesleep"], 1.5)
+        self.assertEqual(normalized["status"], "active")
+        self.assertEqual(normalized["port_mode"], "range")
+        self.assertEqual(normalized["port_end"], 1024)
+        self.assertEqual(normalized["agent_mode"], "all")
+
+    def test_normalize_target_payload_rejects_invalid_port_mode(self):
+        payload = dict(self.base_payload)
+
+        def bad_port_config(_output, proto):
+            return {"port_mode": "invalid", "port_start": 1, "port_end": 1}
+
+        with self.assertRaises(ValueError):
+            utils.normalize_target_payload(
+                payload,
+                cidr_match=self.cidr_match,
+                valid_target_types=self.valid_target_types,
+                valid_target_protos=self.valid_target_protos,
+                valid_target_statuses=self.valid_target_statuses,
+                valid_target_port_modes=self.valid_target_port_modes,
+                valid_target_agent_modes=self.valid_target_agent_modes,
+                normalize_target_port_config=bad_port_config,
+                normalize_target_agent_config=self._agent_config,
+            )
+
+    def test_normalize_target_payload_rejects_ipv6_network(self):
+        payload = dict(self.base_payload)
+        payload["network"] = "2001:db8::1/64"
+
+        with self.assertRaises(ValueError):
+            utils.normalize_target_payload(
+                payload,
+                cidr_match=re.compile(r".+"),
+                valid_target_types=self.valid_target_types,
+                valid_target_protos=self.valid_target_protos,
+                valid_target_statuses=self.valid_target_statuses,
+                valid_target_port_modes=self.valid_target_port_modes,
+                valid_target_agent_modes=self.valid_target_agent_modes,
+                normalize_target_port_config=self._port_config,
+                normalize_target_agent_config=self._agent_config,
+            )
 
 
 class TestGeoIpSeedImport(unittest.TestCase):

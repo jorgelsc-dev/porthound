@@ -15,7 +15,7 @@ import time
 import uuid
 from collections import Counter, deque
 from datetime import datetime, timedelta, timezone
-from ipaddress import IPv4Address, ip_address, ip_network
+from ipaddress import IPv4Address, ip_address
 from pathlib import Path
 from urllib.parse import urlsplit
 import settings
@@ -44,6 +44,7 @@ from server import (
     _normalize_ip_value,
 )
 from ws_demo import INDEX_HTML, Database, ChatMessage, parse_chat_line, ClientRegistry
+from utils import clamp_int, current_role, is_master_role, normalize_target_payload, utc_iso
 
 
 REGEX_IPV4_CIDR = re.compile(r"^(\d{1,3}\.){3}\d{1,3}/\d{1,2}$")
@@ -477,22 +478,6 @@ ATTACK_SIGNATURES = [
         "default_action": "challenged",
     },
 ]
-
-
-def clamp_int(value, default, minimum, maximum):
-    try:
-        number = int(value)
-    except Exception:
-        number = default
-    if number < minimum:
-        return minimum
-    if number > maximum:
-        return maximum
-    return number
-
-
-def utc_iso(ts_value):
-    return time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(ts_value))
 
 
 def detect_scan_origin_ip():
@@ -1079,6 +1064,44 @@ def discover_reverse_dns_domains(ip_value):
         "ptr_lookup": ptr_lookup,
         "error": error,
     }
+
+
+# DNS helpers are centralized in dns.py. Keep the legacy names here so the
+# rest of the application can stay stable while the resolver stack evolves.
+from dns import (  # noqa: E402
+    DNS_QCLASS_ANY,
+    DNS_QCLASS_IN,
+    DNS_QTYPE_A,
+    DNS_QTYPE_AAAA,
+    DNS_QTYPE_ANY,
+    DNS_QTYPE_CNAME,
+    DNS_QTYPE_PTR,
+    DNS_RESOLVER_HINTS,
+    DNS_TIMEOUT_SECONDS,
+    DNS_USE_SYSTEM_RESOLVER,
+    build_local_dns_server,
+    dns_a_lookup_for_host,
+    dns_build_query,
+    dns_dot_query,
+    dns_doh_query,
+    dns_parse_response,
+    dns_ptr_lookup_for_ip,
+    dns_query,
+    dns_read_name,
+    dns_skip_name,
+    dns_tcp_query,
+    dns_udp_query,
+    discover_reverse_dns_domains as _discover_reverse_dns_domains,
+    encode_dns_name,
+    filter_domains_for_ip_socket,
+    iter_resolver_specs,
+    normalize_domain_candidate,
+    normalize_nslookup_host,
+    parse_resolver_spec,
+    resolve_ipv4_addresses_for_host,
+)
+
+discover_reverse_dns_domains = _discover_reverse_dns_domains
 
 
 def infer_hops_from_observed_ttl(observed_ttl):
@@ -4222,17 +4245,6 @@ def _dedupe_by_key(rows, key_name):
     return output
 
 
-def current_role():
-    value = str(getattr(settings, "ROLE", "master") or "master").strip().lower()
-    if value in {"master", "agent", "standalone"}:
-        return value
-    return "master"
-
-
-def is_master_role():
-    return current_role() in {"master", "standalone"}
-
-
 def _request_client_ip(request):
     client = getattr(request, "client", None)
     if isinstance(client, (list, tuple)) and client:
@@ -4903,69 +4915,18 @@ def _merge_agent_results(result_payload, agent_id=""):
 
 
 def normalize_target_item(item, require_id=False):
-    if not isinstance(item, dict):
-        raise ValueError("Invalid target body")
-    output = dict(item)
-
-    if require_id:
-        try:
-            output["id"] = int(output.get("id"))
-        except Exception:
-            raise ValueError("Invalid target id")
-
-    network = str(output.get("network", "")).strip()
-    if not REGEX_IPV4_CIDR.match(network):
-        raise ValueError("Invalid CIDR format")
-    try:
-        network_obj = ip_network(network, strict=False)
-    except Exception:
-        raise ValueError("Invalid CIDR format")
-    if not isinstance(network_obj.network_address, IPv4Address):
-        raise ValueError("Only IPv4 CIDR is supported")
-    output["network"] = str(network_obj)
-
-    target_type = str(output.get("type", "")).strip().lower()
-    if target_type not in TARGET_TYPES:
-        raise ValueError("Invalid type. Use common, not_common or full")
-    output["type"] = target_type
-
-    proto = str(output.get("proto", "")).strip().lower()
-    if proto == "stcp":
-        proto = "sctp"
-    if proto not in TARGET_PROTOS:
-        allowed = ", ".join(sorted(TARGET_PROTOS))
-        raise ValueError(f"Invalid proto. Use {allowed}")
-    output["proto"] = proto
-
-    try:
-        timesleep = float(output.get("timesleep", 1.0))
-    except Exception:
-        raise ValueError("Invalid timesleep")
-    if timesleep < 0:
-        raise ValueError("timesleep must be >= 0")
-    output["timesleep"] = timesleep
-
-    target_status = str(output.get("status", "active")).strip().lower()
-    if target_status not in TARGET_STATUSES:
-        allowed = ", ".join(sorted(TARGET_STATUSES))
-        raise ValueError(f"Invalid status. Use {allowed}")
-    output["status"] = target_status
-
-    port_config = normalize_target_port_config(output, proto=proto)
-    if port_config["port_mode"] not in TARGET_PORT_MODES:
-        allowed = ", ".join(sorted(TARGET_PORT_MODES))
-        raise ValueError(f"Invalid port_mode. Use {allowed}")
-    output["port_mode"] = port_config["port_mode"]
-    output["port_start"] = port_config["port_start"]
-    output["port_end"] = port_config["port_end"]
-    agent_config = normalize_target_agent_config(output)
-    if agent_config["agent_mode"] not in TARGET_AGENT_MODES:
-        allowed = ", ".join(sorted(TARGET_AGENT_MODES))
-        raise ValueError(f"Invalid agent_mode. Use {allowed}")
-    output["agent_mode"] = agent_config["agent_mode"]
-    output["agent_id"] = agent_config["agent_id"]
-
-    return output
+    return normalize_target_payload(
+        item,
+        require_id=require_id,
+        cidr_match=REGEX_IPV4_CIDR,
+        valid_target_types=TARGET_TYPES,
+        valid_target_protos=TARGET_PROTOS,
+        valid_target_statuses=TARGET_STATUSES,
+        valid_target_port_modes=TARGET_PORT_MODES,
+        valid_target_agent_modes=TARGET_AGENT_MODES,
+        normalize_target_port_config=normalize_target_port_config,
+        normalize_target_agent_config=normalize_target_agent_config,
+    )
 
 
 def normalize_target_action(item):
@@ -7327,11 +7288,7 @@ def run_agent_mode():
 
 
 def main():
-    role = current_role()
-    if role == "agent":
-        run_agent_mode()
-        return
-    run_master_mode(enable_local_scanners=(role == "standalone"))
+    run_master_mode(enable_local_scanners=True)
 
 
 if __name__ == "__main__":
