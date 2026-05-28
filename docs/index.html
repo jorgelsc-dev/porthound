@@ -167,12 +167,49 @@
       color: var(--accent);
     }
 
+    pre {
+      margin: 12px 0 0;
+      padding: 14px 16px;
+      border-radius: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(7, 16, 30, 0.9);
+      color: #d7e5ff;
+      overflow-x: auto;
+      font-size: 0.95rem;
+    }
+
+    .cmd-grid {
+      display: grid;
+      gap: 14px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      margin-top: 12px;
+    }
+
+    .cmd {
+      padding: 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .cmd strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 0.92rem;
+      letter-spacing: 0.02em;
+      color: var(--text);
+    }
+
     @media (max-width: 840px) {
       .hero {
         grid-template-columns: 1fr;
       }
 
       .meta-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .cmd-grid {
         grid-template-columns: 1fr;
       }
     }
@@ -211,6 +248,24 @@
           <a class="link" href="https://github.com/jorgelsc-dev/porthound"><span>Source code</span><span>→</span></a>
         </div>
       </div>
+    </section>
+
+    <section class="panel section">
+      <h2>Install and use</h2>
+      <div class="cmd-grid">
+        <div class="cmd">
+          <strong>Install from PyPI</strong>
+          <pre><code>pip install porthound4</code></pre>
+        </div>
+        <div class="cmd">
+          <strong>Run command</strong>
+          <pre><code>porthound</code></pre>
+        </div>
+      </div>
+      <p class="footer">
+        Optional explicit bind: <code>porthound --host 127.0.0.1 --port 45678</code><br>
+        Local UI/API: <code>http://127.0.0.1:45678</code>
+      </p>
     </section>
 
     <section class="panel section">

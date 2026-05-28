@@ -55,7 +55,13 @@ Reglas:
 ### Desde PyPI
 
 ```bash
-python3 -m pip install porthound4
+pip install porthound4
+```
+
+Uso inmediato:
+
+```bash
+porthound
 ```
 
 ### Entorno local
