@@ -109,7 +109,7 @@ export default {
       try {
         const parsed = new URL(raw);
         return `${parsed.protocol}//${parsed.host}`;
-      } catch (err) {
+      } catch {
         return raw;
       }
     },

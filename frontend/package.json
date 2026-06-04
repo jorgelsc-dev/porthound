@@ -6,7 +6,7 @@
   "scripts": {
     "serve": "node ./scripts/vue-cli-safe.js serve",
     "build": "node ./scripts/vue-cli-safe.js build",
-    "lint": "node ./scripts/vue-cli-safe.js lint",
+    "lint": "eslint . --ext .js,.vue",
     "test": "npm run lint"
   },
   "main": "index.js",
@@ -19,33 +19,17 @@
     "vuetify": "^4.1.0"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@babel/core": "^7.12.16",
-    "@babel/eslint-parser": "^7.29.7",
     "@vue/cli-plugin-babel": "~5.0.0",
-    "@vue/cli-plugin-eslint": "~5.0.0",
     "@vue/cli-plugin-pwa": "~5.0.0",
     "@vue/cli-service": "~5.0.0",
     "eslint": "^10.4.1",
     "eslint-plugin-vue": "^10.9.1",
     "graphemer": "^1.4.0",
+    "globals": "^17.6.0",
     "is-path-inside": "^4.0.0",
     "text-table": "^0.2.0"
-  },
-  "eslintConfig": {
-    "root": true,
-    "env": {
-      "browser": true,
-      "es2021": true,
-      "node": true
-    },
-    "extends": [
-      "plugin:vue/essential",
-      "eslint:recommended"
-    ],
-    "parserOptions": {
-      "parser": "@babel/eslint-parser"
-    },
-    "rules": {}
   },
   "browserslist": [
     "> 1%",

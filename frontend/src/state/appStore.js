@@ -71,7 +71,7 @@ function apiUrl(path) {
 function parseJsonSafe(text) {
   try {
     return text ? JSON.parse(text) : null;
-  } catch (err) {
+  } catch {
     return null;
   }
 }
@@ -123,7 +123,7 @@ function notifyTableRefresh(payload) {
   tableRefreshSubscribers.forEach((subscriber) => {
     try {
       subscriber(payload);
-    } catch (err) {
+    } catch {
       // ignore subscriber-level failures
     }
   });
@@ -149,7 +149,7 @@ function wsUrl() {
     const parsed = new URL(base);
     const protocol = parsed.protocol === "https:" ? "wss:" : "ws:";
     return `${protocol}//${parsed.host}/ws/`;
-  } catch (err) {
+  } catch {
     if (typeof window !== "undefined") {
       const protocol = window.location.protocol === "https:" ? "wss" : "ws";
       return `${protocol}://${window.location.host}/ws/`;
@@ -190,7 +190,7 @@ function destroyRealtime() {
   wsClient = null;
   try {
     socket.close();
-  } catch (err) {
+  } catch {
     // ignore close failures
   } finally {
     state.wsStatus = "offline";
@@ -219,7 +219,7 @@ function connectRealtime() {
   let socket = null;
   try {
     socket = new window.WebSocket(wsUrl());
-  } catch (err) {
+  } catch {
     state.wsStatus = "error";
     scheduleReconnect();
     return;
@@ -234,7 +234,7 @@ function connectRealtime() {
     state.wsStatus = "online";
     try {
       socket.send(JSON.stringify({ action: "scan_map_snapshot", limit: 300 }));
-    } catch (err) {
+    } catch {
       state.wsStatus = "error";
     }
   });
