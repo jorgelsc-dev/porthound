@@ -15,7 +15,7 @@
     "core-js": "^3.49.0",
     "register-service-worker": "^1.7.2",
     "vue": "^3.5.34",
-    "vue-router": "^4.2.5",
+    "vue-router": "^5.1.0",
     "vuetify": "^4.0.7"
   },
   "devDependencies": {
@@ -28,7 +28,7 @@
     "eslint": "^10.4.1",
     "eslint-plugin-vue": "^10.9.1",
     "graphemer": "^1.4.0",
-    "is-path-inside": "^3.0.3",
+    "is-path-inside": "^4.0.0",
     "text-table": "^0.2.0"
   },
   "eslintConfig": {
