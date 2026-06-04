@@ -12,7 +12,7 @@ os.networkInterfaces = function safeNetworkInterfaces() {
     if (interfaces && typeof interfaces === "object") {
       return interfaces;
     }
-  } catch (_err) {
+  } catch {
     // fallback below
   }
 

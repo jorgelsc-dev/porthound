@@ -1347,7 +1347,7 @@ export default {
         });
     },
     refreshActiveTabRealtime() {
-      let task = null;
+      let task;
       const currentTab = String(this.tab || "").trim().toLowerCase();
       if (currentTab === "targets") {
         task = this.refreshTargetsOnly();

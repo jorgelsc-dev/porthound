@@ -271,7 +271,7 @@ export default {
     formatNumber(value) {
       try {
         return new Intl.NumberFormat().format(Number(value || 0));
-      } catch (err) {
+      } catch {
         return String(value || 0);
       }
     },
