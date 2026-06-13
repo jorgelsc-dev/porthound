@@ -41,6 +41,7 @@ const vuetify = createVuetify({
 });
 
 store.initApiBase();
+store.initAuth();
 store.initRealtime();
 
 createApp(App).use(vuetify).use(router).mount("#app");

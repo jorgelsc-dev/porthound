@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="en">
+<html lang="es">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="PortHound official documentation and project landing page.">
-  <title>PortHound Documentation</title>
+  <meta name="description" content="PortHound documentacion oficial y landing del proyecto.">
+  <title>PortHound Documentacion</title>
   <style>
     :root {
       --bg: #08111f;
@@ -178,6 +178,11 @@
       font-size: 0.95rem;
     }
 
+    code,
+    pre {
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+    }
+
     .cmd-grid {
       display: grid;
       gap: 14px;
@@ -219,89 +224,91 @@
   <main>
     <section class="hero">
       <div>
-        <div class="badge">PortHound official site</div>
-        <h1>Network scanning for authorized operations.</h1>
+        <div class="badge">Sitio oficial de PortHound</div>
+        <h1>Escaneo de red para operaciones autorizadas.</h1>
         <p class="lead">
-          PortHound is the new-generation network scanner built on <span class="accent">wsbuilder</span>.
-          The README is the source of truth; this page mirrors the public-facing documentation and links the key
-          project entry points.
+          PortHound es el escaner de red de nueva generacion construido sobre <span class="accent">wsbuilder</span>.
+          El README es la fuente de verdad; esta pagina replica la documentacion publica y enlaza los puntos de
+          entrada clave del proyecto.
         </p>
 
         <div class="meta-grid">
           <div class="meta">
-            <span>Official domain</span>
+            <span>Dominio oficial</span>
             <strong>porthound.jorgelsc.dev</strong>
           </div>
           <div class="meta">
-            <span>Repository</span>
+            <span>Repositorio</span>
             <strong>jorgelsc-dev/porthound</strong>
           </div>
         </div>
       </div>
 
       <div class="panel card">
-        <h2>Quick access</h2>
+        <h2>Accesos rapidos</h2>
         <div class="links">
-          <a class="link" href="https://github.com/jorgelsc-dev/porthound/blob/main/README.md"><span>Project README</span><span>→</span></a>
-          <a class="link" href="https://github.com/jorgelsc-dev/porthound/blob/main/README.md#inicio-rapido"><span>Quick start</span><span>→</span></a>
-          <a class="link" href="https://github.com/jorgelsc-dev/porthound/blob/main/README.md#empaquetado"><span>Packaging</span><span>→</span></a>
-          <a class="link" href="https://github.com/jorgelsc-dev/porthound"><span>Source code</span><span>→</span></a>
+          <a class="link" href="https://github.com/jorgelsc-dev/porthound/blob/main/README.md"><span>README del proyecto</span><span>→</span></a>
+          <a class="link" href="https://github.com/jorgelsc-dev/porthound/blob/main/README.md#inicio-rapido"><span>Inicio rapido</span><span>→</span></a>
+          <a class="link" href="https://github.com/jorgelsc-dev/porthound/blob/main/README.md#empaquetado"><span>Empaquetado</span><span>→</span></a>
+          <a class="link" href="https://github.com/jorgelsc-dev/porthound/blob/main/README.md#seguridad"><span>Seguridad</span><span>→</span></a>
+          <a class="link" href="https://github.com/jorgelsc-dev/porthound"><span>Codigo fuente</span><span>→</span></a>
         </div>
       </div>
     </section>
 
     <section class="panel section">
-      <h2>Install and use</h2>
+      <h2>Instalacion y uso</h2>
       <div class="cmd-grid">
         <div class="cmd">
-          <strong>Install from PyPI</strong>
+          <strong>Instalar desde PyPI</strong>
           <pre><code>pip install porthound4</code></pre>
         </div>
         <div class="cmd">
-          <strong>Run command</strong>
+          <strong>Ejecutar</strong>
           <pre><code>porthound</code></pre>
         </div>
       </div>
       <p class="footer">
-        Optional explicit bind: <code>porthound --host 127.0.0.1 --port 45678</code><br>
-        Local UI/API: <code>http://127.0.0.1:45678</code>
+        Bind efectivo: <code>127.0.0.1:45678</code>. El launcher standalone mantiene ese valor y no expone un bind
+        publico distinto.<br>
+        UI/API local: <code>http://127.0.0.1:45678</code>
       </p>
     </section>
 
     <section class="panel section">
-      <h2>Documentation</h2>
+      <h2>Documentacion</h2>
       <ul>
-        <li><a href="https://github.com/jorgelsc-dev/porthound/blob/main/README.md#resumen">Overview</a></li>
-        <li><a href="https://github.com/jorgelsc-dev/porthound/blob/main/README.md#flujo-de-ramas">Branch flow</a></li>
-        <li><a href="https://github.com/jorgelsc-dev/porthound/blob/main/README.md#escaneo">Scanning</a></li>
+        <li><a href="https://github.com/jorgelsc-dev/porthound/blob/main/README.md#resumen">Resumen</a></li>
+        <li><a href="https://github.com/jorgelsc-dev/porthound/blob/main/README.md#flujo-de-ramas">Flujo de ramas</a></li>
+        <li><a href="https://github.com/jorgelsc-dev/porthound/blob/main/README.md#escaneo">Escaneo</a></li>
         <li><a href="https://github.com/jorgelsc-dev/porthound/blob/main/README.md#banner-grabbing">Banner grabbing</a></li>
-        <li><a href="https://github.com/jorgelsc-dev/porthound/blob/main/README.md#api-y-websocket">API and WebSocket</a></li>
-        <li><a href="https://github.com/jorgelsc-dev/porthound/blob/main/README.md#dns-y-registros">DNS and records</a></li>
-        <li><a href="https://github.com/jorgelsc-dev/porthound/blob/main/README.md#despliegue">Deployment</a></li>
+        <li><a href="https://github.com/jorgelsc-dev/porthound/blob/main/README.md#api-y-websocket">API y WebSocket</a></li>
+        <li><a href="https://github.com/jorgelsc-dev/porthound/blob/main/README.md#dns-y-registros">DNS y registros</a></li>
+        <li><a href="https://github.com/jorgelsc-dev/porthound/blob/main/README.md#despliegue">Despliegue</a></li>
       </ul>
       <p class="footer">
-        Responsible use only. Use PortHound only on systems you own or where you have explicit authorization.
+        Uso responsable unicamente. PortHound solo debe emplearse en sistemas propios o con autorizacion explicita.
       </p>
     </section>
 
     <section class="panel section">
-      <h2>DNS and records</h2>
+      <h2>DNS y registros</h2>
       <p class="footer" style="margin-top:0">
-        PortHound can use your own DNS resolvers for host discovery and reverse lookups. The embedded local DNS
-        server is lightweight and publishes <span class="accent">A</span> and <span class="accent">AAAA</span>
-        records for labs or internal names.
+        PortHound puede usar tus propios resolvers para descubrimiento de hosts y consultas inversas. El servidor
+        DNS embebido es ligero y publica registros <span class="accent">A</span> y <span class="accent">AAAA</span>
+        para laboratorios o nombres internos.
       </p>
       <ul>
         <li><strong>Resolvers:</strong> <code>udp://</code>, <code>tcp://</code>, <code>dot://</code>, <code>doh://</code>.</li>
-        <li><strong>Environment:</strong> set <code>PORTHOUND_DNS_RESOLVERS</code>, <code>PORTHOUND_DNS_TIMEOUT_SECONDS</code>, and <code>PORTHOUND_DNS_USE_SYSTEM_RESOLVER</code>.</li>
-        <li><strong>Records:</strong> use <code>A</code>, <code>AAAA</code>, <code>CNAME</code>, <code>MX</code>, <code>NS</code>, <code>TXT</code>, <code>SRV</code>, <code>PTR</code>, and <code>CAA</code> in your real DNS zone.</li>
+        <li><strong>Entorno:</strong> <code>PORTHOUND_DNS_RESOLVERS</code>, <code>PORTHOUND_DNS_TIMEOUT_SECONDS</code>, <code>PORTHOUND_DNS_USE_SYSTEM_RESOLVER</code>.</li>
+        <li><strong>Registros:</strong> <code>A</code>, <code>AAAA</code>, <code>CNAME</code>, <code>MX</code>, <code>NS</code>, <code>TXT</code>, <code>SRV</code>, <code>PTR</code> y <code>CAA</code> en tu zona DNS real.</li>
       </ul>
       <p class="footer">
-        The example resolver usually listens on <code>5300</code> in labs because port <code>53</code> often
-        requires administrator privileges.
+        El servidor DNS local suele escuchar en <code>5300</code> en laboratorios porque <code>53</code> a menudo
+        requiere privilegios de administrador.
       </p>
       <div class="links" style="margin-top:18px">
-        <a class="link" href="https://github.com/jorgelsc-dev/porthound/blob/main/README.md#dns-y-registros"><span>Full DNS guide</span><span>→</span></a>
+        <a class="link" href="https://github.com/jorgelsc-dev/porthound/blob/main/README.md#dns-y-registros"><span>Guia DNS completa</span><span>→</span></a>
       </div>
     </section>
   </main>

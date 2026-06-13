@@ -28,6 +28,44 @@
       </v-col>
       <v-col cols="12" md="5">
         <v-card variant="tonal" color="surface" class="pa-5 api-card">
+          <div class="text-subtitle-2 font-weight-medium">API Base</div>
+          <div class="text-caption text-medium-emphasis">
+            Override the active API endpoint when the dashboard and backend are not on the same
+            origin.
+          </div>
+          <v-text-field
+            class="mt-3"
+            :model-value="apiBaseDraft"
+            label="API base URL"
+            placeholder="http://127.0.0.1:45678"
+            variant="outlined"
+            density="comfortable"
+            hide-details="auto"
+            autocapitalize="off"
+            spellcheck="false"
+            @update:model-value="$emit('update:api-base-draft', $event)"
+          />
+          <div class="d-flex flex-wrap ga-2 mt-3">
+            <v-btn
+              color="primary"
+              variant="flat"
+              size="small"
+              prepend-icon="mdi-content-save"
+              @click="$emit('save-api-base')"
+            >
+              Save Endpoint
+            </v-btn>
+            <v-btn
+              color="secondary"
+              variant="outlined"
+              size="small"
+              prepend-icon="mdi-restore"
+              @click="$emit('reset-api-base')"
+            >
+              Reset
+            </v-btn>
+          </div>
+          <v-divider class="my-4" />
           <div class="text-subtitle-2 font-weight-medium">Direct Access</div>
           <div class="text-caption text-medium-emphasis">
             Open the active PortHound endpoint directly from here.
@@ -44,6 +82,22 @@
               rel="noopener noreferrer"
             >
               Open Live App
+            </v-btn>
+          </div>
+          <v-divider class="my-4" />
+          <div class="text-subtitle-2 font-weight-medium">API Token</div>
+          <div class="text-caption text-medium-emphasis">
+            Store a local access token for protected requests.
+          </div>
+          <div class="d-flex flex-wrap ga-2 mt-3">
+            <v-btn
+              color="info"
+              variant="outlined"
+              size="small"
+              prepend-icon="mdi-shield-key-outline"
+              @click="$emit('open-auth')"
+            >
+              Set Token
             </v-btn>
           </div>
           <v-divider class="my-4" />
@@ -93,7 +147,7 @@ export default {
       default: "",
     },
   },
-  emits: ["update:api-base-draft", "save-api-base", "reset-api-base"],
+  emits: ["open-auth", "update:api-base-draft", "save-api-base", "reset-api-base"],
   data() {
     return {
       btcAddress: "bc1q3lhxpr9yantvefmvhpd2h4lu0ykf3t45zvuve2",
@@ -176,7 +230,7 @@ export default {
   background: rgba(12, 21, 34, 0.72);
   color: rgba(202, 230, 255, 0.96);
   word-break: break-all;
- }
+}
 
 .btc-address {
   padding: 0.78rem 0.9rem;

@@ -2,14 +2,10 @@
 
 PortHound es un escaner de red en Python para auditorias autorizadas. Esta version usa `wsbuilder` como base HTTP/WebSocket y corre en modo unico `standalone`.
 
-Sitio oficial: [https://porthound.jorgelsc.dev](https://porthound.jorgelsc.dev)
-
-Repositorio: [https://github.com/jorgelsc-dev/porthound](https://github.com/jorgelsc-dev/porthound)
-
-Distribucion PyPI: `porthound4`
-
-Comando principal: `porthound`
-
+Sitio oficial: [https://porthound.jorgelsc.dev](https://porthound.jorgelsc.dev)<br>
+Repositorio: [https://github.com/jorgelsc-dev/porthound](https://github.com/jorgelsc-dev/porthound)<br>
+Distribucion PyPI: `porthound4`<br>
+Comando principal: `porthound`<br>
 Palabras clave: `python`, `network-scanner`, `port-scanner`, `cybersecurity`, `banner-grabbing`, `sqlite`, `websocket`.
 
 ## Resumen
@@ -18,7 +14,7 @@ Palabras clave: `python`, `network-scanner`, `port-scanner`, `cybersecurity`, `b
 - Banner grabbing con reglas y probes por servicio.
 - Persistencia local en SQLite.
 - API HTTP y WebSocket.
-- Frontend opcional en Vue 3.
+- Frontend opcional en Vue 3 + Vuetify.
 - Documentacion publica en GitHub Pages.
 
 ## Documentacion
@@ -55,7 +51,8 @@ Reglas:
 ### Desde PyPI
 
 ```bash
-pip install porthound4
+python -m pip install --upgrade pip
+python -m pip install porthound4
 ```
 
 Uso inmediato:
@@ -77,7 +74,13 @@ env/bin/python manage.py
 ### 1. Arrancar PortHound
 
 ```bash
-env/bin/python manage.py --db-path Standalone.db
+porthound
+```
+
+O desde el repo:
+
+```bash
+python manage.py --db-path Standalone.db
 ```
 
 Valores por defecto:
@@ -89,10 +92,14 @@ Valores por defecto:
 ### 2. Usar la interfaz local
 
 - UI/API: `http://127.0.0.1:45678`
+- Si tu instancia exige token, abre el chip `Auth` para guardarlo en `sessionStorage` y
+  reutilizarlo en peticiones administrativas.
+
 ## Ejecucion
 
 - `manage.py` arranca siempre en modo `standalone`.
-- Puedes ajustar base de datos y opciones HTTP por CLI/env vars.
+- El launcher fija `127.0.0.1:45678`; `--host` y `--port` solo se aceptan si coinciden con ese bind.
+- Puedes ajustar base de datos y opciones HTTP por CLI o variables de entorno.
 
 ## Escaneo
 
@@ -127,12 +134,24 @@ Valores por defecto:
 - WebSocket: `ws://HOST:PORT/ws/`
 - HTTP API: disponible desde el mismo servidor.
 - La API controla scans y vistas de estado locales.
+- El chip `Auth` de la barra superior guarda un token en `sessionStorage` y lo reenvia en
+  peticiones administrativas como `Authorization: Bearer`.
 
 Comportamientos comunes:
 
 - Texto: eco.
 - Binario: eco con prefijo.
-- Mensajes con alias pueden registrarse en SQLite para demo/chat.
+- Mensajes con alias pueden registrarse en SQLite para demo o chat.
+
+## Seguridad
+
+- Sin `PORTHOUND_API_TOKEN`, las acciones administrativas solo aceptan clientes loopback.
+- `PORTHOUND_API_TOKEN` se envia por `Authorization: Bearer` o `X-API-Key`.
+- `PORTHOUND_API_REQUIRE_TOKEN=1` debe usarse junto con `PORTHOUND_API_TOKEN`.
+- `PORTHOUND_CORS_ALLOW_ORIGIN` define el origen permitido para CORS.
+- Si el navegador entra por loopback pero el `Origin` no es loopback, el backend tambien bloquea las acciones administrativas.
+- `PORTHOUND_TLS_ENABLED=0` es el valor por defecto del launcher standalone.
+- La distribucion CA y el enrollment por certificado estan deshabilitados en el flujo actual.
 
 ## DNS y registros
 
@@ -181,7 +200,7 @@ Nota: el puerto `53` suele requerir privilegios de administrador. En laboratorio
 
 ### Tipos de registros
 
-Si administras tu DNS real, estos son los tipos mas comunes y como se declaran en una zona BIND/Unbound/CoreDNS equivalente:
+Si administras tu DNS real, estos son los tipos mas comunes y como se declaran en una zona BIND, Unbound o CoreDNS equivalente:
 
 ```dns
 ; A: IPv4
@@ -224,11 +243,11 @@ sudo resolvectl dns eth0 10.10.0.2
 sudo resolvectl domain eth0 '~local'
 ```
 
-Si usas `systemd-resolved`, también puedes establecerlo en NetworkManager o en la interfaz del router DHCP.
+Si usas `systemd-resolved`, tambien puedes establecerlo en NetworkManager o en la interfaz del router DHCP.
 
 #### Windows
 
-- Panel de control o Configuración de red.
+- Panel de control o Configuracion de red.
 - En la tarjeta de red, configura DNS manual:
   - DNS preferido: `10.10.0.2`
   - DNS alternativo: `10.10.0.3`
@@ -243,7 +262,7 @@ networksetup -setdnsservers "Wi-Fi" 10.10.0.2 10.10.0.3
 #### Router / DHCP
 
 - Configura el DNS entregado por DHCP con tu IP interna.
-- Si tienes una zona privada como `local` o `corp`, añade ese sufijo en la opción de dominio de búsqueda.
+- Si tienes una zona privada como `local` o `corp`, añade ese sufijo en la opcion de dominio de busqueda.
 - Si tu router lo permite, desactiva el DNS del ISP para que los clientes usen solo tu resolver interno.
 
 ### Recomendacion operativa
@@ -257,6 +276,8 @@ networksetup -setdnsservers "Wi-Fi" 10.10.0.2 10.10.0.3
 
 - Los datos de reglas y mapas viven en `data/`.
 - La DB por defecto es `Standalone.db`.
+- `data/README.md` documenta los seeds y el flujo de GeoIP.
+- `server.py` y `app.py` comparten la misma base SQLite para runtime y vistas.
 
 ## Empaquetado
 
@@ -274,6 +295,38 @@ sudo apt install ./dist/deb/porthound_<version>-1_all.deb
 unzip dist/zip/porthound_<version>-1.zip
 cd porthound_<version>-1
 python3 manage.py
+```
+
+## Desarrollo
+
+Backend:
+
+```bash
+python manage.py
+```
+
+Frontend:
+
+```bash
+cd frontend
+npm ci
+npm run serve
+```
+
+Validacion local:
+
+```bash
+python -m compileall -q .
+python -m unittest discover -s tests -q
+```
+
+Checks de frontend:
+
+```bash
+cd frontend
+npm ci
+npm run lint
+npm run build
 ```
 
 ## Despliegue
@@ -303,4 +356,8 @@ PortHound solo debe usarse en sistemas propios o con autorizacion explicita. El 
 ## Soporte
 
 - Issues: [https://github.com/jorgelsc-dev/porthound/issues](https://github.com/jorgelsc-dev/porthound/issues)
+- Guia de contribucion: [CONTRIBUTING.md](CONTRIBUTING.md)
+- Conducta del proyecto: [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)
+- Reporte privado de seguridad: [SECURITY.md](SECURITY.md)
+- Soporte y donacion opcional: [SUPPORT.md](SUPPORT.md)
 - Licencia: MIT

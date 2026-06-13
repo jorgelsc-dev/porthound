@@ -1,17 +1,11 @@
 import { createRouter, createWebHistory } from "vue-router";
 
-import DashboardView from "../views/DashboardView.vue";
-import TargetsView from "../views/TargetsView.vue";
-import PortsView from "../views/PortsView.vue";
-import BannersView from "../views/BannersView.vue";
-import ApiView from "../views/ApiView.vue";
-
 const routes = [
-  { path: "/", name: "dashboard", component: DashboardView },
-  { path: "/targets", name: "targets", component: TargetsView },
-  { path: "/ports", name: "ports", component: PortsView },
-  { path: "/banners", name: "banners", component: BannersView },
-  { path: "/api", name: "api", component: ApiView },
+  { path: "/", name: "dashboard", component: () => import("../views/DashboardView.vue") },
+  { path: "/targets", name: "targets", component: () => import("../views/TargetsView.vue") },
+  { path: "/ports", name: "ports", component: () => import("../views/PortsView.vue") },
+  { path: "/banners", name: "banners", component: () => import("../views/BannersView.vue") },
+  { path: "/api", name: "api", component: () => import("../views/ApiView.vue") },
   { path: "/:pathMatch(.*)*", redirect: "/" },
 ];
 
