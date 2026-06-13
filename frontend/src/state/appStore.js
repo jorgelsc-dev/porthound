@@ -3,9 +3,14 @@ import { reactive } from "vue";
 const state = reactive({
   apiBase: "",
   wsStatus: "offline",
+  authToken: "",
+  authStatus: "open",
+  authError: "",
+  authPromptOpen: false,
 });
 
 const STORAGE_KEY_API = "porthound.apiBase";
+const STORAGE_KEY_AUTH = "porthound.apiToken";
 const WS_RECONNECT_DELAY_MS = 1800;
 const WS_REFRESH_THROTTLE_MS = 800;
 const WS_REFRESH_EVENT_TYPES = new Set([
@@ -62,6 +67,71 @@ function setApiBase(value) {
   reconnectRealtime();
 }
 
+function readStoredAuthToken() {
+  if (typeof window === "undefined" || !window.sessionStorage) {
+    return "";
+  }
+  return String(window.sessionStorage.getItem(STORAGE_KEY_AUTH) || "").trim();
+}
+
+function persistAuthToken(token) {
+  if (typeof window === "undefined" || !window.sessionStorage) {
+    return;
+  }
+  if (token) {
+    window.sessionStorage.setItem(STORAGE_KEY_AUTH, token);
+    return;
+  }
+  window.sessionStorage.removeItem(STORAGE_KEY_AUTH);
+}
+
+function setAuthToken(token, nextStatus = null) {
+  const cleaned = String(token || "").trim();
+  state.authToken = cleaned;
+  persistAuthToken(cleaned);
+  if (nextStatus) {
+    state.authStatus = nextStatus;
+  } else {
+    state.authStatus = cleaned ? "saved" : "open";
+  }
+}
+
+function initAuth() {
+  if (typeof window === "undefined") {
+    state.authToken = "";
+    state.authStatus = "open";
+    state.authError = "";
+    state.authPromptOpen = false;
+    return;
+  }
+  const storedToken = readStoredAuthToken();
+  setAuthToken(storedToken, storedToken ? "saved" : "open");
+  state.authError = "";
+  state.authPromptOpen = false;
+}
+
+function setAuthPromptOpen(value) {
+  state.authPromptOpen = Boolean(value);
+  if (!state.authPromptOpen) {
+    state.authError = "";
+  }
+}
+
+function openAuthPrompt(message = "") {
+  state.authError = String(message || "").trim();
+  state.authPromptOpen = true;
+}
+
+function closeAuthPrompt() {
+  state.authPromptOpen = false;
+  state.authError = "";
+}
+
+function clearAuthToken() {
+  setAuthToken("", "open");
+  closeAuthPrompt();
+}
+
 function apiUrl(path) {
   const base = state.apiBase ? state.apiBase.replace(/\/+$/, "") : "";
   const safePath = path && path.startsWith("/") ? path : `/${path || ""}`;
@@ -87,13 +157,44 @@ function buildHttpError(res, text, data) {
     (looksLikeHtml
       ? `HTTP ${res.status} ${res.statusText}`
       : trimmed || `HTTP ${res.status} ${res.statusText}`);
-  return new Error(message);
+  const error = new Error(message);
+  error.status = res.status;
+  error.payload = data;
+  return error;
+}
+
+function applyAuthHeader(headers = {}, token = state.authToken) {
+  const nextHeaders = { ...headers };
+  const normalized = String(token || "").trim();
+  if (
+    normalized &&
+    !Object.prototype.hasOwnProperty.call(nextHeaders, "Authorization") &&
+    !Object.prototype.hasOwnProperty.call(nextHeaders, "authorization") &&
+    !Object.prototype.hasOwnProperty.call(nextHeaders, "X-API-Key") &&
+    !Object.prototype.hasOwnProperty.call(nextHeaders, "x-api-key")
+  ) {
+    nextHeaders.Authorization = `Bearer ${normalized}`;
+  }
+  return nextHeaders;
 }
 
 function fetchJsonPromise(path, options = {}) {
   const opts = { ...options };
-  opts.headers = opts.headers || {};
-  if (opts.body && !opts.headers["Content-Type"]) {
+  const token = Object.prototype.hasOwnProperty.call(opts, "token") ? opts.token : state.authToken;
+  const attachAuth = opts.attachAuth !== false;
+  const handleUnauthorized = opts.handleUnauthorized !== false;
+  delete opts.token;
+  delete opts.attachAuth;
+  delete opts.handleUnauthorized;
+  opts.headers = { ...(opts.headers || {}) };
+  if (attachAuth) {
+    opts.headers = applyAuthHeader(opts.headers, token);
+  }
+  if (
+    opts.body &&
+    !Object.prototype.hasOwnProperty.call(opts.headers, "Content-Type") &&
+    !Object.prototype.hasOwnProperty.call(opts.headers, "content-type")
+  ) {
     opts.headers["Content-Type"] = "application/json";
   }
   return fetch(apiUrl(path), opts)
@@ -101,6 +202,12 @@ function fetchJsonPromise(path, options = {}) {
       res.text().then((text) => {
         const data = parseJsonSafe(text);
         if (!res.ok) {
+          if (res.status === 401 && handleUnauthorized) {
+            const message = (data && data.message) || (data && data.status) || "Unauthorized";
+            openAuthPrompt(message);
+            state.authStatus = "required";
+            state.authError = message;
+          }
           throw buildHttpError(res, text, data);
         }
         return data;
@@ -110,6 +217,38 @@ function fetchJsonPromise(path, options = {}) {
 
 function fetchJson(path, options = {}) {
   return fetchJsonPromise(path, options);
+}
+
+function authenticateApiToken(rawToken) {
+  const token = String(rawToken || "").trim();
+  if (!token) {
+    clearAuthToken();
+    return Promise.resolve(null);
+  }
+
+  return fetchJsonPromise("/api/ws/clients", {
+    method: "GET",
+    token,
+    attachAuth: true,
+    handleUnauthorized: false,
+  })
+    .then((payload) => {
+      setAuthToken(token, "authenticated");
+      state.authError = "";
+      closeAuthPrompt();
+      return payload;
+    })
+    .catch((error) => {
+      const message = String((error && error.message) || "Unable to validate API token").trim();
+      state.authError = message;
+      state.authPromptOpen = true;
+      if ((error && error.status) === 401 && token === state.authToken) {
+        state.authStatus = "required";
+      } else if ((error && error.status) === 401 && !state.authToken) {
+        state.authStatus = "required";
+      }
+      throw error;
+    });
 }
 
 function extractArray(payload) {
@@ -283,8 +422,14 @@ export default {
   state,
   suggestApiBaseFromLocation,
   initApiBase,
+  initAuth,
   initRealtime,
   setApiBase,
+  setAuthPromptOpen,
+  openAuthPrompt,
+  closeAuthPrompt,
+  clearAuthToken,
+  authenticateApiToken,
   apiUrl,
   fetchJsonPromise,
   fetchJson,

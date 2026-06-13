@@ -8,12 +8,14 @@
         aria-label="Open navigation menu"
         @click="$emit('open-drawer')"
       />
-      <v-avatar size="44" class="mr-3">
-        <v-img :src="brandIconSrc" alt="PortHound" />
-      </v-avatar>
-      <div>
-        <div class="text-subtitle-1 font-weight-bold">PortHound</div>
-        <div class="text-caption text-medium-emphasis">Network Scanner &amp; Banner Intel</div>
+      <div class="brand-lockup">
+        <v-avatar size="44" class="mr-3">
+          <v-img :src="brandIconSrc" alt="PortHound" />
+        </v-avatar>
+        <div class="brand-copy">
+          <div class="text-subtitle-1 font-weight-bold">PortHound</div>
+          <div class="text-caption text-medium-emphasis">Network Scanner &amp; Banner Intel</div>
+        </div>
       </div>
 
       <v-spacer />
@@ -36,36 +38,47 @@
 
       <v-spacer />
 
-      <v-btn
-        class="d-none d-lg-flex mr-2"
-        color="warning"
-        variant="outlined"
-        size="small"
-        prepend-icon="mdi-currency-btc"
-        :href="btcSupportLink"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        Support BTC
-      </v-btn>
-      <v-chip
-        class="mr-2"
-        :color="wsStateColor"
-        variant="tonal"
-        size="small"
-        prepend-icon="mdi-access-point"
-      >
-        {{ wsStateLabel }}
-      </v-chip>
-      <v-chip
-        v-if="compactApiBase"
-        class="d-none d-lg-flex"
-        variant="outlined"
-        size="small"
-        prepend-icon="mdi-link-variant"
-      >
-        {{ compactApiBase }}
-      </v-chip>
+      <div class="status-rail">
+        <v-chip
+          :color="authStateColor"
+          variant="tonal"
+          size="small"
+          prepend-icon="mdi-shield-key-outline"
+          class="auth-chip"
+          @click="$emit('open-auth')"
+        >
+          {{ authStateLabel }}
+        </v-chip>
+        <v-chip
+          :color="wsStateColor"
+          variant="tonal"
+          size="small"
+          prepend-icon="mdi-access-point"
+        >
+          {{ wsStateLabel }}
+        </v-chip>
+        <v-chip
+          v-if="compactApiBase"
+          class="d-none d-lg-flex"
+          variant="outlined"
+          size="small"
+          prepend-icon="mdi-link-variant"
+        >
+          {{ compactApiBase }}
+        </v-chip>
+        <v-btn
+          class="d-none d-lg-flex ml-1"
+          color="warning"
+          variant="outlined"
+          size="small"
+          prepend-icon="mdi-currency-btc"
+          :href="btcSupportLink"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Support BTC
+        </v-btn>
+      </div>
     </v-container>
   </v-app-bar>
 </template>
@@ -78,6 +91,10 @@ export default {
       type: Array,
       default: () => [],
     },
+    authStatus: {
+      type: String,
+      default: "open",
+    },
     apiBaseLabel: {
       type: String,
       default: "",
@@ -87,8 +104,24 @@ export default {
       default: "offline",
     },
   },
-  emits: ["open-drawer"],
+  emits: ["open-auth", "open-drawer"],
   computed: {
+    authStateLabel() {
+      const value = String(this.authStatus || "").trim().toLowerCase();
+      if (value === "authenticated") return "Token Ready";
+      if (value === "saved") return "Token Saved";
+      if (value === "required") return "Token Required";
+      if (value === "checking") return "Checking Token";
+      return "Auth Open";
+    },
+    authStateColor() {
+      const value = String(this.authStatus || "").trim().toLowerCase();
+      if (value === "authenticated") return "success";
+      if (value === "saved") return "info";
+      if (value === "required") return "warning";
+      if (value === "checking") return "secondary";
+      return "secondary";
+    },
     wsStateLabel() {
       const value = String(this.wsStatus || "").trim().toLowerCase();
       if (value === "online") return "WS Online";
@@ -143,9 +176,82 @@ export default {
   width: 100%;
 }
 
+.brand-lockup {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.brand-copy {
+  min-width: 0;
+}
+
 .top-tabs :deep(.v-tab) {
   min-width: 72px;
   font-weight: 600;
   letter-spacing: 0.04em;
+}
+
+.status-rail {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  min-width: 0;
+  flex-wrap: wrap;
+}
+
+.auth-chip {
+  cursor: pointer;
+}
+
+@media (max-width: 959px) {
+  .top-bar {
+    height: auto !important;
+  }
+
+  .app-topbar {
+    flex-wrap: wrap;
+    row-gap: 10px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }
+
+  .top-tabs {
+    display: none !important;
+  }
+
+  .brand-lockup {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .brand-copy .text-subtitle-1 {
+    font-size: 0.98rem !important;
+  }
+
+  .brand-copy .text-caption {
+    display: block;
+    max-width: 180px;
+    line-height: 1.35;
+    white-space: normal;
+  }
+
+  .status-rail {
+    width: 100%;
+    justify-content: flex-start;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 2px;
+  }
+
+  .status-rail::-webkit-scrollbar {
+    height: 4px;
+  }
+
+  .status-rail :deep(.v-chip),
+  .status-rail :deep(.v-btn) {
+    flex: 0 0 auto;
+  }
 }
 </style>

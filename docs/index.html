@@ -3,58 +3,45 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="PortHound: escaneo de red local con SQLite, dashboard SPA y control HTTP/WebSocket.">
-  <title>PortHound Docs</title>
+  <meta name="description" content="PortHound documentacion oficial y landing del proyecto.">
+  <title>PortHound Documentacion</title>
   <style>
     :root {
-      --bg: #09131d;
-      --panel: rgba(13, 24, 37, 0.9);
-      --panel-2: rgba(18, 34, 52, 0.94);
-      --line: rgba(116, 200, 255, 0.18);
-      --text: #eef6ff;
-      --muted: #9db0c4;
-      --accent: #7ad3ff;
-      --accent-2: #9fe3b6;
-      --shadow: 0 28px 70px rgba(0, 0, 0, 0.35);
+      --bg: #08111f;
+      --panel: rgba(14, 22, 38, 0.84);
+      --panel-2: rgba(20, 32, 52, 0.9);
+      --text: #e9eef7;
+      --muted: #9fb2cc;
+      --accent: #7dd3fc;
+      --accent-2: #a78bfa;
+      --line: rgba(125, 211, 252, 0.18);
+      --shadow: 0 30px 70px rgba(0, 0, 0, 0.35);
     }
 
     * { box-sizing: border-box; }
 
     body {
       margin: 0;
+      min-height: 100vh;
       color: var(--text);
-      font: 16px/1.6 "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      font: 16px/1.6 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       background:
-        radial-gradient(circle at top left, rgba(122, 211, 255, 0.16), transparent 30%),
-        radial-gradient(circle at top right, rgba(159, 227, 182, 0.14), transparent 26%),
-        linear-gradient(180deg, #08111a 0%, #0b1623 50%, #071019 100%);
+        radial-gradient(circle at top left, rgba(167, 139, 250, 0.18), transparent 28%),
+        radial-gradient(circle at top right, rgba(125, 211, 252, 0.16), transparent 30%),
+        linear-gradient(180deg, #07101e 0%, #0b1526 55%, #060c16 100%);
     }
 
     main {
-      max-width: 1120px;
+      max-width: 1100px;
       margin: 0 auto;
-      padding: 56px 22px 72px;
+      padding: 72px 24px 56px;
     }
 
     .hero {
       display: grid;
-      grid-template-columns: 1.35fr 1fr;
-      gap: 24px;
-      align-items: start;
-    }
-
-    .panel {
-      border: 1px solid var(--line);
-      border-radius: 26px;
-      background: linear-gradient(180deg, var(--panel), var(--panel-2));
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(18px);
-    }
-
-    .hero-copy,
-    .hero-side,
-    .section {
-      padding: 26px;
+      gap: 28px;
+      grid-template-columns: 1.4fr 1fr;
+      align-items: center;
     }
 
     .badge {
@@ -62,54 +49,55 @@
       align-items: center;
       gap: 8px;
       padding: 8px 14px;
-      border-radius: 999px;
       border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.03);
       color: var(--accent);
+      letter-spacing: 0.02em;
       text-transform: uppercase;
-      letter-spacing: 0.08em;
       font-size: 12px;
       font-weight: 700;
     }
 
     h1 {
-      margin: 16px 0 12px;
-      font-size: clamp(2.7rem, 7vw, 5.2rem);
+      margin: 18px 0 14px;
+      font-size: clamp(3rem, 7vw, 5.5rem);
       line-height: 0.95;
       letter-spacing: -0.05em;
     }
 
     .lead {
-      margin: 0;
-      max-width: 64ch;
+      max-width: 62ch;
       color: var(--muted);
-      font-size: 1.03rem;
+      font-size: 1.05rem;
     }
 
-    .facts,
-    .cards,
-    .steps,
-    .links,
+    .panel {
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, var(--panel), var(--panel-2));
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+    }
+
+    .card {
+      padding: 24px;
+    }
+
     .meta-grid {
       display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 14px;
-    }
-
-    .facts {
       margin-top: 24px;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
     }
 
-    .fact,
-    .card,
-    .step,
     .meta {
       padding: 16px;
       border-radius: 18px;
-      background: rgba(255, 255, 255, 0.035);
-      border: 1px solid rgba(255, 255, 255, 0.07);
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.06);
     }
 
-    .fact span,
     .meta span {
       display: block;
       color: var(--muted);
@@ -119,18 +107,15 @@
       margin-bottom: 6px;
     }
 
-    .fact strong,
     .meta strong {
       font-size: 1rem;
       color: var(--text);
     }
 
-    .meta-grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
     .links {
-      margin-top: 16px;
+      display: grid;
+      gap: 12px;
+      margin-top: 22px;
     }
 
     a.link {
@@ -140,49 +125,57 @@
       gap: 16px;
       text-decoration: none;
       color: var(--text);
-      padding: 15px 16px;
-      border-radius: 16px;
+      padding: 16px 18px;
+      border-radius: 18px;
       background: rgba(255, 255, 255, 0.04);
-      border: 1px solid rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.06);
       transition: transform 140ms ease, border-color 140ms ease, background 140ms ease;
     }
 
     a.link:hover {
       transform: translateY(-1px);
-      border-color: rgba(122, 211, 255, 0.35);
-      background: rgba(122, 211, 255, 0.08);
+      border-color: rgba(125, 211, 252, 0.35);
+      background: rgba(125, 211, 252, 0.08);
     }
 
     .section {
-      margin-top: 24px;
+      margin-top: 28px;
+      padding: 24px;
     }
 
     h2 {
-      margin: 0 0 12px;
-      font-size: 1.18rem;
+      margin: 0 0 14px;
+      font-size: 1.2rem;
       letter-spacing: -0.02em;
-    }
-
-    p,
-    li {
-      color: var(--muted);
     }
 
     ul {
       margin: 0;
       padding-left: 18px;
+      color: var(--muted);
     }
 
-    li + li {
-      margin-top: 8px;
+    li + li { margin-top: 8px; }
+
+    .footer {
+      margin-top: 22px;
+      color: var(--muted);
+      font-size: 0.94rem;
     }
 
-    .cards {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+    .accent {
+      color: var(--accent);
     }
 
-    .steps {
-      grid-template-columns: repeat(4, minmax(0, 1fr));
+    pre {
+      margin: 12px 0 0;
+      padding: 14px 16px;
+      border-radius: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(7, 16, 30, 0.9);
+      color: #d7e5ff;
+      overflow-x: auto;
+      font-size: 0.95rem;
     }
 
     code,
@@ -190,54 +183,37 @@
       font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
     }
 
-    code {
-      padding: 0.1rem 0.35rem;
-      border-radius: 6px;
-      background: rgba(255, 255, 255, 0.08);
-      color: var(--text);
-    }
-
-    pre {
-      margin: 12px 0 0;
-      padding: 14px 16px;
-      border-radius: 16px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      background: rgba(7, 15, 25, 0.96);
-      color: #d9e7f8;
-      overflow-x: auto;
-      font-size: 0.94rem;
-    }
-
     .cmd-grid {
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 14px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      margin-top: 12px;
     }
 
     .cmd {
-      padding: 16px;
-      border-radius: 16px;
-      background: rgba(255, 255, 255, 0.035);
-      border: 1px solid rgba(255, 255, 255, 0.07);
+      padding: 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(255, 255, 255, 0.03);
     }
 
     .cmd strong {
       display: block;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
+      font-size: 0.92rem;
+      letter-spacing: 0.02em;
+      color: var(--text);
     }
 
-    .footer {
-      margin-top: 20px;
-      color: var(--muted);
-      font-size: 0.94rem;
-    }
+    @media (max-width: 840px) {
+      .hero {
+        grid-template-columns: 1fr;
+      }
 
-    @media (max-width: 860px) {
-      .hero,
-      .facts,
-      .meta-grid,
-      .cards,
-      .steps,
+      .meta-grid {
+        grid-template-columns: 1fr;
+      }
+
       .cmd-grid {
         grid-template-columns: 1fr;
       }
@@ -247,119 +223,93 @@
 <body>
   <main>
     <section class="hero">
-      <div class="panel hero-copy">
-        <div class="badge">PortHound</div>
-        <h1>Escaneo local con UI, API y SQLite.</h1>
+      <div>
+        <div class="badge">Sitio oficial de PortHound</div>
+        <h1>Escaneo de red para operaciones autorizadas.</h1>
         <p class="lead">
-          PortHound empaqueta escaneo activo, banner grabbing, mapa, analitica y persistencia local
-          en un solo runtime Python. El flujo soportado del proyecto es <code>standalone</code>,
-          servido por el mismo proceso sobre <code>wsbuilder</code>.
+          PortHound es el escaner de red de nueva generacion construido sobre <span class="accent">wsbuilder</span>.
+          El README es la fuente de verdad; esta pagina replica la documentacion publica y enlaza los puntos de
+          entrada clave del proyecto.
         </p>
 
-        <div class="facts">
-          <div class="fact">
-            <span>Host efectivo</span>
-            <strong>127.0.0.1</strong>
-          </div>
-          <div class="fact">
-            <span>Puerto efectivo</span>
-            <strong>45678</strong>
-          </div>
-          <div class="fact">
-            <span>Paquete PyPI</span>
-            <strong>porthound4</strong>
-          </div>
-        </div>
-      </div>
-
-      <div class="panel hero-side">
-        <h2>Accesos rapidos</h2>
         <div class="meta-grid">
+          <div class="meta">
+            <span>Dominio oficial</span>
+            <strong>porthound.jorgelsc.dev</strong>
+          </div>
           <div class="meta">
             <span>Repositorio</span>
             <strong>jorgelsc-dev/porthound</strong>
           </div>
-          <div class="meta">
-            <span>Frontend</span>
-            <strong>Vue 3 + Vuetify</strong>
-          </div>
         </div>
+      </div>
+
+      <div class="panel card">
+        <h2>Accesos rapidos</h2>
         <div class="links">
-          <a class="link" href="https://github.com/jorgelsc-dev/porthound/blob/main/README.md"><span>README</span><span>→</span></a>
+          <a class="link" href="https://github.com/jorgelsc-dev/porthound/blob/main/README.md"><span>README del proyecto</span><span>→</span></a>
+          <a class="link" href="https://github.com/jorgelsc-dev/porthound/blob/main/README.md#inicio-rapido"><span>Inicio rapido</span><span>→</span></a>
+          <a class="link" href="https://github.com/jorgelsc-dev/porthound/blob/main/README.md#empaquetado"><span>Empaquetado</span><span>→</span></a>
+          <a class="link" href="https://github.com/jorgelsc-dev/porthound/blob/main/README.md#seguridad"><span>Seguridad</span><span>→</span></a>
           <a class="link" href="https://github.com/jorgelsc-dev/porthound"><span>Codigo fuente</span><span>→</span></a>
-          <a class="link" href="https://github.com/jorgelsc-dev/porthound/blob/main/data/README.md"><span>Notas de datos</span><span>→</span></a>
-          <a class="link" href="https://porthound.jorgelsc.dev"><span>Dominio publico</span><span>→</span></a>
         </div>
       </div>
     </section>
 
     <section class="panel section">
-      <h2>Mapa del runtime</h2>
-      <div class="steps">
-        <div class="step"><strong>1. Targets</strong><br><span>Redes, protocolos y rangos se registran en SQLite.</span></div>
-        <div class="step"><strong>2. Scanners</strong><br><span>TCP, UDP, ICMP y SCTP procesan el trabajo activo.</span></div>
-        <div class="step"><strong>3. Persistencia</strong><br><span>Puertos, banners, tags y favicons quedan versionados localmente.</span></div>
-        <div class="step"><strong>4. UI/API</strong><br><span>Dashboard, mapas, analitica y WebSocket leen el mismo estado.</span></div>
-      </div>
-    </section>
-
-    <section class="panel section">
-      <h2>Bloques principales</h2>
-      <div class="cards">
-        <div class="card"><strong>Escaneo</strong><br><span>Targets con acciones individuales o bulk sobre protocolos soportados por el runtime.</span></div>
-        <div class="card"><strong>Catalogos</strong><br><span>Reglas regex, probes y presets de IP se editan por API y por ficheros seed.</span></div>
-        <div class="card"><strong>Observabilidad</strong><br><span>Dashboard, chart analytics, mapa y feed de ataques comparten el mismo backend.</span></div>
-        <div class="card"><strong>GeoIP</strong><br><span>Seeds versionados en <code>data/</code> se importan a la base activa al arrancar.</span></div>
-      </div>
-    </section>
-
-    <section class="panel section">
-      <h2>Inicio rapido</h2>
+      <h2>Instalacion y uso</h2>
       <div class="cmd-grid">
         <div class="cmd">
-          <strong>Instalar</strong>
-          <pre><code>python -m pip install porthound4</code></pre>
+          <strong>Instalar desde PyPI</strong>
+          <pre><code>pip install porthound4</code></pre>
         </div>
         <div class="cmd">
-          <strong>Arrancar</strong>
-          <pre><code>porthound --db-path Standalone.db</code></pre>
-        </div>
-        <div class="cmd">
-          <strong>Dashboard</strong>
-          <pre><code>http://127.0.0.1:45678</code></pre>
-        </div>
-        <div class="cmd">
-          <strong>Estado rapido</strong>
-          <pre><code>curl http://127.0.0.1:45678/api/dashboard/</code></pre>
+          <strong>Ejecutar</strong>
+          <pre><code>porthound</code></pre>
         </div>
       </div>
       <p class="footer">
-        El launcher standalone fija <code>127.0.0.1:45678</code>. Los flags <code>--host</code> y
-        <code>--port</code> no cambian ese bind en el flujo publico del paquete.
+        Bind efectivo: <code>127.0.0.1:45678</code>. El launcher standalone mantiene ese valor y no expone un bind
+        publico distinto.<br>
+        UI/API local: <code>http://127.0.0.1:45678</code>
       </p>
     </section>
 
     <section class="panel section">
-      <h2>Superficie API y WS</h2>
+      <h2>Documentacion</h2>
       <ul>
-        <li><code>/targets/</code>, <code>/target/</code>, <code>/target/action/</code> para control de trabajo.</li>
-        <li><code>/ports/*</code>, <code>/banners/</code>, <code>/tags/*</code> y <code>/favicons/</code> para resultados.</li>
-        <li><code>/api/dashboard/</code>, <code>/api/charts/analytics</code> y <code>/api/map/scan</code> para snapshots de UI.</li>
-        <li><code>/api/catalog/*</code> para reglas regex, probes e IP presets.</li>
-        <li><code>/api/ip/domains/</code>, <code>/api/ip/ttl-path/</code> y <code>/api/ip/intel/</code> para enrichment.</li>
-        <li><code>/api/ws/*</code> y <code>WS /ws/</code> para clientes conectados, ping, broadcast y snapshots.</li>
+        <li><a href="https://github.com/jorgelsc-dev/porthound/blob/main/README.md#resumen">Resumen</a></li>
+        <li><a href="https://github.com/jorgelsc-dev/porthound/blob/main/README.md#flujo-de-ramas">Flujo de ramas</a></li>
+        <li><a href="https://github.com/jorgelsc-dev/porthound/blob/main/README.md#escaneo">Escaneo</a></li>
+        <li><a href="https://github.com/jorgelsc-dev/porthound/blob/main/README.md#banner-grabbing">Banner grabbing</a></li>
+        <li><a href="https://github.com/jorgelsc-dev/porthound/blob/main/README.md#api-y-websocket">API y WebSocket</a></li>
+        <li><a href="https://github.com/jorgelsc-dev/porthound/blob/main/README.md#dns-y-registros">DNS y registros</a></li>
+        <li><a href="https://github.com/jorgelsc-dev/porthound/blob/main/README.md#despliegue">Despliegue</a></li>
       </ul>
+      <p class="footer">
+        Uso responsable unicamente. PortHound solo debe emplearse en sistemas propios o con autorizacion explicita.
+      </p>
     </section>
 
     <section class="panel section">
-      <h2>Seguridad y alcance</h2>
+      <h2>DNS y registros</h2>
+      <p class="footer" style="margin-top:0">
+        PortHound puede usar tus propios resolvers para descubrimiento de hosts y consultas inversas. El servidor
+        DNS embebido es ligero y publica registros <span class="accent">A</span> y <span class="accent">AAAA</span>
+        para laboratorios o nombres internos.
+      </p>
       <ul>
-        <li>Sin <code>PORTHOUND_API_TOKEN</code>, las acciones administrativas solo aceptan clientes loopback.</li>
-        <li><code>PORTHOUND_API_TOKEN</code> se envia por <code>Authorization: Bearer</code> o <code>X-API-Key</code>.</li>
-        <li><code>PORTHOUND_API_REQUIRE_TOKEN=1</code> debe usarse junto con <code>PORTHOUND_API_TOKEN</code>.</li>
-        <li>La distribucion CA y el enrollment por certificado estan deshabilitados en el runtime actual.</li>
-        <li>Usa PortHound solo para auditorias autorizadas.</li>
+        <li><strong>Resolvers:</strong> <code>udp://</code>, <code>tcp://</code>, <code>dot://</code>, <code>doh://</code>.</li>
+        <li><strong>Entorno:</strong> <code>PORTHOUND_DNS_RESOLVERS</code>, <code>PORTHOUND_DNS_TIMEOUT_SECONDS</code>, <code>PORTHOUND_DNS_USE_SYSTEM_RESOLVER</code>.</li>
+        <li><strong>Registros:</strong> <code>A</code>, <code>AAAA</code>, <code>CNAME</code>, <code>MX</code>, <code>NS</code>, <code>TXT</code>, <code>SRV</code>, <code>PTR</code> y <code>CAA</code> en tu zona DNS real.</li>
       </ul>
+      <p class="footer">
+        El servidor DNS local suele escuchar en <code>5300</code> en laboratorios porque <code>53</code> a menudo
+        requiere privilegios de administrador.
+      </p>
+      <div class="links" style="margin-top:18px">
+        <a class="link" href="https://github.com/jorgelsc-dev/porthound/blob/main/README.md#dns-y-registros"><span>Guia DNS completa</span><span>→</span></a>
+      </div>
     </section>
   </main>
 </body>
