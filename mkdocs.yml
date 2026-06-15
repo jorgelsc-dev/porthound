@@ -28,6 +28,8 @@ theme:
   language: es
   logo: assets/logo.png
   favicon: assets/favicon.png
+  icon:
+    repo: fontawesome/brands/github
   features:
     - navigation.tabs
     - navigation.sections
@@ -36,6 +38,10 @@ theme:
     - search.suggest
     - content.code.copy
     - content.action.edit
+  palette:
+    - scheme: slate
+      primary: cyan
+      accent: deep purple
 
 plugins:
   - search
@@ -48,3 +54,6 @@ markdown_extensions:
   - pymdownx.superfences
   - pymdownx.tabbed:
       alternate_style: true
+
+extra_css:
+  - assets/stylesheets/extra.css

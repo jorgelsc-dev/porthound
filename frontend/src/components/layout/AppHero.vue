@@ -108,7 +108,7 @@
           <div class="btc-address mt-3">{{ btcAddress }}</div>
           <div class="d-flex flex-wrap ga-2 mt-3">
             <v-btn
-              color="warning"
+              color="secondary"
               variant="flat"
               size="small"
               prepend-icon="mdi-content-copy"
@@ -117,7 +117,7 @@
               Copy BTC
             </v-btn>
             <v-btn
-              color="warning"
+              color="secondary"
               variant="outlined"
               size="small"
               prepend-icon="mdi-currency-btc"
@@ -182,19 +182,12 @@ export default {
 .hero-banner {
   position: relative;
   overflow: hidden;
-  background: radial-gradient(
-      110% 140% at -8% -24%,
-      rgba(53, 196, 237, 0.24),
-      transparent 58%
-    ),
-    radial-gradient(
-      90% 110% at 110% -30%,
-      rgba(244, 176, 79, 0.18),
-      transparent 63%
-    ),
-    linear-gradient(122deg, rgba(13, 21, 32, 0.98), rgba(8, 14, 23, 0.98));
-  border: 1px solid rgba(88, 176, 224, 0.26);
-  box-shadow: 0 26px 50px rgba(3, 7, 14, 0.42), inset 0 0 0 1px rgba(255, 255, 255, 0.03);
+  background:
+    radial-gradient(110% 140% at -8% -24%, rgba(52, 230, 255, 0.2), transparent 58%),
+    radial-gradient(90% 110% at 110% -30%, rgba(149, 115, 255, 0.18), transparent 63%),
+    linear-gradient(122deg, rgba(9, 14, 23, 0.98), rgba(7, 12, 20, 0.98));
+  border: 1px solid rgba(102, 212, 255, 0.22);
+  box-shadow: 0 28px 56px rgba(2, 7, 14, 0.44), inset 0 0 0 1px rgba(255, 255, 255, 0.03);
 }
 
 .hero-banner::before {
@@ -206,38 +199,39 @@ export default {
   height: 220px;
   background: radial-gradient(
     60% 100% at 50% 100%,
-    rgba(90, 182, 228, 0.2),
-    rgba(90, 182, 228, 0)
+    rgba(149, 115, 255, 0.2),
+    rgba(149, 115, 255, 0)
   );
   pointer-events: none;
 }
 
 .api-card {
-  border: 1px solid rgba(118, 191, 232, 0.24);
-  background: linear-gradient(180deg, rgba(16, 26, 39, 0.9), rgba(11, 18, 28, 0.82));
+  border: 1px solid rgba(102, 212, 255, 0.22);
+  background: linear-gradient(180deg, rgba(14, 22, 36, 0.92), rgba(10, 15, 25, 0.84));
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.03);
 }
 
 .usage-notice {
-  border: 1px solid rgba(255, 196, 118, 0.18);
-  background: linear-gradient(180deg, rgba(38, 26, 14, 0.74), rgba(26, 20, 12, 0.54)) !important;
+  border: 1px solid rgba(149, 115, 255, 0.22);
+  background:
+    linear-gradient(180deg, rgba(23, 18, 46, 0.82), rgba(12, 15, 28, 0.64)) !important;
 }
 
 .direct-link-value {
   padding: 0.9rem 1rem;
   border-radius: 14px;
-  border: 1px solid rgba(118, 191, 232, 0.18);
-  background: rgba(12, 21, 34, 0.72);
-  color: rgba(202, 230, 255, 0.96);
+  border: 1px solid rgba(102, 212, 255, 0.18);
+  background: rgba(10, 17, 27, 0.78);
+  color: rgba(231, 238, 255, 0.96);
   word-break: break-all;
 }
 
 .btc-address {
   padding: 0.78rem 0.9rem;
   border-radius: 12px;
-  border: 1px solid rgba(252, 186, 72, 0.28);
-  background: rgba(46, 31, 12, 0.55);
-  color: rgba(255, 220, 157, 0.98);
+  border: 1px solid rgba(149, 115, 255, 0.22);
+  background: rgba(20, 18, 40, 0.68);
+  color: rgba(232, 238, 255, 0.96);
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
   font-size: 0.85rem;
   word-break: break-all;
