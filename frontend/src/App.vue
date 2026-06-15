@@ -205,20 +205,22 @@ export default {
 }
 
 .auth-dialog-card {
-  border: 1px solid rgba(52, 230, 255, 0.16);
+  overflow: hidden;
+  border: 1px solid rgba(102, 212, 255, 0.22);
   background:
-    radial-gradient(circle at top right, rgba(255, 159, 67, 0.18), transparent 42%),
-    linear-gradient(160deg, rgba(19, 29, 40, 0.94), rgba(11, 17, 24, 0.98));
+    radial-gradient(circle at top right, rgba(52, 230, 255, 0.12), transparent 40%),
+    radial-gradient(circle at bottom left, rgba(149, 115, 255, 0.12), transparent 44%),
+    linear-gradient(160deg, rgba(9, 14, 22, 0.96), rgba(12, 19, 31, 0.98));
 }
 
 .auth-dialog-topline {
-  height: 4px;
+  height: 6px;
   border-radius: 999px 999px 0 0;
-  background: linear-gradient(90deg, rgba(52, 230, 255, 0.9), rgba(255, 159, 67, 0.9));
+  background: linear-gradient(90deg, rgba(52, 230, 255, 0.92), rgba(149, 115, 255, 0.92));
 }
 
 .auth-dialog-copy {
-  color: rgba(216, 228, 240, 0.86);
+  color: rgba(210, 223, 238, 0.88);
 }
 
 .view-fade-enter-active,

@@ -68,7 +68,7 @@
         </v-chip>
         <v-btn
           class="d-none d-lg-flex ml-1"
-          color="warning"
+          color="secondary"
           variant="outlined"
           size="small"
           prepend-icon="mdi-currency-btc"
@@ -161,14 +161,26 @@ export default {
 
 <style scoped>
 .top-bar {
-  border-bottom: 1px solid rgba(97, 176, 221, 0.2);
-  backdrop-filter: blur(16px);
-  background: linear-gradient(
-    180deg,
-    rgba(10, 16, 27, 0.93) 0%,
-    rgba(10, 16, 27, 0.72) 72%,
-    rgba(10, 16, 27, 0.2) 100%
-  );
+  position: relative;
+  overflow: hidden;
+  border-bottom: 1px solid rgba(102, 212, 255, 0.18);
+  backdrop-filter: blur(18px) saturate(130%);
+  background:
+    radial-gradient(circle at 18% 0%, rgba(52, 230, 255, 0.12), transparent 34%),
+    radial-gradient(circle at 82% 0%, rgba(149, 115, 255, 0.14), transparent 38%),
+    linear-gradient(180deg, rgba(7, 11, 18, 0.94) 0%, rgba(10, 16, 27, 0.76) 72%, rgba(10, 16, 27, 0.18) 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+
+.top-bar::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, rgba(52, 230, 255, 0), rgba(52, 230, 255, 0.95), rgba(149, 115, 255, 0.95), rgba(52, 230, 255, 0));
+  pointer-events: none;
 }
 
 .app-topbar {
@@ -182,21 +194,45 @@ export default {
   min-width: 0;
 }
 
+.brand-lockup :deep(.v-avatar) {
+  border: 1px solid rgba(52, 230, 255, 0.22);
+  box-shadow:
+    0 0 0 1px rgba(149, 115, 255, 0.12),
+    0 0 18px rgba(52, 230, 255, 0.16);
+  overflow: hidden;
+}
+
 .brand-copy {
   min-width: 0;
 }
 
+.brand-copy .text-subtitle-1 {
+  letter-spacing: 0.04em;
+}
+
+.brand-copy .text-caption {
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.68rem !important;
+}
+
 .top-tabs :deep(.v-tab) {
   min-width: 72px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
+  font-weight: 650;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.top-tabs :deep(.v-tab--selected) {
+  color: rgba(52, 230, 255, 0.98);
+  text-shadow: 0 0 14px rgba(52, 230, 255, 0.16);
 }
 
 .status-rail {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 8px;
+  gap: 10px;
   min-width: 0;
   flex-wrap: wrap;
 }

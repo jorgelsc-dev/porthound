@@ -23,23 +23,55 @@
     })();
   </script>
   <style>
+    :root {
+      color-scheme: dark;
+      font-family: "Saira Semi Condensed", system-ui, sans-serif;
+    }
     body {
       margin: 0;
       min-height: 100vh;
       display: grid;
       place-items: center;
-      font-family: system-ui, sans-serif;
-      background: #08111f;
-      color: #e9eef7;
+      background:
+        radial-gradient(900px 700px at 50% 18%, rgba(52, 230, 255, 0.18), transparent 58%),
+        radial-gradient(780px 560px at 52% 84%, rgba(149, 115, 255, 0.16), transparent 60%),
+        linear-gradient(160deg, #04070d, #08111b 46%, #060b12 100%);
+      color: rgba(233, 243, 255, 0.96);
       text-align: center;
       padding: 24px;
     }
+    main {
+      width: min(100%, 42rem);
+      padding: 2rem;
+      border-radius: 1.25rem;
+      border: 1px solid rgba(102, 212, 255, 0.2);
+      background:
+        radial-gradient(circle at top right, rgba(52, 230, 255, 0.12), transparent 38%),
+        radial-gradient(circle at bottom left, rgba(149, 115, 255, 0.12), transparent 42%),
+        linear-gradient(160deg, rgba(9, 14, 22, 0.96), rgba(12, 19, 31, 0.98));
+      box-shadow: 0 28px 56px rgba(2, 7, 14, 0.44), inset 0 0 0 1px rgba(255, 255, 255, 0.03);
+      backdrop-filter: blur(18px) saturate(130%);
+    }
+    h1 {
+      margin: 0 0 0.75rem;
+      font-size: clamp(1.8rem, 4vw, 2.6rem);
+      line-height: 1.05;
+    }
     p {
       max-width: 36rem;
-      color: #9fb2cc;
+      margin: 0.75rem auto;
+      color: rgba(166, 184, 208, 0.86);
+      line-height: 1.6;
     }
     a {
-      color: #7dd3fc;
+      color: rgba(93, 225, 255, 0.98);
+      text-decoration-color: rgba(149, 115, 255, 0.42);
+    }
+    code {
+      background: rgba(8, 14, 23, 0.9);
+      border: 1px solid rgba(102, 212, 255, 0.18);
+      border-radius: 0.45rem;
+      padding: 0.15rem 0.35rem;
     }
   </style>
 </head>

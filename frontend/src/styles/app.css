@@ -3,18 +3,21 @@
   --font-ui: "Saira Semi Condensed", "Rajdhani", "Inter Tight", "Segoe UI", "Noto Sans", "Arial Narrow", Arial, sans-serif;
   --font-heading: "Oxanium", "Saira Semi Condensed", "Rajdhani", "Inter Tight", "Segoe UI", "Noto Sans", "Arial Narrow", Arial, sans-serif;
   --font-mono: "IBM Plex Mono", "Fira Code", "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-  --bg-0: #060b12;
-  --bg-1: #0c1420;
-  --bg-2: #102031;
-  --surface-0: rgba(12, 20, 31, 0.88);
-  --surface-1: rgba(15, 25, 38, 0.94);
-  --stroke: rgba(96, 177, 223, 0.24);
-  --stroke-strong: rgba(116, 199, 240, 0.36);
-  --text-soft: rgba(209, 222, 238, 0.88);
-  --text-dim: rgba(165, 184, 208, 0.78);
-  --skel-a: rgba(60, 112, 157, 0.32);
-  --skel-b: rgba(115, 189, 230, 0.34);
-  --skel-c: rgba(144, 240, 255, 0.18);
+  --bg-0: #04070d;
+  --bg-1: #08111b;
+  --bg-2: #0d1725;
+  --surface-0: rgba(9, 14, 23, 0.86);
+  --surface-1: rgba(12, 19, 31, 0.94);
+  --stroke: rgba(102, 212, 255, 0.22);
+  --stroke-strong: rgba(149, 115, 255, 0.38);
+  --text-soft: rgba(233, 243, 255, 0.9);
+  --text-dim: rgba(166, 184, 208, 0.78);
+  --skel-a: rgba(33, 59, 96, 0.36);
+  --skel-b: rgba(72, 147, 228, 0.34);
+  --skel-c: rgba(161, 132, 255, 0.18);
+  --brand-cyan: #34e6ff;
+  --brand-blue: #4d8cff;
+  --brand-violet: #9573ff;
 }
 
 body {
@@ -24,13 +27,15 @@ body {
   line-height: 1.45;
   font-weight: 470;
   font-feature-settings: "ss01" 1, "cv08" 1;
-  background: radial-gradient(1200px 740px at -12% -18%, rgba(50, 177, 214, 0.26), transparent 58%),
-    radial-gradient(980px 660px at 110% -16%, rgba(241, 170, 73, 0.18), transparent 60%),
-    radial-gradient(980px 620px at 50% 118%, rgba(73, 144, 220, 0.14), transparent 62%),
-    linear-gradient(160deg, var(--bg-0), var(--bg-1) 44%, #070f1a 100%);
+  background:
+    radial-gradient(900px 700px at 50% 18%, rgba(52, 230, 255, 0.18), transparent 58%),
+    radial-gradient(780px 560px at 52% 84%, rgba(149, 115, 255, 0.16), transparent 60%),
+    radial-gradient(1200px 780px at -18% -20%, rgba(77, 140, 255, 0.13), transparent 60%),
+    radial-gradient(1200px 780px at 118% -24%, rgba(52, 230, 255, 0.08), transparent 58%),
+    linear-gradient(160deg, var(--bg-0), var(--bg-1) 46%, #060b12 100%);
   margin: 0;
   min-height: 100vh;
-  color: #eaf4ff;
+  color: rgba(233, 243, 255, 0.96);
 }
 
 body::before {
@@ -38,16 +43,20 @@ body::before {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  background-image: linear-gradient(rgba(145, 187, 216, 0.06) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(145, 187, 216, 0.06) 1px, transparent 1px);
+  background-image: linear-gradient(rgba(168, 204, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(168, 204, 255, 0.05) 1px, transparent 1px);
   background-size: 54px 54px;
   opacity: 0.28;
   z-index: -1;
 }
 
+.v-navigation-drawer {
+  background: linear-gradient(180deg, rgba(8, 13, 21, 0.98), rgba(6, 10, 16, 0.98));
+}
+
 .v-application {
   background: transparent;
-  color: #eaf4ff;
+  color: rgba(233, 243, 255, 0.96);
   text-rendering: optimizeLegibility;
   font-family: var(--font-ui);
 }
@@ -70,7 +79,7 @@ body::before {
   font-family: var(--font-heading);
   letter-spacing: 0.12em;
   font-weight: 600;
-  color: rgba(114, 224, 255, 0.94);
+  color: var(--brand-cyan);
 }
 
 .v-card {
@@ -81,17 +90,18 @@ body::before {
 }
 
 .v-card:hover {
-  border-color: rgba(120, 198, 237, 0.34);
-  box-shadow: 0 18px 34px rgba(3, 8, 15, 0.38);
+  border-color: rgba(149, 115, 255, 0.34);
+  box-shadow: 0 20px 40px rgba(2, 6, 12, 0.42);
 }
 
 .v-card--variant-tonal {
   border: 1px solid var(--stroke);
-  background: linear-gradient(180deg, rgba(15, 25, 37, 0.95), rgba(11, 18, 29, 0.9));
+  background: linear-gradient(180deg, rgba(15, 24, 38, 0.95), rgba(10, 15, 25, 0.92));
 }
 
 .v-card--variant-outlined {
   border: 1px solid var(--stroke-strong);
+  background: rgba(8, 13, 21, 0.62);
 }
 
 .v-skeleton-loader {
@@ -110,14 +120,14 @@ body::before {
   ) !important;
   background-size: 240% 100% !important;
   animation: global-skeleton-slide 1.15s ease-in-out infinite;
-  box-shadow: inset 0 0 0 1px rgba(130, 194, 228, 0.06), 0 0 24px rgba(59, 161, 215, 0.06);
+  box-shadow: inset 0 0 0 1px rgba(130, 194, 228, 0.06), 0 0 24px rgba(149, 115, 255, 0.06);
 }
 
 .v-table {
   border: 1px solid var(--stroke);
-  border-radius: 14px;
+  border-radius: 16px;
   overflow: hidden;
-  background: rgba(8, 14, 23, 0.7);
+  background: rgba(7, 12, 19, 0.78);
 }
 
 .v-table thead th {
@@ -126,8 +136,8 @@ body::before {
   font-size: 0.72rem;
   font-weight: 620;
   text-transform: uppercase;
-  color: rgba(171, 201, 228, 0.92);
-  background: rgba(8, 14, 23, 0.9);
+  color: rgba(204, 228, 255, 0.92);
+  background: rgba(8, 14, 23, 0.92);
 }
 
 .v-table tbody td {
@@ -142,7 +152,7 @@ body::before {
 }
 
 .v-table tbody tr:hover {
-  background: rgba(57, 128, 174, 0.18);
+  background: rgba(94, 84, 214, 0.18);
 }
 
 .v-btn {
@@ -155,6 +165,7 @@ body::before {
 
 .v-btn:hover {
   transform: translateY(-1px);
+  box-shadow: 0 8px 26px rgba(52, 230, 255, 0.08);
 }
 
 .v-chip {
@@ -196,8 +207,8 @@ samp {
 .v-field--loading .v-progress-linear__determinate,
 .v-field--loading .v-progress-linear__indeterminate .long,
 .v-field--loading .v-progress-linear__indeterminate .short {
-  background: linear-gradient(90deg, rgba(77, 198, 247, 0.92), rgba(117, 235, 255, 0.96)) !important;
-  box-shadow: 0 0 12px rgba(66, 194, 242, 0.24);
+  background: linear-gradient(90deg, rgba(52, 230, 255, 0.92), rgba(149, 115, 255, 0.96)) !important;
+  box-shadow: 0 0 12px rgba(52, 230, 255, 0.24);
 }
 
 .v-btn--loading {
@@ -205,11 +216,11 @@ samp {
 }
 
 a {
-  color: rgba(117, 220, 249, 0.98);
+  color: rgba(93, 225, 255, 0.98);
 }
 
 * {
-  scrollbar-color: rgba(96, 177, 223, 0.52) rgba(5, 10, 16, 0.6);
+  scrollbar-color: rgba(102, 212, 255, 0.52) rgba(5, 10, 16, 0.6);
 }
 
 @media (max-width: 959px) {

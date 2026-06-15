@@ -50,6 +50,21 @@ export default {
 
 <style scoped>
 .mobile-drawer {
-  border-right: 1px solid rgba(95, 176, 218, 0.2);
+  border-right: 1px solid rgba(102, 212, 255, 0.18);
+  background: linear-gradient(180deg, rgba(8, 13, 21, 0.98), rgba(6, 10, 16, 0.98));
+  backdrop-filter: blur(18px) saturate(120%);
+}
+
+.mobile-drawer :deep(.v-list) {
+  padding-top: 16px;
+}
+
+.mobile-drawer :deep(.v-list-item) {
+  margin: 4px 12px;
+  border-radius: 12px;
+}
+
+.mobile-drawer :deep(.v-list-item--active) {
+  background: rgba(52, 230, 255, 0.12);
 }
 </style>
