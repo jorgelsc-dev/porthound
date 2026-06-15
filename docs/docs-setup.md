@@ -7,6 +7,7 @@ La marca `Made with Material for MkDocs` no se escribe en el contenido: la añad
 - `mkdocs.yml` define la navegacion, el tema, el idioma, los atajos visuales y las extensiones Markdown.
 - `docs/` contiene las paginas Markdown y los assets del sitio.
 - `docs/index.html` queda como landing heredada, pero `exclude_docs` la saca del build de MkDocs.
+- `docs/.nojekyll` evita que GitHub Pages procese el sitio como contenido de Jekyll.
 - `.github/workflows/docs-pages.yml` construye `site/` y publica el resultado en GitHub Pages.
 - `docs/CNAME` fija el dominio personalizado.
 - `docs/404.html` redirige URLs antiguas terminadas en `.md` hacia la ruta publica.
