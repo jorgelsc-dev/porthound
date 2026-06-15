@@ -1,5 +1,5 @@
 site_name: PortHound Docs
-site_description: Documentacion oficial de PortHound
+site_description: "Documentacion oficial de PortHound: instalacion, arquitectura, UI, API y persistencia"
 site_author: PortHound Authors
 site_url: https://porthound.jorgelsc.dev/
 repo_url: https://github.com/jorgelsc-dev/porthound
@@ -8,9 +8,17 @@ edit_uri: edit/main/docs/
 
 nav:
   - Inicio: index.md
-  - Guia de documentacion: docs-setup.md
+  - Primeros pasos: getting-started.md
+  - Arquitectura: architecture.md
+  - Interfaz web: reference/ui.md
   - Referencia:
+      - Configuracion: reference/configuration.md
+      - Seguridad: reference/security.md
+      - Catalogos: reference/catalogs.md
       - Persistencia SQLite: reference/persistence.md
+      - API HTTP: reference/api.md
+      - WebSocket: reference/websocket.md
+  - Guia de documentacion: docs-setup.md
 
 exclude_docs: |
   /index.html
@@ -18,6 +26,8 @@ exclude_docs: |
 theme:
   name: material
   language: es
+  logo: assets/logo.png
+  favicon: assets/favicon.png
   features:
     - navigation.tabs
     - navigation.sections
