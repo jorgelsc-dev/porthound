@@ -1,0 +1,40 @@
+site_name: PortHound Docs
+site_description: Documentacion oficial de PortHound
+site_author: PortHound Authors
+site_url: https://porthound.jorgelsc.dev/
+repo_url: https://github.com/jorgelsc-dev/porthound
+repo_name: PortHound
+edit_uri: edit/main/docs/
+
+nav:
+  - Inicio: index.md
+  - Guia de documentacion: docs-setup.md
+  - Referencia:
+      - Persistencia SQLite: reference/persistence.md
+
+exclude_docs: |
+  /index.html
+
+theme:
+  name: material
+  language: es
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - search.highlight
+    - search.suggest
+    - content.code.copy
+    - content.action.edit
+
+plugins:
+  - search
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - toc:
+      permalink: true
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true

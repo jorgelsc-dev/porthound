@@ -20,9 +20,10 @@ Palabras clave: `python`, `network-scanner`, `port-scanner`, `cybersecurity`, `b
 ## Documentacion
 
 - Sitio publico: [porthound.jorgelsc.dev](https://porthound.jorgelsc.dev)
-- Este README es la fuente de verdad del proyecto.
-- La documentacion publica replica este contenido en forma de landing page.
-- El repositorio mantiene solo los archivos necesarios para codigo, build, despliegue y soporte.
+- El sitio se genera con MkDocs Material desde `mkdocs.yml` y `docs/`.
+- `.github/workflows/docs-pages.yml` compila y publica el sitio en GitHub Pages.
+- `docs/CNAME` fija el dominio custom y `docs/404.html` redirige enlaces heredados.
+- Este README sigue siendo la fuente de verdad para instalacion y uso rapido.
 
 ## Flujo de ramas
 
@@ -312,11 +313,20 @@ npm ci
 npm run serve
 ```
 
+Docs:
+
+```bash
+python -m pip install -r requirements-docs.txt
+mkdocs serve
+```
+
 Validacion local:
 
 ```bash
 python -m compileall -q .
 python -m unittest discover -s tests -q
+python -m pip install -r requirements-docs.txt
+mkdocs build --strict
 ```
 
 Checks de frontend:
@@ -331,12 +341,11 @@ npm run build
 ## Despliegue
 
 - GitHub Pages publica la documentacion en `https://porthound.jorgelsc.dev`.
-- El dominio usa `docs/` como raiz publica del sitio.
-- `docs/index.html` es la landing del proyecto.
+- MkDocs Material genera el sitio desde `mkdocs.yml` y `docs/`.
+- `docs/index.html` se conserva como landing heredada y queda fuera del build de MkDocs.
 - `docs/CNAME` fija el dominio custom.
-- `docs/.nojekyll` mantiene las rutas estaticas tal cual.
 - `docs/404.html` redirige enlaces viejos al sitio publico.
-- `.github/workflows/pages.yml` publica `./docs` en GitHub Pages.
+- `.github/workflows/docs-pages.yml` construye y publica el sitio en GitHub Pages.
 
 ## Responsabilidad
 

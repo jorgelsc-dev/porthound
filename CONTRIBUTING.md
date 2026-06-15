@@ -19,7 +19,8 @@ Thanks for your interest in PortHound.
 ## Local development
 
 - Backend: `python manage.py`
-- Frontend: `cd frontend && npm install && npm run serve`
+- Frontend: `cd frontend && npm ci && npm run serve`
+- Docs: `python -m pip install -r requirements-docs.txt && mkdocs serve`
 
 ## Local validation before opening PR
 
@@ -37,6 +38,13 @@ cd frontend
 npm ci
 npm run lint
 npm run build
+```
+
+Run docs checks:
+
+```bash
+python -m pip install -r requirements-docs.txt
+mkdocs build --strict
 ```
 
 ## Reporting issues
