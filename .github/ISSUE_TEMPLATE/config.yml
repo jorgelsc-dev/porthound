@@ -4,5 +4,5 @@ contact_links:
     url: https://github.com/jorgelsc-dev/PortHound4/security/advisories/new
     about: Report vulnerabilities privately using GitHub Security Advisories.
   - name: Support and usage guide
-    url: https://github.com/jorgelsc-dev/PortHound4/blob/develop/SUPPORT.md
+    url: https://github.com/jorgelsc-dev/PortHound4/blob/main/SUPPORT.md
     about: Review support channels and troubleshooting guidance.

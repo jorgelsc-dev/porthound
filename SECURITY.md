@@ -28,7 +28,6 @@ Direct link:
 
 Only actively maintained branches/releases receive security fixes:
 
-- `develop` (active development)
 - `main` (stable release line)
 
 Older snapshots and experimental branches may not receive patches.

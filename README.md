@@ -27,7 +27,6 @@ Palabras clave: `python`, `network-scanner`, `port-scanner`, `cybersecurity`, `b
 ## Flujo de ramas
 
 - `main`: rama estable y publica.
-- `develop`: integracion y trabajo continuo.
 - `feature/*`: nuevas funciones o cambios grandes.
 - `fix/*`: correcciones.
 - `docs/*`: cambios de documentacion.
@@ -36,7 +35,7 @@ Palabras clave: `python`, `network-scanner`, `port-scanner`, `cybersecurity`, `b
 Reglas:
 
 1. El trabajo normal entra por ramas auxiliares.
-2. `develop` integra cambios antes de publicar.
+2. Las PRs normales apuntan a `main`.
 3. `main` queda para releases y estado estable.
 4. Los paquetes se publican desde `main` o desde un release tag.
 
