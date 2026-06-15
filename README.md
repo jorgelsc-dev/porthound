@@ -343,6 +343,7 @@ npm run build
 - GitHub Pages publica la documentacion en `https://porthound.jorgelsc.dev`.
 - MkDocs Material genera el sitio desde `mkdocs.yml` y `docs/`.
 - `docs/index.html` se conserva como landing heredada y queda fuera del build de MkDocs.
+- `docs/.nojekyll` evita el procesamiento de Jekyll en GitHub Pages.
 - `docs/CNAME` fija el dominio custom.
 - `docs/404.html` redirige enlaces viejos al sitio publico.
 - `.github/workflows/docs-pages.yml` construye y publica el sitio en GitHub Pages.
