@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>PortHound - Redirigiendo</title>
+  <script>
+    (function () {
+      var path = window.location.pathname || "/";
+      var search = window.location.search || "";
+      var hash = window.location.hash || "";
+
+      if (/\.md$/i.test(path)) {
+        window.location.replace("/" + search + hash);
+        return;
+      }
+
+      window.location.replace("/" + search + hash);
+    }());
+  </script>
+</head>
+<body>
+  <p>Redirigiendo a la documentacion publica...</p>
+</body>
+</html>

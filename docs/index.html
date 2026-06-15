@@ -292,6 +292,25 @@
     </section>
 
     <section class="panel section">
+      <h2>Como se monta la documentacion</h2>
+      <p class="footer" style="margin-top:0">
+        Este sitio no usa MkDocs: la publicacion sale del HTML estatico en <code>docs/</code> y GitHub Pages lo
+        sirve tal cual. El README sigue siendo la fuente de verdad.
+      </p>
+      <ul>
+        <li><strong>Landing:</strong> <code>docs/index.html</code> concentra la pagina publica.</li>
+        <li><strong>Deploy:</strong> <code>.github/workflows/pages.yml</code> publica <code>./docs</code> en GitHub Pages.</li>
+        <li><strong>Dominio:</strong> <code>docs/CNAME</code> fija <code>porthound.jorgelsc.dev</code>.</li>
+        <li><strong>Jekyll:</strong> <code>docs/.nojekyll</code> evita que GitHub Pages reescriba rutas.</li>
+        <li><strong>Legacy:</strong> <code>docs/404.html</code> redirige enlaces viejos al sitio publico.</li>
+      </ul>
+      <div class="links" style="margin-top:18px">
+        <a class="link" href="https://github.com/jorgelsc-dev/porthound/blob/main/.github/workflows/pages.yml"><span>Workflow de Pages</span><span>→</span></a>
+        <a class="link" href="https://github.com/jorgelsc-dev/porthound/blob/main/README.md#despliegue"><span>Despliegue en README</span><span>→</span></a>
+      </div>
+    </section>
+
+    <section class="panel section">
       <h2>DNS y registros</h2>
       <p class="footer" style="margin-top:0">
         PortHound puede usar tus propios resolvers para descubrimiento de hosts y consultas inversas. El servidor
