@@ -19,7 +19,7 @@ Use 4-space indentation in Python. Keep module and function names `snake_case`, 
 Add or extend `unittest` cases under `tests/` using `Test*` classes and `test_*` methods. Prefer focused tests that cover input validation, protocol handling, and serialization behavior. Before opening a PR, run the Python syntax check, backend tests, and frontend lint/build steps above.
 
 ## Commit & Pull Request Guidelines
-History uses short, imperative subjects with prefixes like `fix:`, `docs:`, `refactor:`, `test:`, and `chore(deps):`. Keep each commit to one logical change. Branch from `develop` using `feature/*`, `fix/*`, `docs/*`, or `chore/*`. Pull requests should target `develop`, fill out `.github/pull_request_template.md`, include validation output, and add screenshots for UI changes.
+History uses short, imperative subjects with prefixes like `fix:`, `docs:`, `refactor:`, `test:`, and `chore(deps):`. Keep each commit to one logical change. Branch from `main` using `feature/*`, `fix/*`, `docs/*`, or `chore/*`. Pull requests should target `main`, fill out `.github/pull_request_template.md`, include validation output, and add screenshots for UI changes.
 
 ## Security & Configuration Tips
 Treat scans as authorized-only work. Do not commit generated artifacts, virtual environments, or local databases such as `Standalone.db`. Keep secrets in environment variables, and document any new configuration keys in `README.md` or `SECURITY.md` when needed.

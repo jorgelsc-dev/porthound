@@ -11,9 +11,9 @@ Thanks for your interest in PortHound.
 
 ## Branching and pull requests
 
-1. Fork the repository and branch from `develop` using `feat/<name>` or `fix/<name>`.
+1. Fork the repository and branch from `main` using `feat/<name>` or `fix/<name>`.
 2. Write clear commits with one logical change per commit.
-3. Open a pull request to `develop` with a short summary and risk notes.
+3. Open a pull request to `main` with a short summary and risk notes.
 4. Include validation output for backend and frontend checks.
 
 ## Local development
