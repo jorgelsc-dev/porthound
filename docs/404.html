@@ -3,24 +3,50 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="robots" content="noindex">
-  <title>PortHound - Redirigiendo</title>
+  <title>PortHound Docs</title>
   <script>
-    (function () {
-      var path = window.location.pathname || "/";
-      var search = window.location.search || "";
-      var hash = window.location.hash || "";
-
-      if (/\.md$/i.test(path)) {
-        window.location.replace("/" + search + hash);
-        return;
+    (() => {
+      const current = new URL(window.location.href);
+      let path = current.pathname || "/";
+      path = path.replace(/\/index\.html$/i, "/");
+      path = path.replace(/\.md$/i, "/");
+      path = path.replace(/\.html$/i, "/");
+      if (!path.endsWith("/")) {
+        path += "/";
       }
-
-      window.location.replace("/" + search + hash);
-    }());
+      const target = new URL(path, current.origin);
+      target.search = current.search;
+      target.hash = current.hash;
+      if (target.href !== current.href) {
+        window.location.replace(target.href);
+      }
+    })();
   </script>
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      font-family: system-ui, sans-serif;
+      background: #08111f;
+      color: #e9eef7;
+      text-align: center;
+      padding: 24px;
+    }
+    p {
+      max-width: 36rem;
+      color: #9fb2cc;
+    }
+    a {
+      color: #7dd3fc;
+    }
+  </style>
 </head>
 <body>
-  <p>Redirigiendo a la documentacion publica...</p>
+  <main>
+    <h1>Redirigiendo la documentacion</h1>
+    <p>Si esta pagina no cambia sola, vuelve al <a href="/">inicio de PortHound Docs</a>.</p>
+  </main>
 </body>
 </html>

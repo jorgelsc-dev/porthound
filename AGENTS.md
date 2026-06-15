@@ -1,7 +1,7 @@
 # Repository Guidelines
 
 ## Project Structure & Module Organization
-PortHound is a Python 3.12 standalone network scanner with an optional Vue 3 + Vuetify frontend. Core Python modules live at the repo root (`app.py`, `server.py`, `manage.py`, `utils.py`, `scan_payloads.py`, `geoip_seed.py`, and related helpers). Tests live in `tests/`, with the main suite currently in `tests/test_core_hardening.py`. Frontend code lives in `frontend/src/`: page views in `views/`, shared UI in `components/`, routing in `router/`, and app state in `state/`. Static assets are in `frontend/public/`, versioned seed/data files are in `data/`, and release helpers are in `packaging/`.
+PortHound is a Python 3.12 standalone network scanner with an optional Vue 3 + Vuetify frontend. Core Python modules live at the repo root (`app.py`, `server.py`, `manage.py`, `utils.py`, `scan_payloads.py`, `geoip_seed.py`, and related helpers). Tests live in `tests/`, with the main suite currently in `tests/test_core_hardening.py`. Frontend code lives in `frontend/src/`: page views in `views/`, shared UI in `components/`, routing in `router/`, and app state in `state/`. Docs live in `docs/` with config in `mkdocs.yml`; `docs/index.html` is a legacy landing page kept out of the MkDocs build by `exclude_docs`. Static assets are in `frontend/public/`, versioned seed/data files are in `data/`, and release helpers are in `packaging/`.
 
 ## Build, Test, and Development Commands
 - `python manage.py` starts the standalone backend on `127.0.0.1:45678`.
@@ -11,6 +11,7 @@ PortHound is a Python 3.12 standalone network scanner with an optional Vue 3 + V
 - `cd frontend && npm run lint` runs ESLint over `.js` and `.vue` files.
 - `cd frontend && npm run build` creates the production frontend bundle.
 - `cd frontend && npm run serve` runs the local frontend dev server.
+- `python -m pip install -r requirements-docs.txt && mkdocs build --strict` validates the MkDocs site.
 
 ## Coding Style & Naming Conventions
 Use 4-space indentation in Python. Keep module and function names `snake_case`, classes `PascalCase`, and constants `UPPER_SNAKE_CASE`. For Vue and JavaScript, follow the existing ESLint flat config, use 2-space indentation, and prefer descriptive filenames such as `AppTopBar.vue` or `PortsView.vue`. No formatter is enforced, so match nearby code and keep changes small.
