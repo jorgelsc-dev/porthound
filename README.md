@@ -333,6 +333,10 @@ npm run build
 - GitHub Pages publica la documentacion en `https://porthound.jorgelsc.dev`.
 - El dominio usa `docs/` como raiz publica del sitio.
 - `docs/index.html` es la landing del proyecto.
+- `docs/CNAME` fija el dominio custom.
+- `docs/.nojekyll` mantiene las rutas estaticas tal cual.
+- `docs/404.html` redirige enlaces viejos al sitio publico.
+- `.github/workflows/pages.yml` publica `./docs` en GitHub Pages.
 
 ## Responsabilidad
 
