@@ -2,6 +2,8 @@
 
 PortHound usa SQLite como almacenamiento local. La base por defecto es `Standalone.db`; el launcher tambien conoce perfiles `Master.db` y `Agent.db` para compatibilidad con el modo cluster, aunque la distribucion publica arranca en standalone.
 
+Ademas de la base principal en disco, la app mantiene un almacenamiento efimero en memoria para el chat y parte de la telemetria WebSocket.
+
 ## Tablas principales
 
 | Tabla | Proposito | Notas |
@@ -39,6 +41,12 @@ Al arrancar, `server.py` crea o ajusta el esquema, importa los catalogos desde `
 - `insert_port`, `insert_tags`, `insert_banners` e `insert_favicon` guardan resultados de los workers.
 - `clear_target_artifacts` borra resultados asociados a un target cuando se reinicia o elimina.
 - `delete_ports_where_*`, `delete_banners` y `delete_favicons` limpian resultados por protocolo o globalmente.
+
+## Estado transitorio
+
+- `ws_db` vive en memoria y guarda el chat WebSocket, por lo que se vacia al reiniciar.
+- `scan_db` es la base persistente donde quedan targets, ports, banners, favicons, tags, catalogos y credenciales.
+- `launcher_config` y `launcher_blobs` se usan para recordar el perfil de arranque y blobs heredados.
 
 ## Regla practica
 

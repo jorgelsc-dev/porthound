@@ -10,6 +10,7 @@ PortHound asume un modelo de uso autorizado. La superficie administrativa no est
 2. Si `PORTHOUND_API_REQUIRE_TOKEN=1`, el token es obligatorio aunque el cliente sea local.
 3. Si no hay token, solo se permite acceso desde loopback.
 4. Si el cliente es loopback pero el `Origin` no es loopback, la peticion se deniega.
+5. La UI valida el token contra `/api/ws/clients` antes de marcarlo como autenticado.
 
 El token se acepta en:
 
@@ -24,7 +25,7 @@ El token se acepta en:
 
 ## TLS y CA
 
-- `PORTHOUND_TLS_ENABLED` esta desactivado por defecto.
+- `PORTHOUND_TLS_ENABLED` esta desactivado por defecto en la rama publica.
 - La distribucion de CA y el enrollment por certificado estan deshabilitados en la ruta publica actual.
 - `/api/cluster/ca`, `/api/cluster/ca/raw`, `/api/cluster/ca/oneline` y `/api/cluster/agent/enroll` devuelven `410 Gone`.
 

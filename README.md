@@ -23,6 +23,7 @@ Palabras clave: `python`, `network-scanner`, `port-scanner`, `cybersecurity`, `b
 - El sitio se genera con MkDocs Material desde `mkdocs.yml` y `docs/`.
 - `.github/workflows/docs-pages.yml` compila y publica el sitio en GitHub Pages.
 - `docs/CNAME` fija el dominio custom y `docs/404.html` redirige enlaces heredados.
+- La guia publica cubre la UI activa (`Dashboard`, `Targets`, `Ports`, `Banners`, `API`) y las vistas auxiliares del frontend (`Explorer`, `Charts`, `Tags`, `Catalog`, `FileCatalog`, `MapWorld`).
 - Este README sigue siendo la fuente de verdad para instalacion y uso rapido.
 
 ## Flujo de ramas

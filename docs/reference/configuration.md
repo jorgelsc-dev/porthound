@@ -1,31 +1,50 @@
 # Configuracion
 
-PortHound lee configuracion desde variables de entorno, ficheros de entorno y algunos flags de CLI. El launcher publico fija la instancia local en `127.0.0.1:45678`, asi que la configuracion sirve sobre todo para base de datos, seguridad, DNS y perfiles de agente.
+PortHound lee configuracion desde variables de entorno, ficheros de entorno y algunos flags de CLI. El launcher publico fija la instancia local en `127.0.0.1:45678`, asi que la configuracion util hoy se centra en base de datos, seguridad, DNS y el token de acceso.
 
 Compatibilidad importante:
 
-- `HOST` y `PORT` se aceptan como respaldo si no existen `PORTHOUND_HOST` o `PORTHOUND_PORT`.
+- `HOST` y `PORT` se aceptan como respaldo en `settings.py`, pero `manage.py` normaliza el launcher publico a `127.0.0.1:45678`.
 - `PORTHOUND_AGENT_SHARED_KEY` actua como alias de `PORTHOUND_AGENT_TOKEN`.
+- Las opciones `master`, `agent` y TLS siguen presentes por compatibilidad heredada, pero no forman parte del flujo normal de la rama publica.
 
-## Variables de entorno
+## Variables activas
 
 | Variable | Default | Uso |
 | --- | --- | --- |
-| `PORTHOUND_HOST` | `127.0.0.1` | Host HTTP local. |
-| `PORTHOUND_PORT` | `45678` | Puerto HTTP local. |
 | `PORTHOUND_DB_PATH` | `Standalone.db` | Base de datos activa. |
 | `PORTHOUND_DEBUG` | `1` | Activa modo debug en el runtime local. |
 | `PORTHOUND_API_TOKEN` | vacio | Token requerido para rutas administrativas. |
 | `PORTHOUND_API_REQUIRE_TOKEN` | `0` | Obliga token aunque el cliente sea loopback. |
 | `PORTHOUND_CORS_ALLOW_ORIGIN` | vacio | Origen CORS permitido. |
+| `PORTHOUND_IP` | vacio | IP fija de origen para pruebas o scans. |
+| `PORTHOUND_DNS_RESOLVERS` | `udp://1.1.1.1,udp://8.8.8.8,udp://9.9.9.9` | Lista de resolvers por orden. |
+| `PORTHOUND_DNS_TIMEOUT_SECONDS` | `1.4` | Timeout por intento DNS. |
+| `PORTHOUND_DNS_USE_SYSTEM_RESOLVER` | `1` | Permite usar el resolvedor del sistema. |
+
+## Valores fijos del launcher
+
+- `PORTHOUND_HOST` y `HOST` se normalizan a `127.0.0.1`.
+- `PORTHOUND_PORT` y `PORT` se normalizan a `45678`.
+- `PORTHOUND_ROLE` se fija en `standalone`.
+- `PORTHOUND_TLS_ENABLED` queda desactivado por defecto en el launcher publico.
+
+## Variables de compatibilidad heredada
+
+| Variable | Default | Uso |
+| --- | --- | --- |
+| `PORTHOUND_HOST` | `127.0.0.1` | Host HTTP local antes de la normalizacion del launcher. |
+| `PORTHOUND_PORT` | `45678` | Puerto HTTP local antes de la normalizacion del launcher. |
+| `PORTHOUND_ROLE` | `standalone` | Perfil recordado por la DB de launcher. |
+| `PORTHOUND_CA` | vacio | Ruta a la CA para distribucion o compatibilidad heredada. |
+| `PORTHOUND_CA_ONELINE` | vacio | CA inline en formato escapado con `\n`. |
 | `PORTHOUND_TLS_ENABLED` | `0` | Activa TLS en el launcher compatible. |
 | `PORTHOUND_TLS_CERT_FILE` | `certs/master/master.cert.pem` | Certificado TLS principal. |
 | `PORTHOUND_TLS_KEY_FILE` | `certs/master/master.key.pem` | Clave TLS principal. |
 | `PORTHOUND_TLS_REQUIRE_CLIENT_CERT` | `0` | Exige certificado de cliente cuando TLS esta activo. |
-| `PORTHOUND_CA` | vacio | Ruta a la CA para distribucion o compatibilidad heredada. |
-| `PORTHOUND_CA_ONELINE` | vacio | CA inline en formato escapado con `\n`. |
-| `PORTHOUND_MASTER` | vacio | URL del master en modo agente. |
-| `PORTHOUND_IP` | vacio | IP fija de origen para pruebas o scans. |
+| `PORTHOUND_MASTER` | vacio | URL del master en modo legado. |
+| `PORTHOUND_MASTER_HOST` | vacio | Host del master en compatibilidad distribuida. |
+| `PORTHOUND_MASTER_IP` | vacio | IP del master en compatibilidad distribuida. |
 | `PORTHOUND_AGENT_ID` | vacio | Identificador del agente. |
 | `PORTHOUND_AGENT_TOKEN` | vacio | Token del agente. |
 | `PORTHOUND_AGENT_SHARED_KEY` | vacio | Alias de `PORTHOUND_AGENT_TOKEN`. |
@@ -34,35 +53,30 @@ Compatibilidad importante:
 | `PORTHOUND_AGENT_TASK_LEASE_SECONDS` | `300` | Duracion de la lease de tarea. |
 | `PORTHOUND_AGENT_TASK_STALL_SECONDS` | `300` | Umbral para detectar tareas atascadas. |
 | `PORTHOUND_AGENT_TLS_CHECK_HOSTNAME` | `1` | Verificacion de hostname en TLS del agente. |
-| `PORTHOUND_DNS_RESOLVERS` | `udp://1.1.1.1,udp://8.8.8.8,udp://9.9.9.9` | Lista de resolvers por orden. |
-| `PORTHOUND_DNS_TIMEOUT_SECONDS` | `1.4` | Timeout por intento DNS. |
-| `PORTHOUND_DNS_USE_SYSTEM_RESOLVER` | `1` | Permite usar el resolvedor del sistema. |
 
-## Flags de CLI
-
-Los flags principales del launcher son:
-
-```bash
-python manage.py --db-path Standalone.db --api-token <token> --api-require-token 1
-```
-
-Otros flags utiles:
+## Flags de CLI activos
 
 - `--env-file` para cargar uno o varios ficheros de entorno.
 - `--env KEY=VALUE` para sobreescribir valores sin editar ficheros.
-- `--tls-enabled`, `--tls-cert-file`, `--tls-key-file`.
+- `--db-path`, `--api-token`, `--api-require-token`, `--cors-allow-origin`.
 - `--dns-resolvers`, `--dns-timeout-seconds`, `--dns-use-system-resolver`.
 
 ## Flags heredados
 
-El launcher conserva opciones ocultas para compatibilidad con el modo distribuido:
+Los flags siguientes siguen aceptandose por compatibilidad, pero el launcher publico los normaliza o ignora en el flujo standalone:
 
+```bash
+python manage.py --host 127.0.0.1 --port 45678 --db-path Standalone.db
+```
+
+- `--role`
+- `--host`
+- `--port`
 - `--master`, `--master-host`, `--master-ip`
 - `--agent-id`, `--agent-token`, `--agent-shared-key`
 - `--agent-poll-seconds`, `--agent-http-timeout`, `--agent-task-lease-seconds`
 - `--agent-enroll`
-
-En la rama publica actual no forman parte del flujo normal de uso.
+- `--tls-enabled`, `--tls-cert-file`, `--tls-key-file`, `--tls-require-client-cert`
 
 ## Politica del launcher
 
