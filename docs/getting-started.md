@@ -1,6 +1,6 @@
 # Primeros pasos
 
-PortHound puede ejecutarse como binario instalado desde PyPI o como checkout local. La experiencia principal es la misma: levantar el servidor, abrir la UI local y operar targets o consultas desde el navegador.
+PortHound puede ejecutarse como binario instalado desde PyPI o como checkout local. La experiencia principal es la misma: levantar el launcher, abrir la UI local y operar targets o consultas desde el navegador.
 
 ## Requisitos
 
@@ -34,6 +34,8 @@ El launcher local usa estos valores por defecto:
 - port: `45678`
 - base de datos: `Standalone.db`
 
+Si abres la UI desde otro origen o detras de un reverse proxy, usa el campo `API base URL` de la portada para apuntar al backend correcto. El frontend tambien lee `VUE_APP_API_BASE` cuando se construye por separado.
+
 Tambien puedes fijar la base de datos explicitamente:
 
 ```bash
@@ -46,6 +48,7 @@ python manage.py --db-path Standalone.db
 2. Revisa el chip de `Auth` en la barra superior.
 3. Si el backend exige token, guarda el valor en el dialogo de acceso.
 4. Trabaja con `Targets`, `Ports`, `Banners` y `API` desde la navegacion principal.
+5. Si necesitas la UI separada del backend, ajusta la base de API antes de empezar.
 
 ## Token de acceso
 
@@ -67,6 +70,13 @@ Frontend en desarrollo:
 cd frontend
 npm ci
 npm run serve
+```
+
+Frontend de produccion:
+
+```bash
+cd frontend
+npm run build
 ```
 
 Documentacion local:

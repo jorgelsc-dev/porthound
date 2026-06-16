@@ -2,6 +2,8 @@
 
 PortHound expone un canal WebSocket en `/ws/`. La UI lo usa para refrescar vistas cuando cambian los datos y para recibir snapshots iniciales al conectar.
 
+La SPA escucha `welcome`, `scan_map_snapshot` y `scan_map_update` para refrescar el mapa y disparar recargas ligeras de tablas sin repetir llamadas pesadas.
+
 ## Conexion inicial
 
 Al abrir el socket, el servidor envía normalmente estos mensajes JSON:
@@ -45,7 +47,7 @@ El cliente puede enviar objetos JSON con la clave `action`.
 
 Si el mensaje no es un comando de control, el servidor lo interpreta como chat:
 
-- texto plano o `alias: mensaje` se guarda en la tabla de chat;
+- texto plano o `alias: mensaje` se guarda en la tabla de chat en memoria (`ws_db`);
 - el servidor responde con un eco de texto;
 - los frames binarios se reenvian con el prefijo `BIN ECHO:`.
 
@@ -59,3 +61,4 @@ Si el mensaje no es un comando de control, el servidor lo interpreta como chat:
 
 Los sockets activos pueden consultarse por HTTP en `/api/ws/clients`.
 Las acciones administrativas sobre clientes, pings y cierres usan la API HTTP, no mensajes WS.
+Lo mismo aplica a `broadcast`, `ping` y `close` desde el panel administrativo.
