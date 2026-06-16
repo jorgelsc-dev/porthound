@@ -8,9 +8,9 @@ edit_uri: edit/main/docs/
 
 nav:
   - Inicio: index.md
-  - Primeros pasos: getting-started.md
+  - Empezar: getting-started.md
+  - Aplicacion: reference/ui.md
   - Arquitectura: architecture.md
-  - Interfaz web: reference/ui.md
   - Referencia:
       - Configuracion: reference/configuration.md
       - Seguridad: reference/security.md
@@ -18,10 +18,10 @@ nav:
       - Persistencia SQLite: reference/persistence.md
       - API HTTP: reference/api.md
       - WebSocket: reference/websocket.md
-  - Guia de documentacion: docs-setup.md
 
 exclude_docs: |
   /index.html
+  /docs-setup.md
 
 theme:
   name: material
