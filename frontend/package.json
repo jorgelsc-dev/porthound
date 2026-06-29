@@ -14,7 +14,7 @@
     "@mdi/font": "^7.3.67",
     "core-js": "^3.49.0",
     "register-service-worker": "^1.7.2",
-    "vue": "^3.5.35",
+    "vue": "^3.5.39",
     "vue-router": "^5.1.0",
     "vuetify": "^4.1.0"
   },
