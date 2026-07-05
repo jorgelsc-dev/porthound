@@ -29,8 +29,10 @@ Changelog = "https://github.com/jorgelsc-dev/porthound/blob/main/CHANGELOG.md"
 
 [project.scripts]
 porthound = "manage:main"
+porthound4 = "manage:main"
 
 [tool.setuptools]
+packages = ["porthound"]
 py-modules = [
   "agent",
   "dns",

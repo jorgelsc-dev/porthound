@@ -32,6 +32,18 @@
       {{ error }}
     </v-alert>
 
+    <transition name="panel-fade">
+      <div v-if="loading" class="panel-loader-shell">
+        <BrandMark :size="58" animated framed />
+        <div class="panel-loader-copy">
+          <div class="panel-loader-title">Loading live panel</div>
+          <div class="panel-loader-text">
+            The official brand mark keeps moving while this view refreshes.
+          </div>
+        </div>
+      </div>
+    </transition>
+
     <v-progress-linear
       v-if="loading"
       color="primary"
@@ -93,11 +105,13 @@
 </template>
 
 <script>
+import BrandMark from "../brand/BrandMark.vue";
 import LiveRefreshControl from "./LiveRefreshControl.vue";
 
 export default {
   name: "DataPanel",
   components: {
+    BrandMark,
     LiveRefreshControl,
   },
   props: {
@@ -165,9 +179,44 @@ export default {
   width: 10px;
   height: 10px;
   border-radius: 999px;
-  background: rgba(103, 205, 248, 0.9);
-  box-shadow: 0 0 0 0 rgba(103, 205, 248, 0.32);
+  background: rgba(var(--brand-sky-rgb), 0.92);
+  box-shadow: 0 0 0 0 rgba(var(--brand-sky-rgb), 0.32);
   animation: panel-pulse 2.1s ease-in-out infinite;
+}
+
+.panel-loader-shell {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+  padding: 14px 16px;
+  border-radius: 16px;
+  border: 1px solid rgba(var(--brand-sky-rgb), 0.16);
+  background:
+    radial-gradient(circle at 14% 26%, rgba(var(--brand-cyan-rgb), 0.13), transparent 38%),
+    radial-gradient(circle at 90% 82%, rgba(var(--brand-violet-rgb), 0.14), transparent 44%),
+    linear-gradient(145deg, rgba(10, 17, 28, 0.9), rgba(8, 14, 23, 0.82));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03), 0 16px 32px rgba(2, 7, 13, 0.18);
+}
+
+.panel-loader-copy {
+  min-width: 0;
+}
+
+.panel-loader-title {
+  font-family: var(--font-heading);
+  font-size: 0.76rem;
+  font-weight: 680;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(236, 245, 255, 0.95);
+}
+
+.panel-loader-text {
+  margin-top: 4px;
+  color: var(--text-dim);
+  font-size: 0.84rem;
+  line-height: 1.45;
 }
 
 .panel-body {
@@ -369,14 +418,18 @@ export default {
 @keyframes panel-pulse {
   0%,
   100% {
-    box-shadow: 0 0 0 0 rgba(103, 205, 248, 0.3);
+    box-shadow: 0 0 0 0 rgba(var(--brand-sky-rgb), 0.3);
   }
   50% {
-    box-shadow: 0 0 0 8px rgba(103, 205, 248, 0);
+    box-shadow: 0 0 0 8px rgba(var(--brand-sky-rgb), 0);
   }
 }
 
 @media (max-width: 960px) {
+  .panel-loader-shell {
+    align-items: flex-start;
+  }
+
   .panel-skeleton__grid {
     grid-template-columns: 1fr;
   }

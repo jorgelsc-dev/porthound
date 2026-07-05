@@ -183,10 +183,10 @@ export default {
   position: relative;
   overflow: hidden;
   background:
-    radial-gradient(110% 140% at -8% -24%, rgba(52, 230, 255, 0.2), transparent 58%),
-    radial-gradient(90% 110% at 110% -30%, rgba(149, 115, 255, 0.18), transparent 63%),
+    radial-gradient(110% 140% at -8% -24%, rgba(var(--brand-cyan-rgb), 0.2), transparent 58%),
+    radial-gradient(90% 110% at 110% -30%, rgba(var(--brand-violet-rgb), 0.18), transparent 63%),
     linear-gradient(122deg, rgba(9, 14, 23, 0.98), rgba(7, 12, 20, 0.98));
-  border: 1px solid rgba(102, 212, 255, 0.22);
+  border: 1px solid rgba(var(--brand-sky-rgb), 0.22);
   box-shadow: 0 28px 56px rgba(2, 7, 14, 0.44), inset 0 0 0 1px rgba(255, 255, 255, 0.03);
 }
 
@@ -199,20 +199,20 @@ export default {
   height: 220px;
   background: radial-gradient(
     60% 100% at 50% 100%,
-    rgba(149, 115, 255, 0.2),
-    rgba(149, 115, 255, 0)
+    rgba(var(--brand-violet-rgb), 0.2),
+    rgba(var(--brand-violet-rgb), 0)
   );
   pointer-events: none;
 }
 
 .api-card {
-  border: 1px solid rgba(102, 212, 255, 0.22);
+  border: 1px solid rgba(var(--brand-sky-rgb), 0.22);
   background: linear-gradient(180deg, rgba(14, 22, 36, 0.92), rgba(10, 15, 25, 0.84));
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.03);
 }
 
 .usage-notice {
-  border: 1px solid rgba(149, 115, 255, 0.22);
+  border: 1px solid rgba(var(--brand-violet-rgb), 0.22);
   background:
     linear-gradient(180deg, rgba(23, 18, 46, 0.82), rgba(12, 15, 28, 0.64)) !important;
 }
@@ -220,7 +220,7 @@ export default {
 .direct-link-value {
   padding: 0.9rem 1rem;
   border-radius: 14px;
-  border: 1px solid rgba(102, 212, 255, 0.18);
+  border: 1px solid rgba(var(--brand-sky-rgb), 0.18);
   background: rgba(10, 17, 27, 0.78);
   color: rgba(231, 238, 255, 0.96);
   word-break: break-all;
@@ -229,7 +229,7 @@ export default {
 .btc-address {
   padding: 0.78rem 0.9rem;
   border-radius: 12px;
-  border: 1px solid rgba(149, 115, 255, 0.22);
+  border: 1px solid rgba(var(--brand-violet-rgb), 0.22);
   background: rgba(20, 18, 40, 0.68);
   color: rgba(232, 238, 255, 0.96);
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;

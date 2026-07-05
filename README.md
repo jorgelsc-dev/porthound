@@ -52,7 +52,7 @@ Reglas:
 ### Desde PyPI
 
 ```bash
-python -m pip install --upgrade pip
+python -m pip install --upgrade pip setuptools wheel
 python -m pip install porthound4
 ```
 
@@ -62,12 +62,21 @@ Uso inmediato:
 porthound
 ```
 
+Fallbacks if your shell has not refreshed the entry point yet:
+
+```bash
+porthound4
+python -m porthound
+```
+
 ### Entorno local
 
 ```bash
-python3 -m venv env
-env/bin/python -m pip install --upgrade pip
-env/bin/python manage.py
+python3 -m venv .venv
+. .venv/bin/activate
+python -m pip install --upgrade pip setuptools wheel
+python -m pip install -e .
+porthound
 ```
 
 ## Inicio rapido
@@ -81,7 +90,7 @@ porthound
 O desde el repo:
 
 ```bash
-python manage.py --db-path Standalone.db
+python -m porthound --db-path Standalone.db
 ```
 
 Valores por defecto:

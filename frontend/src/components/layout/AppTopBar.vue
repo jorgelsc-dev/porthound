@@ -9,9 +9,9 @@
         @click="$emit('open-drawer')"
       />
       <div class="brand-lockup">
-        <v-avatar size="44" class="mr-3">
-          <v-img :src="brandIconSrc" alt="PortHound" />
-        </v-avatar>
+        <div class="brand-avatar mr-3">
+          <BrandMark :size="44" />
+        </div>
         <div class="brand-copy">
           <div class="text-subtitle-1 font-weight-bold">PortHound</div>
           <div class="text-caption text-medium-emphasis">Network Scanner &amp; Banner Intel</div>
@@ -84,8 +84,13 @@
 </template>
 
 <script>
+import BrandMark from "../brand/BrandMark.vue";
+
 export default {
   name: "AppTopBar",
+  components: {
+    BrandMark,
+  },
   props: {
     navItems: {
       type: Array,
@@ -149,12 +154,6 @@ export default {
     btcSupportLink() {
       return "https://mempool.space/address/bc1q3lhxpr9yantvefmvhpd2h4lu0ykf3t45zvuve2";
     },
-    brandIconSrc() {
-      const base = (typeof process !== "undefined" && process.env && process.env.BASE_URL)
-        ? process.env.BASE_URL
-        : "/";
-      return `${String(base).replace(/\/?$/, "/")}brand-icon.png`;
-    },
   },
 };
 </script>
@@ -163,12 +162,12 @@ export default {
 .top-bar {
   position: relative;
   overflow: hidden;
-  border-bottom: 1px solid rgba(102, 212, 255, 0.18);
+  border-bottom: 1px solid rgba(var(--brand-sky-rgb), 0.18);
   backdrop-filter: blur(18px) saturate(130%);
   background:
-    radial-gradient(circle at 18% 0%, rgba(52, 230, 255, 0.12), transparent 34%),
-    radial-gradient(circle at 82% 0%, rgba(149, 115, 255, 0.14), transparent 38%),
-    linear-gradient(180deg, rgba(7, 11, 18, 0.94) 0%, rgba(10, 16, 27, 0.76) 72%, rgba(10, 16, 27, 0.18) 100%);
+    radial-gradient(circle at 18% 0%, rgba(var(--brand-cyan-rgb), 0.14), transparent 34%),
+    radial-gradient(circle at 82% 0%, rgba(var(--brand-violet-rgb), 0.16), transparent 40%),
+    linear-gradient(180deg, rgba(6, 11, 18, 0.94) 0%, rgba(9, 17, 29, 0.78) 72%, rgba(9, 17, 29, 0.18) 100%);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
 }
 
@@ -179,7 +178,14 @@ export default {
   left: 0;
   right: 0;
   height: 2px;
-  background: linear-gradient(90deg, rgba(52, 230, 255, 0), rgba(52, 230, 255, 0.95), rgba(149, 115, 255, 0.95), rgba(52, 230, 255, 0));
+  background: linear-gradient(
+    90deg,
+    rgba(var(--brand-cyan-rgb), 0),
+    rgba(var(--brand-cyan-rgb), 0.95),
+    rgba(var(--brand-blue-rgb), 0.94),
+    rgba(var(--brand-violet-rgb), 0.96),
+    rgba(var(--brand-cyan-rgb), 0)
+  );
   pointer-events: none;
 }
 
@@ -194,11 +200,21 @@ export default {
   min-width: 0;
 }
 
-.brand-lockup :deep(.v-avatar) {
-  border: 1px solid rgba(52, 230, 255, 0.22);
+.brand-avatar {
+  width: 44px;
+  height: 44px;
+  flex: 0 0 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+  border: 1px solid rgba(var(--brand-cyan-rgb), 0.22);
+  background:
+    radial-gradient(circle at 24% 22%, rgba(var(--brand-cyan-rgb), 0.14), transparent 44%),
+    linear-gradient(145deg, rgba(10, 16, 27, 0.92), rgba(7, 12, 21, 0.86));
   box-shadow:
-    0 0 0 1px rgba(149, 115, 255, 0.12),
-    0 0 18px rgba(52, 230, 255, 0.16);
+    0 0 0 1px rgba(var(--brand-violet-rgb), 0.12),
+    0 0 18px rgba(var(--brand-cyan-rgb), 0.16);
   overflow: hidden;
 }
 
@@ -224,8 +240,8 @@ export default {
 }
 
 .top-tabs :deep(.v-tab--selected) {
-  color: rgba(52, 230, 255, 0.98);
-  text-shadow: 0 0 14px rgba(52, 230, 255, 0.16);
+  color: rgba(var(--brand-cyan-rgb), 0.98);
+  text-shadow: 0 0 14px rgba(var(--brand-cyan-rgb), 0.18);
 }
 
 .status-rail {

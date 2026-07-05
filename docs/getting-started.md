@@ -12,17 +12,26 @@ PortHound puede ejecutarse instalado desde PyPI o desde el repositorio. La ruta 
 ### Desde PyPI
 
 ```bash
-python -m pip install --upgrade pip
+python -m pip install --upgrade pip setuptools wheel
 python -m pip install porthound4
 porthound
+```
+
+Fallbacks if your shell has not refreshed the entry point yet:
+
+```bash
+porthound4
+python -m porthound
 ```
 
 ### Desde el repositorio
 
 ```bash
-python3 -m venv env
-env/bin/python -m pip install --upgrade pip
-env/bin/python manage.py
+python3 -m venv .venv
+. .venv/bin/activate
+python -m pip install --upgrade pip setuptools wheel
+python -m pip install -e .
+porthound
 ```
 
 ## Arranque
@@ -38,7 +47,7 @@ Si abres la UI desde otro origen o detras de un reverse proxy, usa el campo `API
 Tambien puedes fijar la base de datos:
 
 ```bash
-python manage.py --db-path Standalone.db
+python -m porthound --db-path Standalone.db
 ```
 
 ## Primer uso
@@ -60,7 +69,7 @@ Si el backend responde `401`, el dialogo de autenticacion se abre de nuevo para 
 Backend:
 
 ```bash
-python manage.py
+python -m porthound
 ```
 
 Frontend en desarrollo:
