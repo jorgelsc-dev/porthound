@@ -18,6 +18,11 @@ PACKAGE_FRONTEND_DIR = ("porthound", "_frontend_dist")
 def _build_frontend_if_needed() -> None:
     if FRONTEND_SOURCE_DIR.exists():
         return
+    if not FRONTEND_DIR.exists():
+        raise DistutilsFileError(
+            "frontend/ is missing from the source tree. Rebuild the source distribution with "
+            "frontend sources included, or restore frontend/ before packaging PortHound."
+        )
 
     npm = shutil.which("npm")
     if npm is None:
