@@ -7,6 +7,23 @@ include CODE_OF_CONDUCT.md
 include CONTRIBUTING.md
 include SECURITY.md
 include SUPPORT.md
+include pyproject.toml
+include setup.py
+recursive-include porthound *.py
 recursive-include data *
 recursive-include docs *
-recursive-include frontend/dist *
+recursive-include tests *.py
+include frontend/.env.development
+include frontend/babel.config.js
+include frontend/eslint.config.cjs
+include frontend/jsconfig.json
+include frontend/package-lock.json
+include frontend/package.json
+include frontend/vue.config.js
+recursive-include frontend/public *
+recursive-include frontend/scripts *
+recursive-include frontend/src *
+prune frontend/node_modules
+prune build
+prune dist
+global-exclude __pycache__ *.py[cod]

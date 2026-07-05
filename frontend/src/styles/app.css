@@ -3,21 +3,28 @@
   --font-ui: "Saira Semi Condensed", "Rajdhani", "Inter Tight", "Segoe UI", "Noto Sans", "Arial Narrow", Arial, sans-serif;
   --font-heading: "Oxanium", "Saira Semi Condensed", "Rajdhani", "Inter Tight", "Segoe UI", "Noto Sans", "Arial Narrow", Arial, sans-serif;
   --font-mono: "IBM Plex Mono", "Fira Code", "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-  --bg-0: #04070d;
-  --bg-1: #08111b;
-  --bg-2: #0d1725;
-  --surface-0: rgba(9, 14, 23, 0.86);
-  --surface-1: rgba(12, 19, 31, 0.94);
-  --stroke: rgba(102, 212, 255, 0.22);
-  --stroke-strong: rgba(149, 115, 255, 0.38);
+  --bg-0: #03070d;
+  --bg-1: #06111d;
+  --bg-2: #0a1728;
+  --surface-0: rgba(9, 15, 24, 0.86);
+  --surface-1: rgba(12, 21, 34, 0.94);
+  --surface-2: rgba(15, 28, 44, 0.92);
   --text-soft: rgba(233, 243, 255, 0.9);
   --text-dim: rgba(166, 184, 208, 0.78);
-  --skel-a: rgba(33, 59, 96, 0.36);
-  --skel-b: rgba(72, 147, 228, 0.34);
-  --skel-c: rgba(161, 132, 255, 0.18);
-  --brand-cyan: #34e6ff;
-  --brand-blue: #4d8cff;
-  --brand-violet: #9573ff;
+  --brand-cyan: #0fe8ff;
+  --brand-sky: #20c9ff;
+  --brand-blue: #4b8fff;
+  --brand-violet: #8e63ff;
+  --brand-cyan-rgb: 15, 232, 255;
+  --brand-sky-rgb: 32, 201, 255;
+  --brand-blue-rgb: 75, 143, 255;
+  --brand-violet-rgb: 142, 99, 255;
+  --brand-gradient: linear-gradient(120deg, var(--brand-cyan) 0%, var(--brand-sky) 34%, var(--brand-blue) 69%, var(--brand-violet) 100%);
+  --stroke: rgba(var(--brand-sky-rgb), 0.22);
+  --stroke-strong: rgba(var(--brand-violet-rgb), 0.38);
+  --skel-a: rgba(21, 56, 91, 0.36);
+  --skel-b: rgba(54, 143, 228, 0.34);
+  --skel-c: rgba(142, 99, 255, 0.18);
 }
 
 body {
@@ -28,11 +35,11 @@ body {
   font-weight: 470;
   font-feature-settings: "ss01" 1, "cv08" 1;
   background:
-    radial-gradient(900px 700px at 50% 18%, rgba(52, 230, 255, 0.18), transparent 58%),
-    radial-gradient(780px 560px at 52% 84%, rgba(149, 115, 255, 0.16), transparent 60%),
-    radial-gradient(1200px 780px at -18% -20%, rgba(77, 140, 255, 0.13), transparent 60%),
-    radial-gradient(1200px 780px at 118% -24%, rgba(52, 230, 255, 0.08), transparent 58%),
-    linear-gradient(160deg, var(--bg-0), var(--bg-1) 46%, #060b12 100%);
+    radial-gradient(920px 720px at 50% 14%, rgba(var(--brand-cyan-rgb), 0.18), transparent 58%),
+    radial-gradient(760px 560px at 52% 86%, rgba(var(--brand-violet-rgb), 0.16), transparent 60%),
+    radial-gradient(1260px 820px at -16% -18%, rgba(var(--brand-blue-rgb), 0.14), transparent 60%),
+    radial-gradient(1260px 820px at 118% -24%, rgba(var(--brand-sky-rgb), 0.08), transparent 58%),
+    linear-gradient(160deg, var(--bg-0), var(--bg-1) 46%, #050b13 100%);
   margin: 0;
   min-height: 100vh;
   color: rgba(233, 243, 255, 0.96);
@@ -90,13 +97,13 @@ body::before {
 }
 
 .v-card:hover {
-  border-color: rgba(149, 115, 255, 0.34);
+  border-color: rgba(var(--brand-violet-rgb), 0.34);
   box-shadow: 0 20px 40px rgba(2, 6, 12, 0.42);
 }
 
 .v-card--variant-tonal {
   border: 1px solid var(--stroke);
-  background: linear-gradient(180deg, rgba(15, 24, 38, 0.95), rgba(10, 15, 25, 0.92));
+  background: linear-gradient(180deg, var(--surface-2), rgba(10, 16, 26, 0.92));
 }
 
 .v-card--variant-outlined {
@@ -120,7 +127,7 @@ body::before {
   ) !important;
   background-size: 240% 100% !important;
   animation: global-skeleton-slide 1.15s ease-in-out infinite;
-  box-shadow: inset 0 0 0 1px rgba(130, 194, 228, 0.06), 0 0 24px rgba(149, 115, 255, 0.06);
+  box-shadow: inset 0 0 0 1px rgba(130, 194, 228, 0.06), 0 0 24px rgba(var(--brand-violet-rgb), 0.08);
 }
 
 .v-table {
@@ -152,7 +159,7 @@ body::before {
 }
 
 .v-table tbody tr:hover {
-  background: rgba(94, 84, 214, 0.18);
+  background: rgba(var(--brand-violet-rgb), 0.18);
 }
 
 .v-btn {
@@ -165,7 +172,7 @@ body::before {
 
 .v-btn:hover {
   transform: translateY(-1px);
-  box-shadow: 0 8px 26px rgba(52, 230, 255, 0.08);
+  box-shadow: 0 8px 26px rgba(var(--brand-cyan-rgb), 0.1);
 }
 
 .v-chip {
@@ -207,8 +214,8 @@ samp {
 .v-field--loading .v-progress-linear__determinate,
 .v-field--loading .v-progress-linear__indeterminate .long,
 .v-field--loading .v-progress-linear__indeterminate .short {
-  background: linear-gradient(90deg, rgba(52, 230, 255, 0.92), rgba(149, 115, 255, 0.96)) !important;
-  box-shadow: 0 0 12px rgba(52, 230, 255, 0.24);
+  background: var(--brand-gradient) !important;
+  box-shadow: 0 0 12px rgba(var(--brand-cyan-rgb), 0.24);
 }
 
 .v-btn--loading {
@@ -216,11 +223,16 @@ samp {
 }
 
 a {
-  color: rgba(93, 225, 255, 0.98);
+  color: rgba(var(--brand-cyan-rgb), 0.98);
 }
 
 * {
-  scrollbar-color: rgba(102, 212, 255, 0.52) rgba(5, 10, 16, 0.6);
+  scrollbar-color: rgba(var(--brand-sky-rgb), 0.52) rgba(5, 10, 16, 0.6);
+}
+
+::selection {
+  background: rgba(var(--brand-blue-rgb), 0.32);
+  color: rgba(241, 248, 255, 0.98);
 }
 
 @media (max-width: 959px) {

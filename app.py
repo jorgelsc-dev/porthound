@@ -16,6 +16,7 @@ import uuid
 from collections import Counter, deque
 from datetime import datetime, timedelta, timezone
 from ipaddress import IPv4Address, ip_address
+from os import getenv
 from pathlib import Path
 from urllib.parse import urlsplit
 import settings
@@ -49,7 +50,23 @@ from utils import clamp_int, current_role, is_master_role, normalize_target_payl
 
 REGEX_IPV4_CIDR = re.compile(r"^(\d{1,3}\.){3}\d{1,3}/\d{1,2}$")
 PROJECT_ROOT = Path(__file__).resolve().parent
-FRONTEND_DIST_DIR = PROJECT_ROOT / "frontend" / "dist"
+SOURCE_FRONTEND_DIST_DIR = PROJECT_ROOT / "frontend" / "dist"
+PACKAGE_FRONTEND_DIST_DIR = PROJECT_ROOT / "porthound" / "_frontend_dist"
+
+
+def _resolve_frontend_dist_dir():
+    override = str(getenv("PORTHOUND_FRONTEND_DIST", "")).strip()
+    candidates = []
+    if override:
+        candidates.append(Path(override).expanduser())
+    candidates.extend([SOURCE_FRONTEND_DIST_DIR, PACKAGE_FRONTEND_DIST_DIR])
+    for candidate in candidates:
+        if candidate.exists():
+            return candidate
+    return candidates[0]
+
+
+FRONTEND_DIST_DIR = _resolve_frontend_dist_dir()
 SPA_ROUTES = (
     "/map",
     "/charts",
