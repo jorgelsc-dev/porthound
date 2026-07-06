@@ -34,6 +34,41 @@ python -m pip install -e .
 porthound
 ```
 
+### Bundle offline para `pip`
+
+Si vas a instalar PortHound en una maquina sin internet, genera primero un `wheelhouse` en una maquina compatible con acceso a red.
+
+Compatibilidad recomendada entre maquina de build y maquina destino:
+
+- mismo sistema operativo
+- misma arquitectura
+- misma version principal/secundaria de Python
+
+Si `frontend/dist` no existe, el build ejecuta `npm ci && npm run build`. Solo la maquina que arma el bundle necesita Node 22 LTS.
+
+Build del bundle:
+
+```bash
+python3 -m venv .venv
+. .venv/bin/activate
+python -m pip install --upgrade pip setuptools wheel build
+python -m build
+mkdir -p wheelhouse
+cp dist/*.whl wheelhouse/
+python -m pip download --dest wheelhouse "wsbuilder>=0.18.0,<0.19.0"
+tar -czf porthound-offline-bundle.tar.gz wheelhouse
+```
+
+Instalacion offline:
+
+```bash
+tar -xzf porthound-offline-bundle.tar.gz
+python3 -m venv .venv
+. .venv/bin/activate
+python -m pip install --no-index --find-links wheelhouse porthound4
+porthound
+```
+
 ## Arranque
 
 El launcher local arranca en:
