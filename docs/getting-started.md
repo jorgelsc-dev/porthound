@@ -5,7 +5,7 @@ PortHound puede ejecutarse instalado desde PyPI o desde el repositorio. La ruta 
 ## Requisitos
 
 - Python 3.12 o superior.
-- `wsbuilder>=0.18.0`.
+- `wsbuilder>=0.18.0,<0.19.0`.
 
 ## Instalacion
 

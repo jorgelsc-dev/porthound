@@ -44,7 +44,7 @@ Reglas:
 ## Requisitos
 
 - Python 3.12 o superior.
-- `wsbuilder>=0.18.0`.
+- `wsbuilder>=0.18.0,<0.19.0`.
 - Acceso local al puerto HTTP configurado (por defecto `127.0.0.1:45678`).
 
 ## Instalacion
