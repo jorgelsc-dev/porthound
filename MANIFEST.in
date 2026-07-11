@@ -20,6 +20,7 @@ include frontend/jsconfig.json
 include frontend/package-lock.json
 include frontend/package.json
 include frontend/vue.config.js
+recursive-include frontend/dist *
 recursive-include frontend/public *
 recursive-include frontend/scripts *
 recursive-include frontend/src *
