@@ -21,7 +21,12 @@ module.exports = defineConfig({
 
         if (Array.isArray(preset)) {
           const presetName = preset[0] || "default";
-          const presetOptions = { ...(preset[1] || {}), calc: false };
+          const presetOptions = {
+            ...(preset[1] || {}),
+            calc: false,
+            discardDuplicates: false,
+            discardEmpty: false,
+          };
           options.minimizerOptions = {
             ...minimizerOptions,
             preset: [presetName, presetOptions],
@@ -29,7 +34,10 @@ module.exports = defineConfig({
         } else {
           options.minimizerOptions = {
             ...minimizerOptions,
-            preset: ["default", { calc: false }],
+            preset: [
+              "default",
+              { calc: false, discardDuplicates: false, discardEmpty: false },
+            ],
           };
         }
 

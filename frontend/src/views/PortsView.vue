@@ -26,7 +26,7 @@
       </v-alert>
 
       <template v-else>
-        <v-row dense class="mt-2">
+        <v-row density="comfortable" class="mt-2">
           <v-col cols="12" md="7">
             <v-text-field
               v-model.trim="tableFilters.query"

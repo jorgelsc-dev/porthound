@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="dashboard-page">
     <ViewHeader
       overline="Operational snapshot"
       title="Dashboard"
@@ -8,11 +8,12 @@
       @refresh="load"
     />
 
-    <v-row dense>
+    <v-row density="comfortable" class="metric-grid">
       <v-col
         v-for="metric in metricCards"
         :key="metric.key"
         cols="12"
+        sm="6"
         md="3"
       >
         <div v-if="loading" class="metric-skeleton">
@@ -25,15 +26,17 @@
           </div>
           <div class="metric-skeleton__line metric-skeleton__line--footer"></div>
         </div>
-        <v-card v-else variant="tonal" class="pa-5 metric-card">
-          <div class="d-flex align-center justify-space-between ga-3">
-            <div>
-              <div class="text-caption text-medium-emphasis">{{ metric.label }}</div>
-              <div class="text-h5 font-weight-bold" :class="metric.colorClass">
-                {{ metric.value }}
-              </div>
-            </div>
-            <v-icon :icon="metric.icon" class="metric-icon" :class="metric.colorClass" />
+        <v-card v-else variant="flat" class="metric-card" :class="`metric-card--${metric.tone}`">
+          <div class="metric-card__head">
+            <div class="metric-card__label">{{ metric.label }}</div>
+            <span class="metric-card__icon">
+              <v-icon :icon="metric.icon" size="20" />
+            </span>
+          </div>
+          <div class="metric-card__value">{{ metric.value }}</div>
+          <div class="metric-card__footer">
+            <span class="metric-card__pulse" />
+            {{ metric.helper }}
           </div>
         </v-card>
       </v-col>
@@ -43,43 +46,61 @@
       {{ error }}
     </v-alert>
 
-    <v-row class="mt-4" dense>
-      <v-col cols="12" lg="7">
-        <MapPanel />
+    <v-row class="mt-4 dashboard-overview" density="comfortable">
+      <v-col cols="12" lg="8">
+        <MapPanel class="dashboard-map" />
       </v-col>
-      <v-col cols="12" lg="5">
+      <v-col cols="12" lg="4">
         <DataPanel
-          title="Quick Links"
-          subtitle="Jump to the core sections."
+          class="command-panel"
+          title="Command center"
+          subtitle="Move quickly across the active workspace."
           :loading="loading"
           :show-refresh="false"
           :last-updated="lastUpdated"
         >
-          <div class="d-flex flex-wrap ga-2">
-            <v-btn v-for="item in quickLinks" :key="item.to" :to="item.to" variant="outlined">
-              {{ item.label }}
+          <div class="quick-link-grid">
+            <v-btn v-for="item in quickLinks" :key="item.to" :to="item.to" variant="text" class="quick-link">
+              <span class="quick-link__icon"><v-icon :icon="item.icon" size="19" /></span>
+              <span class="quick-link__copy">
+                <strong>{{ item.label }}</strong>
+                <small>{{ item.meta }}</small>
+              </span>
+              <v-icon icon="mdi-chevron-right" size="18" />
             </v-btn>
           </div>
-          <v-divider class="my-4" />
-          <div class="text-subtitle-2">Ports by protocol</div>
-          <div class="d-flex flex-wrap ga-2 mt-2">
-            <v-chip v-for="chip in protocolChips" :key="chip.proto" size="small" variant="tonal">
+          <v-divider class="my-5" />
+          <div class="command-section-label">Protocol inventory</div>
+          <div class="protocol-list">
+            <v-chip v-for="chip in protocolChips" :key="chip.proto" size="small" variant="tonal" color="info">
               {{ chip.proto.toUpperCase() }}: {{ chip.count }}
             </v-chip>
-            <span v-if="!protocolChips.length" class="text-body-2 text-medium-emphasis">
+            <div v-if="!protocolChips.length" class="empty-inline-state">
+              <v-icon icon="mdi-lan-disconnect" size="18" />
               No protocol data yet
-            </span>
+            </div>
           </div>
-          <v-divider class="my-4" />
-          <div class="text-subtitle-2">Last update</div>
-          <div class="text-body-2 text-medium-emphasis">{{ lastUpdated }}</div>
+          <v-divider class="my-5" />
+          <div class="command-section-label">Connection health</div>
+          <div class="connection-summary">
+            <div class="connection-summary__row">
+              <span class="summary-icon"><v-icon icon="mdi-server-network" size="18" /></span>
+              <span class="summary-copy"><small>API endpoint</small><strong>{{ apiHost }}</strong></span>
+              <span class="health-dot" :class="error ? 'health-dot--idle' : 'health-dot--online'" />
+            </div>
+            <div class="connection-summary__row">
+              <span class="summary-icon"><v-icon icon="mdi-access-point" size="18" /></span>
+              <span class="summary-copy"><small>Realtime channel</small><strong>{{ realtimeLabel }}</strong></span>
+              <span class="health-dot" :class="realtimeOnline ? 'health-dot--online' : 'health-dot--idle'" />
+            </div>
+          </div>
         </DataPanel>
       </v-col>
     </v-row>
 
-    <v-row class="mt-4" dense>
+    <v-row class="mt-4" density="comfortable">
       <v-col cols="12" md="6">
-        <v-row dense class="mb-2">
+        <v-row density="comfortable" class="mb-2">
           <v-col cols="12" md="8">
             <v-text-field
               v-model.trim="targetFilters.query"
@@ -153,7 +174,7 @@
         </EntityTablePanel>
       </v-col>
       <v-col cols="12" md="6">
-        <v-row dense class="mb-2">
+        <v-row density="comfortable" class="mb-2">
           <v-col cols="12" md="8">
             <v-text-field
               v-model.trim="bannerFilters.query"
@@ -247,10 +268,10 @@ export default {
         { key: "response_plain", label: "Banner" },
       ],
       quickLinks: [
-        { label: "Targets", to: "/targets" },
-        { label: "Ports", to: "/ports" },
-        { label: "Banners", to: "/banners" },
-        { label: "API", to: "/api" },
+        { label: "Targets", meta: "Manage scan scopes", to: "/targets", icon: "mdi-target" },
+        { label: "Ports", meta: "Inspect open services", to: "/ports", icon: "mdi-ethernet" },
+        { label: "Banners", meta: "Review service intel", to: "/banners", icon: "mdi-card-text" },
+        { label: "API", meta: "Browse endpoints", to: "/api", icon: "mdi-api" },
       ],
       targetFilters: {
         query: "",
@@ -272,6 +293,25 @@ export default {
     apiBase() {
       return this.store.state.apiBase;
     },
+    apiHost() {
+      const value = String(this.apiBase || "").trim();
+      if (!value) return "Current origin";
+      try {
+        return new URL(value).host;
+      } catch {
+        return value;
+      }
+    },
+    realtimeOnline() {
+      return String(this.store.state.wsStatus || "").trim().toLowerCase() === "online";
+    },
+    realtimeLabel() {
+      const value = String(this.store.state.wsStatus || "offline").trim().toLowerCase();
+      if (value === "online") return "Online";
+      if (value === "connecting") return "Connecting";
+      if (value === "error") return "Connection error";
+      return "Offline";
+    },
     metricCards() {
       return [
         {
@@ -279,28 +319,32 @@ export default {
           label: "Targets",
           value: this.counts.count_targets,
           icon: "mdi-target",
-          colorClass: "text-primary",
+          tone: "mint",
+          helper: "Configured scopes",
         },
         {
           key: "ports",
           label: "Ports",
           value: this.counts.count_ports,
           icon: "mdi-ethernet",
-          colorClass: "text-success",
+          tone: "sky",
+          helper: "Discovered services",
         },
         {
           key: "banners",
           label: "Banners",
           value: this.counts.count_banners,
           icon: "mdi-card-text",
-          colorClass: "text-secondary",
+          tone: "blue",
+          helper: "Captured responses",
         },
         {
           key: "ws",
           label: "WS Clients",
           value: this.wsClients.length,
           icon: "mdi-access-point",
-          colorClass: "text-warning",
+          tone: "amber",
+          helper: "Realtime observers",
         },
       ];
     },
@@ -524,7 +568,225 @@ export default {
 <style scoped>
 .metric-card,
 .metric-skeleton {
-  border-radius: 16px;
+  min-height: 136px;
+  border-radius: 17px;
+}
+
+.metric-card {
+  --metric-rgb: var(--brand-cyan-rgb);
+  position: relative;
+  overflow: hidden;
+  padding: 18px;
+  border-color: rgba(var(--metric-rgb), 0.15);
+  background:
+    radial-gradient(120% 120% at 100% 0%, rgba(var(--metric-rgb), 0.1), transparent 58%),
+    linear-gradient(145deg, rgba(18, 37, 42, 0.94), rgba(10, 23, 27, 0.96));
+  box-shadow: 0 16px 36px rgba(1, 7, 9, 0.24), inset 0 1px rgba(255, 255, 255, 0.03);
+}
+
+.metric-card::after {
+  content: "";
+  position: absolute;
+  inset: auto 18px 0;
+  height: 2px;
+  border-radius: 999px 999px 0 0;
+  background: rgba(var(--metric-rgb), 0.72);
+  box-shadow: 0 0 18px rgba(var(--metric-rgb), 0.28);
+}
+
+.metric-card--sky {
+  --metric-rgb: var(--brand-sky-rgb);
+}
+
+.metric-card--blue {
+  --metric-rgb: var(--brand-blue-rgb);
+}
+
+.metric-card--amber {
+  --metric-rgb: var(--brand-amber-rgb);
+}
+
+.metric-card__head,
+.metric-card__footer {
+  display: flex;
+  align-items: center;
+}
+
+.metric-card__head {
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.metric-card__label {
+  color: rgba(182, 204, 202, 0.72);
+  font-size: 0.73rem;
+  font-weight: 650;
+}
+
+.metric-card__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border: 1px solid rgba(var(--metric-rgb), 0.12);
+  border-radius: 12px;
+  color: rgb(var(--metric-rgb));
+  background: rgba(var(--metric-rgb), 0.08);
+}
+
+.metric-card__value {
+  margin-top: -6px;
+  color: var(--text-strong);
+  font-family: var(--font-heading);
+  font-size: 2rem;
+  font-weight: 650;
+  line-height: 1;
+  letter-spacing: -0.045em;
+}
+
+.metric-card__footer {
+  gap: 7px;
+  margin-top: 10px;
+  color: var(--text-dim);
+  font-size: 0.65rem;
+}
+
+.metric-card__pulse {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgb(var(--metric-rgb));
+  box-shadow: 0 0 10px rgba(var(--metric-rgb), 0.55);
+}
+
+.dashboard-map,
+.command-panel {
+  width: 100%;
+}
+
+.quick-link-grid {
+  display: grid;
+  gap: 8px;
+}
+
+.quick-link {
+  width: 100%;
+  height: auto !important;
+  min-height: 58px;
+  padding: 8px 10px !important;
+  border: 1px solid rgba(164, 204, 202, 0.1);
+  border-radius: 13px;
+  background: rgba(5, 15, 18, 0.36);
+}
+
+.quick-link:hover {
+  border-color: rgba(var(--brand-cyan-rgb), 0.22);
+  background: rgba(var(--brand-cyan-rgb), 0.05);
+}
+
+.quick-link :deep(.v-btn__content) {
+  width: 100%;
+  justify-content: flex-start;
+  gap: 11px;
+}
+
+.quick-link__icon,
+.summary-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  flex: 0 0 34px;
+  border-radius: 10px;
+  color: var(--brand-cyan);
+  background: rgba(var(--brand-cyan-rgb), 0.08);
+}
+
+.quick-link__copy,
+.summary-copy {
+  display: grid;
+  min-width: 0;
+  flex: 1;
+  text-align: left;
+}
+
+.quick-link__copy strong,
+.summary-copy strong {
+  overflow: hidden;
+  color: var(--text-soft);
+  font-size: 0.72rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.quick-link__copy small,
+.summary-copy small {
+  margin-top: 3px;
+  color: var(--text-dim);
+  font-size: 0.62rem;
+  font-weight: 500;
+}
+
+.command-section-label {
+  color: rgba(189, 211, 208, 0.82);
+  font-size: 0.68rem;
+  font-weight: 720;
+  letter-spacing: 0.055em;
+  text-transform: uppercase;
+}
+
+.protocol-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.empty-inline-state {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 9px;
+  padding: 13px;
+  border-radius: 12px;
+  color: var(--text-dim);
+  font-size: 0.7rem;
+  background: rgba(5, 15, 18, 0.36);
+}
+
+.connection-summary {
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.connection-summary__row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px;
+  border: 1px solid rgba(164, 204, 202, 0.08);
+  border-radius: 12px;
+  background: rgba(5, 15, 18, 0.32);
+}
+
+.health-dot {
+  width: 7px;
+  height: 7px;
+  flex: 0 0 7px;
+  border-radius: 50%;
+}
+
+.health-dot--online {
+  background: var(--brand-cyan);
+  box-shadow: 0 0 10px rgba(var(--brand-cyan-rgb), 0.55);
+}
+
+.health-dot--idle {
+  background: var(--brand-amber);
+  box-shadow: 0 0 10px rgba(var(--brand-amber-rgb), 0.42);
 }
 
 .target-actions {
@@ -611,10 +873,6 @@ export default {
   margin-top: 18px;
   position: relative;
   z-index: 1;
-}
-
-.metric-icon {
-  opacity: 0.92;
 }
 
 .banner-cell {

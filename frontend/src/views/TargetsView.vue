@@ -17,7 +17,7 @@
       class="mb-6"
     >
       <v-form @submit.prevent="createTarget">
-        <v-row dense>
+        <v-row density="comfortable">
           <v-col cols="12" md="4">
             <v-text-field
               v-model="form.network"
@@ -78,7 +78,7 @@
             />
           </v-col>
         </v-row>
-        <v-row dense>
+        <v-row density="comfortable">
           <v-col v-if="form.port_mode === 'single'" cols="12" md="2">
             <v-text-field
               v-model.number="form.port_single"
@@ -132,7 +132,7 @@
       </v-form>
     </DataPanel>
 
-    <v-row dense class="mb-4">
+    <v-row density="comfortable" class="mb-4">
       <v-col cols="12" md="5">
         <v-text-field
           v-model.trim="tableFilters.query"

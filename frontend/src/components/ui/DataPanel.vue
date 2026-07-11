@@ -33,14 +33,9 @@
     </v-alert>
 
     <transition name="panel-fade">
-      <div v-if="loading" class="panel-loader-shell">
-        <BrandMark :size="58" animated framed />
-        <div class="panel-loader-copy">
-          <div class="panel-loader-title">Loading live panel</div>
-          <div class="panel-loader-text">
-            The official brand mark keeps moving while this view refreshes.
-          </div>
-        </div>
+      <div v-if="loading" class="panel-sync-state">
+        <v-progress-circular indeterminate color="primary" size="16" width="2" />
+        <span>Synchronizing live data</span>
       </div>
     </transition>
 
@@ -105,13 +100,11 @@
 </template>
 
 <script>
-import BrandMark from "../brand/BrandMark.vue";
 import LiveRefreshControl from "./LiveRefreshControl.vue";
 
 export default {
   name: "DataPanel",
   components: {
-    BrandMark,
     LiveRefreshControl,
   },
   props: {
@@ -171,52 +164,27 @@ export default {
 }
 
 .panel-head {
-  padding-bottom: 10px;
-  border-bottom: 1px solid rgba(104, 178, 221, 0.14);
+  padding-bottom: 15px;
+  border-bottom: 1px solid rgba(164, 204, 202, 0.11);
 }
 
 .panel-pulse {
-  width: 10px;
-  height: 10px;
+  width: 3px;
+  height: 28px;
   border-radius: 999px;
-  background: rgba(var(--brand-sky-rgb), 0.92);
-  box-shadow: 0 0 0 0 rgba(var(--brand-sky-rgb), 0.32);
-  animation: panel-pulse 2.1s ease-in-out infinite;
+  background: var(--brand-gradient);
+  box-shadow: 0 0 18px rgba(var(--brand-cyan-rgb), 0.18);
 }
 
-.panel-loader-shell {
+.panel-sync-state {
   display: flex;
   align-items: center;
-  gap: 16px;
-  margin-bottom: 16px;
-  padding: 14px 16px;
-  border-radius: 16px;
-  border: 1px solid rgba(var(--brand-sky-rgb), 0.16);
-  background:
-    radial-gradient(circle at 14% 26%, rgba(var(--brand-cyan-rgb), 0.13), transparent 38%),
-    radial-gradient(circle at 90% 82%, rgba(var(--brand-violet-rgb), 0.14), transparent 44%),
-    linear-gradient(145deg, rgba(10, 17, 28, 0.9), rgba(8, 14, 23, 0.82));
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03), 0 16px 32px rgba(2, 7, 13, 0.18);
-}
-
-.panel-loader-copy {
-  min-width: 0;
-}
-
-.panel-loader-title {
-  font-family: var(--font-heading);
-  font-size: 0.76rem;
-  font-weight: 680;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: rgba(236, 245, 255, 0.95);
-}
-
-.panel-loader-text {
-  margin-top: 4px;
+  gap: 9px;
+  margin-bottom: 12px;
   color: var(--text-dim);
-  font-size: 0.84rem;
-  line-height: 1.45;
+  font-size: 0.72rem;
+  font-weight: 650;
+  letter-spacing: 0.035em;
 }
 
 .panel-body {
@@ -426,8 +394,8 @@ export default {
 }
 
 @media (max-width: 960px) {
-  .panel-loader-shell {
-    align-items: flex-start;
+  .data-panel {
+    padding: 20px !important;
   }
 
   .panel-skeleton__grid {

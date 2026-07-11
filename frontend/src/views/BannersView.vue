@@ -13,7 +13,7 @@
       <v-tab value="favicons" :disabled="loading">Favicons</v-tab>
     </v-tabs>
 
-    <v-row dense class="mb-3">
+    <v-row density="comfortable" class="mb-3">
       <v-col cols="12" md="6">
         <v-text-field
           v-model.trim="tableFilters.query"

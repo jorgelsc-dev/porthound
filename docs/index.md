@@ -32,6 +32,19 @@ La UI controla `Dashboard`, `Targets`, `Ports`, `Banners` y `API`. La API public
 <a class="link" href="/reference/api/"><span>Referencia HTTP</span><strong>Rutas, respuestas y ejemplos</strong></a>
 </div>
 
+## Instalacion recomendada
+
+Para usuario final, la ruta recomendada es `pipx`:
+
+```bash
+python -m pip install --user pipx
+python -m pipx ensurepath
+pipx install porthound4
+porthound
+```
+
+`pipx` mantiene PortHound aislado sin obligarte a crear ni activar un `venv` manualmente.
+
 ## Uso autorizado
 
 !!! warning
