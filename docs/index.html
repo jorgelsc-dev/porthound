@@ -260,14 +260,20 @@
       <h2>Instalacion y uso</h2>
       <div class="cmd-grid">
         <div class="cmd">
-          <strong>Instalar desde PyPI</strong>
-          <pre><code>pip install porthound4</code></pre>
+          <strong>Instalacion recomendada</strong>
+          <pre><code>python -m pip install --user pipx
+python -m pipx ensurepath
+pipx install porthound4</code></pre>
         </div>
         <div class="cmd">
           <strong>Ejecutar</strong>
           <pre><code>porthound</code></pre>
         </div>
       </div>
+      <p class="footer">
+        Para usuario final, <code>pipx</code> es la ruta recomendada: deja PortHound aislado, evita mezclar dependencias
+        con tu Python principal y no exige gestionar un <code>venv</code> manualmente.
+      </p>
       <p class="footer">
         Bind efectivo: <code>127.0.0.1:45678</code>. El launcher standalone mantiene ese valor y no expone un bind
         publico distinto.<br>

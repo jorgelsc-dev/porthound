@@ -9,24 +9,15 @@ PortHound puede ejecutarse instalado desde PyPI o desde el repositorio. La ruta 
 
 ## Instalacion
 
-### Desde PyPI
+### Recomendado para usuario final: `pipx`
 
-```bash
-python -m pip install --upgrade pip setuptools wheel
-python -m pip install porthound4
-porthound
-```
+`pipx` es la mejor opcion cuando quieres PortHound como comando local y no quieres gestionar entornos virtuales a mano:
 
-Fallbacks if your shell has not refreshed the entry point yet:
+- instala la app en un entorno aislado
+- expone el binario `porthound` en tu `PATH`
+- evita conflictos con otros paquetes de tu Python principal
 
-```bash
-porthound4
-python -m porthound
-```
-
-### Sin `venv`
-
-CLI aislado sin gestionar entornos manualmente:
+Instalacion:
 
 ```bash
 python -m pip install --user pipx
@@ -35,7 +26,28 @@ pipx install porthound4
 porthound
 ```
 
-Instalacion en el usuario actual con `pip`:
+Si necesitas fijar Python 3.12 explicitamente:
+
+```bash
+pipx install --python python3.12 porthound4
+```
+
+Mantenimiento:
+
+```bash
+pipx upgrade porthound4
+pipx uninstall porthound4
+```
+
+Si `porthound` no se encuentra tras instalar:
+
+- abre una shell nueva despues de `python -m pipx ensurepath`
+- o ejecuta `python -m pipx ensurepath --force`
+- revisa que `~/.local/bin` este en tu `PATH`
+
+### Alternativa sin `venv`: `pip --user`
+
+Si no quieres `pipx`, instala PortHound en el perfil del usuario actual:
 
 ```bash
 python -m pip install --user porthound4
@@ -49,11 +61,29 @@ python -m pip install --user .
 porthound
 ```
 
+Si instalaste con `pip --user`, tambien puedes usar:
+
+```bash
+porthound4
+python -m porthound
+```
+
 Notas:
 
-- `pipx` usa un entorno aislado interno, pero evita que tengas que crear o activar uno.
 - `pip install --user` suele dejar el ejecutable en `~/.local/bin`.
-- En sistemas con Python externamente gestionado, evita instalar globalmente si `pip` te lo bloquea.
+- Es menos aislado que `pipx`, asi que no es la primera opcion para una CLI distribuida por PyPI.
+
+### Instalacion directa con `pip`
+
+Usala solo si controlas ese Python y quieres instalar ahi de forma global:
+
+```bash
+python -m pip install --upgrade pip setuptools wheel
+python -m pip install porthound4
+porthound
+```
+
+En sistemas con Python externamente gestionado, esta ruta puede estar bloqueada.
 
 ### Desde el repositorio
 
@@ -64,6 +94,8 @@ python -m pip install --upgrade pip setuptools wheel
 python -m pip install -e .
 porthound
 ```
+
+Esta ruta es la adecuada para desarrollo local y contribucion.
 
 ### Bundle offline para `pip`
 

@@ -434,7 +434,7 @@
       </div>
     </div>
 
-    <v-row v-if="!mapOnly" class="mt-4" dense>
+    <v-row v-if="!mapOnly" class="mt-4" density="comfortable">
       <v-col cols="12" md="3">
         <v-card variant="tonal" class="pa-3">
           <div class="text-caption text-medium-emphasis">Total hosts</div>

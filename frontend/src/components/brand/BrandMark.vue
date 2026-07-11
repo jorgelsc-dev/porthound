@@ -25,10 +25,9 @@
           x2="438"
           y2="462"
         >
-          <stop offset="0%" stop-color="#0fe8ff" />
-          <stop offset="34%" stop-color="#20c9ff" />
-          <stop offset="69%" stop-color="#4b8fff" />
-          <stop offset="100%" stop-color="#8e63ff" />
+          <stop offset="0%" stop-color="#68e5bd" />
+          <stop offset="48%" stop-color="#57c7e6" />
+          <stop offset="100%" stop-color="#78a7ff" />
           <animateTransform
             v-if="animated"
             attributeName="gradientTransform"
@@ -153,8 +152,8 @@ export default {
   border-radius: 999px;
   background: radial-gradient(
     circle,
-    rgba(var(--brand-cyan-rgb), 0.18),
-    rgba(var(--brand-violet-rgb), 0) 70%
+    rgba(var(--brand-cyan-rgb), 0.2),
+    rgba(var(--brand-blue-rgb), 0) 70%
   );
   filter: blur(16px);
   z-index: -1;
@@ -170,8 +169,8 @@ export default {
   border: 1px solid rgba(var(--brand-sky-rgb), 0.18);
   background:
     radial-gradient(circle at 22% 18%, rgba(var(--brand-cyan-rgb), 0.16), transparent 44%),
-    radial-gradient(circle at 82% 84%, rgba(var(--brand-violet-rgb), 0.18), transparent 46%),
-    linear-gradient(145deg, rgba(10, 17, 28, 0.94), rgba(8, 13, 22, 0.84));
+    radial-gradient(circle at 82% 84%, rgba(var(--brand-blue-rgb), 0.14), transparent 46%),
+    linear-gradient(145deg, rgba(13, 30, 34, 0.96), rgba(7, 17, 21, 0.92));
   box-shadow:
     inset 0 0 0 1px rgba(255, 255, 255, 0.03),
     0 14px 28px rgba(2, 7, 13, 0.22);

@@ -24,7 +24,7 @@
       <div class="text-subtitle-1 font-weight-medium">Base URL</div>
       <div class="text-body-2 text-medium-emphasis">{{ apiBase }}</div>
       <v-divider class="my-4" />
-      <v-row dense>
+      <v-row density="comfortable">
         <v-col cols="12" md="8">
           <v-text-field
             v-model.trim="tableFilters.query"

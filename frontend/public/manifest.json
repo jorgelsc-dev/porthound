@@ -3,8 +3,8 @@
   "short_name": "PortHound",
   "start_url": ".",
   "display": "standalone",
-  "background_color": "#06111d",
-  "theme_color": "#06111d",
+  "background_color": "#071014",
+  "theme_color": "#071014",
   "icons": [
     {
       "src": "icon-192.png",

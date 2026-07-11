@@ -49,11 +49,20 @@ Reglas:
 
 ## Instalacion
 
-### Desde PyPI
+### Recomendado para usuario final: `pipx`
+
+`pipx` es la opcion recomendada si solo quieres instalar y ejecutar `porthound` como herramienta CLI:
+
+- aísla dependencias sin que tengas que crear ni activar un `venv`
+- evita mezclar paquetes de PortHound con tu Python global
+- funciona mejor en sistemas donde `pip` bloquea instalaciones globales por PEP 668
+
+Instalacion:
 
 ```bash
-python -m pip install --upgrade pip setuptools wheel
-python -m pip install porthound4
+python -m pip install --user pipx
+python -m pipx ensurepath
+pipx install porthound4
 ```
 
 Uso inmediato:
@@ -62,24 +71,28 @@ Uso inmediato:
 porthound
 ```
 
-Fallbacks if your shell has not refreshed the entry point yet:
+Si tienes varias versiones de Python y quieres fijar Python 3.12:
 
 ```bash
-porthound4
-python -m porthound
+pipx install --python python3.12 porthound4
 ```
 
-### Sin `venv`
-
-Opcion recomendada para un CLI aislado pero transparente:
+Mantenimiento basico:
 
 ```bash
-python -m pip install --user pipx
-python -m pipx ensurepath
-pipx install porthound4
+pipx upgrade porthound4
+pipx uninstall porthound4
 ```
 
-Opcion simple con `pip` en tu usuario:
+Si `porthound` no aparece tras instalar:
+
+- abre una shell nueva despues de `python -m pipx ensurepath`
+- o ejecuta `python -m pipx ensurepath --force`
+- como ultimo recurso, confirma que `~/.local/bin` esta en tu `PATH`
+
+### Alternativa sin `venv`: `pip --user`
+
+Si no quieres `pipx`, la siguiente opcion razonable para usuario final es instalar en tu perfil:
 
 ```bash
 python -m pip install --user porthound4
@@ -91,12 +104,27 @@ Desde el repo local, sin crear `venv`:
 python -m pip install --user .
 ```
 
+Si instalaste con `pip --user`, tambien puedes arrancar con:
+
+```bash
+porthound4
+python -m porthound
+```
+
 Notas:
 
-- `pipx` crea un entorno aislado por debajo, pero no tienes que gestionarlo manualmente.
 - `pip install --user` evita tocar el Python del sistema y suele instalar el binario en `~/.local/bin`.
-- En distros con PEP 668, el `pip install` global puede estar bloqueado. Si no quieres `pipx`, usa `--user`.
+- Es menos aislado que `pipx`, asi que puede ser peor opcion si instalas muchas herramientas Python distintas.
 - `--break-system-packages` existe, pero solo conviene si aceptas modificar el Python gestionado por el sistema.
+
+### Instalacion directa con `pip`
+
+Solo la recomiendo si controlas ese Python y aceptas instalar dependencias ahi:
+
+```bash
+python -m pip install --upgrade pip setuptools wheel
+python -m pip install porthound4
+```
 
 ### Entorno local
 
@@ -107,6 +135,8 @@ python -m pip install --upgrade pip setuptools wheel
 python -m pip install -e .
 porthound
 ```
+
+Usa esta ruta para desarrollo, pruebas locales y `pip install -e .`, no como recomendacion principal para usuarios finales.
 
 ### Build para instalar con `pip` sin internet
 

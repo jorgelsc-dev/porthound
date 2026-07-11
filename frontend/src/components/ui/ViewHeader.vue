@@ -1,13 +1,16 @@
 <template>
-  <div class="view-header d-flex align-center justify-space-between flex-wrap mb-6 ga-3">
-    <div>
-      <div class="text-overline text-primary">{{ overline }}</div>
-      <div class="text-h4 font-weight-bold">{{ title }}</div>
-      <div v-if="description" class="text-body-2 text-medium-emphasis">
+  <div class="view-header">
+    <div class="view-header__copy">
+      <div v-if="overline" class="view-kicker">
+        <span />
+        {{ overline }}
+      </div>
+      <div class="view-title">{{ title }}</div>
+      <div v-if="description" class="view-description">
         {{ description }}
       </div>
     </div>
-    <div class="d-flex align-center ga-2 header-actions">
+    <div class="header-actions">
       <slot name="actions">
         <v-btn
           v-if="showRefresh"
@@ -59,25 +62,71 @@ export default {
 
 <style scoped>
 .view-header {
-  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 24px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(164, 204, 202, 0.11);
 }
 
-.view-header::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: -8px;
+.view-header__copy {
+  min-width: 0;
+}
+
+.view-kicker {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 7px;
+  color: var(--brand-cyan);
+  font-size: 0.65rem;
+  font-weight: 750;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.view-kicker span {
+  width: 18px;
   height: 1px;
-  background: linear-gradient(
-    90deg,
-    rgba(92, 193, 237, 0.55),
-    rgba(92, 193, 237, 0.08),
-    transparent
-  );
+  background: var(--brand-cyan);
+}
+
+.view-title {
+  color: var(--text-strong);
+  font-family: var(--font-heading);
+  font-size: clamp(1.65rem, 3vw, 2.2rem);
+  font-weight: 650;
+  line-height: 1.08;
+  letter-spacing: -0.04em;
+}
+
+.view-description {
+  max-width: 720px;
+  margin-top: 7px;
+  color: var(--text-dim);
+  font-size: 0.86rem;
+  line-height: 1.55;
 }
 
 .header-actions {
+  display: flex;
   min-height: 40px;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 8px;
+}
+
+@media (max-width: 599px) {
+  .view-header {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .header-actions {
+    width: 100%;
+  }
 }
 </style>

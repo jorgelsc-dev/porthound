@@ -1,50 +1,48 @@
 <template>
-  <v-app-bar color="transparent" flat height="74" class="top-bar">
-    <v-container class="d-flex align-center app-topbar">
+  <v-app-bar color="transparent" flat height="76" class="top-bar">
+    <v-container class="app-topbar">
       <v-btn
         icon="mdi-menu"
         variant="text"
-        class="d-md-none"
+        class="d-lg-none menu-button"
         aria-label="Open navigation menu"
         @click="$emit('open-drawer')"
       />
-      <div class="brand-lockup">
-        <div class="brand-avatar mr-3">
-          <BrandMark :size="44" />
-        </div>
-        <div class="brand-copy">
-          <div class="text-subtitle-1 font-weight-bold">PortHound</div>
-          <div class="text-caption text-medium-emphasis">Network Scanner &amp; Banner Intel</div>
-        </div>
-      </div>
 
-      <v-spacer />
+      <router-link to="/" class="brand-lockup">
+        <span class="brand-avatar">
+          <BrandMark :size="38" />
+        </span>
+        <span class="brand-copy">
+          <span class="brand-name">PortHound</span>
+          <span class="brand-tagline">Reconnaissance platform</span>
+        </span>
+      </router-link>
 
-      <v-tabs
-        class="d-none d-md-flex top-tabs"
-        color="primary"
-        density="compact"
-        align-with-title
-      >
-        <v-tab
+      <nav class="primary-nav d-none d-lg-flex" aria-label="Primary navigation">
+        <v-btn
           v-for="item in navItems"
           :key="item.to"
           :to="item.to"
           :exact="item.to === '/'"
+          :prepend-icon="item.icon"
+          variant="text"
+          class="nav-item"
         >
           {{ item.label }}
-        </v-tab>
-      </v-tabs>
+        </v-btn>
+      </nav>
 
       <v-spacer />
 
-      <div class="status-rail">
+      <div class="status-rail" aria-label="Connection status">
         <v-chip
           :color="authStateColor"
           variant="tonal"
           size="small"
           prepend-icon="mdi-shield-key-outline"
-          class="auth-chip"
+          class="auth-chip d-none d-sm-flex"
+          :aria-label="authStateLabel"
           @click="$emit('open-auth')"
         >
           {{ authStateLabel }}
@@ -54,30 +52,19 @@
           variant="tonal"
           size="small"
           prepend-icon="mdi-access-point"
+          :aria-label="wsStateLabel"
         >
-          {{ wsStateLabel }}
+          <span class="status-label">{{ wsStateLabel }}</span>
         </v-chip>
         <v-chip
           v-if="compactApiBase"
-          class="d-none d-lg-flex"
+          class="d-none d-xl-flex endpoint-chip"
           variant="outlined"
           size="small"
-          prepend-icon="mdi-link-variant"
+          prepend-icon="mdi-server-network"
         >
           {{ compactApiBase }}
         </v-chip>
-        <v-btn
-          class="d-none d-lg-flex ml-1"
-          color="secondary"
-          variant="outlined"
-          size="small"
-          prepend-icon="mdi-currency-btc"
-          :href="btcSupportLink"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Support BTC
-        </v-btn>
       </div>
     </v-container>
   </v-app-bar>
@@ -113,26 +100,26 @@ export default {
   computed: {
     authStateLabel() {
       const value = String(this.authStatus || "").trim().toLowerCase();
-      if (value === "authenticated") return "Token Ready";
-      if (value === "saved") return "Token Saved";
-      if (value === "required") return "Token Required";
-      if (value === "checking") return "Checking Token";
-      return "Auth Open";
+      if (value === "authenticated") return "Token ready";
+      if (value === "saved") return "Token saved";
+      if (value === "required") return "Token required";
+      if (value === "checking") return "Checking token";
+      return "Open access";
     },
     authStateColor() {
       const value = String(this.authStatus || "").trim().toLowerCase();
       if (value === "authenticated") return "success";
       if (value === "saved") return "info";
       if (value === "required") return "warning";
-      if (value === "checking") return "secondary";
+      if (value === "checking") return "info";
       return "secondary";
     },
     wsStateLabel() {
       const value = String(this.wsStatus || "").trim().toLowerCase();
-      if (value === "online") return "WS Online";
-      if (value === "connecting") return "WS Connecting";
-      if (value === "error") return "WS Error";
-      return "WS Offline";
+      if (value === "online") return "Realtime online";
+      if (value === "connecting") return "Connecting";
+      if (value === "error") return "Realtime error";
+      return "Realtime offline";
     },
     wsStateColor() {
       const value = String(this.wsStatus || "").trim().toLowerCase();
@@ -146,13 +133,10 @@ export default {
       if (!raw) return "";
       try {
         const parsed = new URL(raw);
-        return `${parsed.protocol}//${parsed.host}`;
+        return parsed.host;
       } catch {
         return raw;
       }
-    },
-    btcSupportLink() {
-      return "https://mempool.space/address/bc1q3lhxpr9yantvefmvhpd2h4lu0ykf3t45zvuve2";
     },
   },
 };
@@ -160,150 +144,164 @@ export default {
 
 <style scoped>
 .top-bar {
-  position: relative;
-  overflow: hidden;
-  border-bottom: 1px solid rgba(var(--brand-sky-rgb), 0.18);
-  backdrop-filter: blur(18px) saturate(130%);
-  background:
-    radial-gradient(circle at 18% 0%, rgba(var(--brand-cyan-rgb), 0.14), transparent 34%),
-    radial-gradient(circle at 82% 0%, rgba(var(--brand-violet-rgb), 0.16), transparent 40%),
-    linear-gradient(180deg, rgba(6, 11, 18, 0.94) 0%, rgba(9, 17, 29, 0.78) 72%, rgba(9, 17, 29, 0.18) 100%);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  overflow: visible;
+  border-bottom: 1px solid rgba(172, 210, 208, 0.1);
+  background: rgba(5, 14, 17, 0.82) !important;
+  backdrop-filter: blur(22px) saturate(125%);
+  box-shadow: 0 10px 38px rgba(1, 7, 9, 0.18);
 }
 
 .top-bar::after {
   content: "";
   position: absolute;
-  top: 0;
-  left: 0;
   right: 0;
-  height: 2px;
-  background: linear-gradient(
-    90deg,
-    rgba(var(--brand-cyan-rgb), 0),
-    rgba(var(--brand-cyan-rgb), 0.95),
-    rgba(var(--brand-blue-rgb), 0.94),
-    rgba(var(--brand-violet-rgb), 0.96),
-    rgba(var(--brand-cyan-rgb), 0)
-  );
+  bottom: -1px;
+  left: 0;
+  height: 1px;
   pointer-events: none;
+  background: linear-gradient(90deg, transparent 5%, rgba(var(--brand-cyan-rgb), 0.42), rgba(var(--brand-blue-rgb), 0.28), transparent 95%);
 }
 
 .app-topbar {
-  max-width: 1560px;
+  display: flex;
+  align-items: center;
   width: 100%;
+  max-width: 1480px !important;
+  height: 100%;
+  padding-inline: 24px !important;
+}
+
+.menu-button {
+  margin-right: 6px;
 }
 
 .brand-lockup {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  min-width: 0;
+  min-width: 218px;
+  color: inherit;
+  text-decoration: none;
 }
 
 .brand-avatar {
-  width: 44px;
-  height: 44px;
-  flex: 0 0 44px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 14px;
-  border: 1px solid rgba(var(--brand-cyan-rgb), 0.22);
-  background:
-    radial-gradient(circle at 24% 22%, rgba(var(--brand-cyan-rgb), 0.14), transparent 44%),
-    linear-gradient(145deg, rgba(10, 16, 27, 0.92), rgba(7, 12, 21, 0.86));
-  box-shadow:
-    0 0 0 1px rgba(var(--brand-violet-rgb), 0.12),
-    0 0 18px rgba(var(--brand-cyan-rgb), 0.16);
+  width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
+  margin-right: 12px;
   overflow: hidden;
+  border: 1px solid rgba(var(--brand-cyan-rgb), 0.18);
+  border-radius: 13px;
+  background: linear-gradient(145deg, rgba(20, 42, 46, 0.88), rgba(8, 20, 24, 0.94));
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.04), 0 8px 24px rgba(1, 8, 10, 0.3);
 }
 
 .brand-copy {
+  display: grid;
   min-width: 0;
+  line-height: 1.1;
 }
 
-.brand-copy .text-subtitle-1 {
-  letter-spacing: 0.04em;
+.brand-name {
+  font-family: var(--font-heading);
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
 }
 
-.brand-copy .text-caption {
-  text-transform: uppercase;
+.brand-tagline {
+  margin-top: 5px;
+  color: rgba(157, 181, 180, 0.68);
+  font-size: 0.59rem;
+  font-weight: 750;
   letter-spacing: 0.12em;
-  font-size: 0.68rem !important;
-}
-
-.top-tabs :deep(.v-tab) {
-  min-width: 72px;
-  font-weight: 650;
-  letter-spacing: 0.05em;
   text-transform: uppercase;
 }
 
-.top-tabs :deep(.v-tab--selected) {
-  color: rgba(var(--brand-cyan-rgb), 0.98);
-  text-shadow: 0 0 14px rgba(var(--brand-cyan-rgb), 0.18);
+.primary-nav {
+  align-items: center;
+  gap: 3px;
+  padding: 5px;
+  border: 1px solid rgba(165, 203, 201, 0.08);
+  border-radius: 14px;
+  background: rgba(12, 26, 30, 0.54);
+}
+
+.nav-item {
+  min-width: auto;
+  min-height: 38px;
+  padding-inline: 12px;
+  border-radius: 10px;
+  color: rgba(181, 202, 201, 0.72);
+}
+
+.nav-item :deep(.v-icon) {
+  font-size: 17px;
+}
+
+.nav-item.v-btn--active {
+  color: var(--text-strong);
+  background: rgba(var(--brand-cyan-rgb), 0.1);
+  box-shadow: inset 0 0 0 1px rgba(var(--brand-cyan-rgb), 0.12);
 }
 
 .status-rail {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 10px;
+  gap: 8px;
   min-width: 0;
-  flex-wrap: wrap;
 }
 
 .auth-chip {
   cursor: pointer;
 }
 
-@media (max-width: 959px) {
-  .top-bar {
-    height: auto !important;
-  }
+.endpoint-chip {
+  max-width: 210px;
+  color: rgba(194, 216, 214, 0.82);
+}
 
-  .app-topbar {
-    flex-wrap: wrap;
-    row-gap: 10px;
-    padding-top: 10px;
-    padding-bottom: 10px;
-  }
-
-  .top-tabs {
-    display: none !important;
-  }
-
+@media (max-width: 1279px) {
   .brand-lockup {
-    flex: 1 1 auto;
     min-width: 0;
   }
+}
 
-  .brand-copy .text-subtitle-1 {
-    font-size: 0.98rem !important;
+@media (max-width: 599px) {
+  .app-topbar {
+    padding-inline: 10px !important;
   }
 
-  .brand-copy .text-caption {
-    display: block;
-    max-width: 180px;
-    line-height: 1.35;
-    white-space: normal;
+  .brand-avatar {
+    width: 38px;
+    height: 38px;
+    flex-basis: 38px;
+    margin-right: 9px;
   }
 
-  .status-rail {
-    width: 100%;
-    justify-content: flex-start;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    padding-bottom: 2px;
+  .brand-name {
+    font-size: 0.92rem;
   }
 
-  .status-rail::-webkit-scrollbar {
-    height: 4px;
+  .brand-tagline {
+    display: none;
+  }
+}
+
+@media (max-width: 410px) {
+  .status-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
   }
 
-  .status-rail :deep(.v-chip),
-  .status-rail :deep(.v-btn) {
-    flex: 0 0 auto;
+  .status-rail :deep(.v-chip) {
+    padding-inline: 8px;
   }
 }
 </style>

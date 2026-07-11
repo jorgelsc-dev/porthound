@@ -196,27 +196,28 @@ export default {
 
 <style scoped>
 .app-container {
-  max-width: 1560px;
+  max-width: 1480px !important;
   width: 100%;
+  padding: 22px 24px 64px !important;
 }
 
 .app-main {
-  padding-bottom: 40px;
+  padding-bottom: 24px;
 }
 
 .auth-dialog-card {
   overflow: hidden;
-  border: 1px solid rgba(102, 212, 255, 0.22);
+  border: 1px solid rgba(var(--brand-cyan-rgb), 0.2);
   background:
-    radial-gradient(circle at top right, rgba(52, 230, 255, 0.12), transparent 40%),
-    radial-gradient(circle at bottom left, rgba(149, 115, 255, 0.12), transparent 44%),
-    linear-gradient(160deg, rgba(9, 14, 22, 0.96), rgba(12, 19, 31, 0.98));
+    radial-gradient(circle at top right, rgba(var(--brand-cyan-rgb), 0.1), transparent 42%),
+    radial-gradient(circle at bottom left, rgba(var(--brand-blue-rgb), 0.08), transparent 46%),
+    linear-gradient(160deg, rgba(9, 22, 26, 0.98), rgba(7, 17, 21, 0.99));
 }
 
 .auth-dialog-topline {
   height: 6px;
   border-radius: 999px 999px 0 0;
-  background: linear-gradient(90deg, rgba(52, 230, 255, 0.92), rgba(149, 115, 255, 0.92));
+  background: var(--brand-gradient);
 }
 
 .auth-dialog-copy {
@@ -235,8 +236,18 @@ export default {
 }
 
 @media (max-width: 959px) {
+  .app-container {
+    padding: 16px 16px 40px !important;
+  }
+
   .app-main {
     padding-bottom: 24px;
+  }
+}
+
+@media (max-width: 599px) {
+  .app-container {
+    padding-inline: 10px !important;
   }
 }
 </style>

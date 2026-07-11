@@ -244,7 +244,7 @@ export default {
 
 <style scoped>
 .entity-table {
-  border-radius: 12px;
+  border-radius: 14px;
   overflow: hidden;
 }
 
@@ -260,7 +260,7 @@ export default {
 }
 
 .entity-table :deep(tbody td) {
-  border-bottom: 1px solid rgba(99, 173, 219, 0.1);
+  border-bottom: 1px solid rgba(164, 204, 202, 0.08);
 }
 
 .entity-table :deep(tbody tr:last-child td) {
@@ -268,8 +268,7 @@ export default {
 }
 
 .entity-table :deep(tbody tr:hover) {
-  transform: translateY(-1px);
-  box-shadow: inset 0 0 0 1px rgba(108, 186, 228, 0.24);
+  box-shadow: inset 3px 0 0 rgba(var(--brand-cyan-rgb), 0.54);
 }
 
 .table-skeleton {
