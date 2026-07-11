@@ -69,6 +69,35 @@ porthound4
 python -m porthound
 ```
 
+### Sin `venv`
+
+Opcion recomendada para un CLI aislado pero transparente:
+
+```bash
+python -m pip install --user pipx
+python -m pipx ensurepath
+pipx install porthound4
+```
+
+Opcion simple con `pip` en tu usuario:
+
+```bash
+python -m pip install --user porthound4
+```
+
+Desde el repo local, sin crear `venv`:
+
+```bash
+python -m pip install --user .
+```
+
+Notas:
+
+- `pipx` crea un entorno aislado por debajo, pero no tienes que gestionarlo manualmente.
+- `pip install --user` evita tocar el Python del sistema y suele instalar el binario en `~/.local/bin`.
+- En distros con PEP 668, el `pip install` global puede estar bloqueado. Si no quieres `pipx`, usa `--user`.
+- `--break-system-packages` existe, pero solo conviene si aceptas modificar el Python gestionado por el sistema.
+
 ### Entorno local
 
 ```bash
@@ -90,6 +119,8 @@ La maquina que construye y la maquina que instala deben coincidir en:
 - version principal/secundaria de Python
 
 Si `frontend/dist` no existe, el build genera el frontend automaticamente. En ese caso, solo la maquina que prepara el bundle necesita Node 22 LTS; la maquina offline no.
+
+El `sdist` de release ya incluye `frontend/dist`, asi que una instalacion desde el tarball publicado no deberia necesitar Node.
 
 1. Genera el wheelhouse:
 

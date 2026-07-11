@@ -24,6 +24,37 @@ porthound4
 python -m porthound
 ```
 
+### Sin `venv`
+
+CLI aislado sin gestionar entornos manualmente:
+
+```bash
+python -m pip install --user pipx
+python -m pipx ensurepath
+pipx install porthound4
+porthound
+```
+
+Instalacion en el usuario actual con `pip`:
+
+```bash
+python -m pip install --user porthound4
+porthound
+```
+
+Instalacion desde el repositorio, tambien sin `venv`:
+
+```bash
+python -m pip install --user .
+porthound
+```
+
+Notas:
+
+- `pipx` usa un entorno aislado interno, pero evita que tengas que crear o activar uno.
+- `pip install --user` suele dejar el ejecutable en `~/.local/bin`.
+- En sistemas con Python externamente gestionado, evita instalar globalmente si `pip` te lo bloquea.
+
 ### Desde el repositorio
 
 ```bash
@@ -45,6 +76,8 @@ Compatibilidad recomendada entre maquina de build y maquina destino:
 - misma version principal/secundaria de Python
 
 Si `frontend/dist` no existe, el build ejecuta `npm ci && npm run build`. Solo la maquina que arma el bundle necesita Node 22 LTS.
+
+Los source tarballs de release incluyen `frontend/dist`, asi que una instalacion desde ese artefacto no deberia requerir Node.
 
 Build del bundle:
 
