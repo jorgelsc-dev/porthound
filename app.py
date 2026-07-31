@@ -77,6 +77,8 @@ SPA_ROUTES = (
     "/banners",
     "/tags",
     "/catalog",
+    "/files",
+    "/security",
     "/api",
 )
 STATIC_CONTENT_TYPE_OVERRIDES = {
@@ -2902,6 +2904,14 @@ class AttackTelemetry:
         self._thread = threading.Thread(target=self._run, daemon=True, name="attack-telemetry")
         self._thread.start()
 
+    def stop(self, timeout=3.0):
+        self._stop_event.set()
+        thread = self._thread
+        if thread and thread is not threading.current_thread():
+            thread.join(timeout=timeout)
+        if thread and not thread.is_alive():
+            self._thread = None
+
     def seed(self, count=45):
         count = clamp_int(count, 45, 1, 200)
         now_ts = int(time.time())
@@ -2922,6 +2932,8 @@ class AttackTelemetry:
         while not self._stop_event.is_set():
             if self._running:
                 event = self.generate_and_store()
+                if self._stop_event.is_set():
+                    break
                 self.broadcast_event(event)
                 if event["id"] % 6 == 0:
                     self.broadcast_summary()
@@ -3021,6 +3033,14 @@ class ScanMapTelemetry:
         self._stop_event.clear()
         self._thread = threading.Thread(target=self._run, daemon=True, name="scan-map-telemetry")
         self._thread.start()
+
+    def stop(self, timeout=3.0):
+        self._stop_event.set()
+        thread = self._thread
+        if thread and thread is not threading.current_thread():
+            thread.join(timeout=timeout)
+        if thread and not thread.is_alive():
+            self._thread = None
 
     def snapshot(self, limit=300):
         return build_scan_map_snapshot(limit_hosts=limit)
@@ -3976,12 +3996,15 @@ cluster_leases = {}
 _local_cluster_agent_lock = threading.Lock()
 _local_cluster_agent_thread = None
 _local_cluster_agent_db = None
+_local_cluster_agent_runtime = None
 _local_cluster_agent_scanner_threads = []
 _agent_mode_runtime_lock = threading.Lock()
 _agent_mode_runtime_thread = None
 _agent_mode_runtime_started_at = 0.0
 _agent_mode_runtime_last_error = ""
 _agent_mode_runtime = None
+_runtime_shutdown_lock = threading.Lock()
+_runtime_shutdown_started = False
 inline_ca_lock = threading.Lock()
 inline_ca_tempfile_path = ""
 
@@ -4006,6 +4029,81 @@ def start_scanners_for_db(db, thread_store=None):
 
 def start_scanners():
     start_scanners_for_db(scan_db, _scanner_threads)
+
+
+def _join_background_thread(thread, label, timeout=3.0):
+    if thread is None or thread is threading.current_thread():
+        return
+    try:
+        thread.join(timeout=timeout)
+    except RuntimeError:
+        return
+    if thread.is_alive():
+        print(f"[shutdown] {label} did not stop within {timeout:.1f}s")
+
+
+def _stop_background_worker(worker, label, timeout=3.0):
+    if worker is None:
+        return
+    try:
+        stop = getattr(worker, "stop", None)
+        if callable(stop):
+            stop()
+        else:
+            stop_event = getattr(worker, "stop_event", None)
+            if stop_event is not None and hasattr(stop_event, "set"):
+                stop_event.set()
+    except Exception as exc:
+        print(f"[shutdown] error stopping {label}: {exc}")
+    _join_background_thread(worker, label, timeout=timeout)
+
+
+def _stop_scanner_threads(thread_store, label):
+    threads_ref = thread_store if isinstance(thread_store, list) else []
+    for index, thread in enumerate(list(threads_ref), start=1):
+        worker_name = str(getattr(thread, "name", "") or "").strip() or thread.__class__.__name__
+        _stop_background_worker(thread, f"{label}:{worker_name}:{index}", timeout=3.0)
+    threads_ref[:] = [thread for thread in threads_ref if thread.is_alive()]
+
+
+def shutdown_runtime():
+    global _runtime_shutdown_started
+    global _agent_mode_runtime
+    global _local_cluster_agent_runtime
+    with _runtime_shutdown_lock:
+        if _runtime_shutdown_started:
+            return
+        _runtime_shutdown_started = True
+
+    print("[shutdown] stopping PortHound background workers...")
+    scan_map_telemetry.stop()
+    attack_telemetry.stop()
+
+    with _agent_mode_runtime_lock:
+        agent_runtime = _agent_mode_runtime
+        agent_thread = _agent_mode_runtime_thread
+    if agent_runtime is not None and hasattr(agent_runtime, "stop"):
+        try:
+            agent_runtime.stop()
+        except Exception as exc:
+            print(f"[shutdown] error stopping agent runtime: {exc}")
+    _join_background_thread(agent_thread, "agent-runtime", timeout=3.0)
+    _agent_mode_runtime = None
+
+    with _local_cluster_agent_lock:
+        local_runtime = _local_cluster_agent_runtime
+        local_thread = _local_cluster_agent_thread
+    if local_runtime is not None and hasattr(local_runtime, "stop"):
+        try:
+            local_runtime.stop()
+        except Exception as exc:
+            print(f"[shutdown] error stopping local agent runtime: {exc}")
+    _join_background_thread(local_thread, "local-agent-runtime", timeout=3.0)
+    _local_cluster_agent_runtime = None
+
+    _stop_scanner_threads(_local_cluster_agent_scanner_threads, "local-agent-scanner")
+    _stop_scanner_threads(_scanner_threads, "scanner")
+    print("[shutdown] background workers stopped.")
 
 
 def build_local_cluster_master_base_url():
@@ -4082,10 +4180,12 @@ def start_local_cluster_agent():
     if current_role() != "master":
         return
     global _local_cluster_agent_thread
+    global _local_cluster_agent_runtime
     with _local_cluster_agent_lock:
         if _local_cluster_agent_thread is not None and _local_cluster_agent_thread.is_alive():
             return
         runtime = _build_local_agent_runtime()
+        _local_cluster_agent_runtime = runtime
         local_agent_id = str(getattr(runtime, "agent_id", "local") or "local").strip() or "local"
         local_master = str(getattr(runtime, "master_base_url", "") or "").strip()
         register_local_cluster_agent_placeholder(local_agent_id)
@@ -7290,18 +7390,21 @@ def run_agent_worker_mode():
 
 
 def run_agent_mode():
-    start_geoip_blocks_db()
-    start_scanners()
-    start_agent_runtime_background()
-    if not str(getattr(settings, "API_TOKEN", "") or "").strip():
-        bind_host = str(getattr(settings, "HOST", "") or "").strip().lower()
-        if bind_host not in {"127.0.0.1", "localhost", "::1"}:
-            print(
-                "[security] PORTHOUND_API_TOKEN is not set. "
-                "Admin endpoints are restricted to loopback clients."
-            )
-    print(f"[bootstrap] role=agent host={settings.HOST} port={settings.PORT}")
-    app.run(settings.HOST, settings.PORT, ssl_context=None)
+    try:
+        start_geoip_blocks_db()
+        start_scanners()
+        start_agent_runtime_background()
+        if not str(getattr(settings, "API_TOKEN", "") or "").strip():
+            bind_host = str(getattr(settings, "HOST", "") or "").strip().lower()
+            if bind_host not in {"127.0.0.1", "localhost", "::1"}:
+                print(
+                    "[security] PORTHOUND_API_TOKEN is not set. "
+                    "Admin endpoints are restricted to loopback clients."
+                )
+        print(f"[bootstrap] role=agent host={settings.HOST} port={settings.PORT}")
+        app.run(settings.HOST, settings.PORT, ssl_context=None)
+    finally:
+        shutdown_runtime()
 
 
 def main():

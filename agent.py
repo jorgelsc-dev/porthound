@@ -3,6 +3,7 @@ import json
 import socket
 import ssl
 import sys
+import threading
 import time
 import uuid
 from ipaddress import ip_address, ip_network
@@ -247,6 +248,10 @@ class AgentRuntime:
         self.registered = False
         self.failure_streak = 0
         self.waiting_master = False
+        self.stop_event = threading.Event()
+
+    def stop(self):
+        self.stop_event.set()
 
     def _endpoint(self, path):
         return f"{self.master_base_url.rstrip('/')}/{str(path).lstrip('/')}"
@@ -797,14 +802,15 @@ class AgentRuntime:
             "[agent] starting "
             f"agent_id={self.agent_id} master={self.master_base_url} auth={self.auth_mode}"
         )
-        while True:
+        while not self.stop_event.is_set():
             try:
                 if not self.registered:
                     self.register()
                     print("[agent] registration successful")
                 task = self.pull_task()
                 if not task:
-                    time.sleep(self.poll_seconds)
+                    if self.stop_event.wait(self.poll_seconds):
+                        break
                     continue
                 self.execute_task(task)
             except KeyboardInterrupt:
@@ -822,20 +828,28 @@ class AgentRuntime:
                             "[agent] still waiting for master "
                             f"(attempt {self.failure_streak}, retry in {retry_in}s): {exc}"
                         )
-                    time.sleep(retry_in)
+                    if self.stop_event.wait(retry_in):
+                        break
                     continue
 
                 self.failure_streak = 0
                 self.waiting_master = False
                 print(f"[agent] loop error: {exc}")
-                time.sleep(self.poll_seconds)
+                if self.stop_event.wait(self.poll_seconds):
+                    break
 
 
 def run_agent_mode(db=None):
     app_module.start_geoip_blocks_db()
     app_module.start_scanners()
     runtime = AgentRuntime(db or app_module.scan_db)
-    runtime.run_forever()
+    try:
+        runtime.run_forever()
+    finally:
+        runtime.stop()
+        shutdown = getattr(app_module, "shutdown_runtime", None)
+        if callable(shutdown):
+            shutdown()
 
 
 def main():

@@ -51,7 +51,12 @@ def run_master_mode(enable_local_scanners=False):
                 "Admin endpoints are restricted to loopback clients."
             )
     print(f"[bootstrap] role={role_label} host={settings.HOST} port={settings.PORT}")
-    app_module.app.run(settings.HOST, settings.PORT, ssl_context=ssl_context)
+    try:
+        app_module.app.run(settings.HOST, settings.PORT, ssl_context=ssl_context)
+    finally:
+        shutdown = getattr(app_module, "shutdown_runtime", None)
+        if callable(shutdown):
+            shutdown()
 
 
 def main():

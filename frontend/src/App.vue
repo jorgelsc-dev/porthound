@@ -115,9 +115,16 @@ export default {
       authSubmitting: false,
       navItems: [
         { label: "Dashboard", to: "/", icon: "mdi-view-dashboard" },
+        { label: "Explorer", to: "/explorer", icon: "mdi-magnify-scan" },
         { label: "Targets", to: "/targets", icon: "mdi-target" },
         { label: "Ports", to: "/ports", icon: "mdi-ethernet" },
         { label: "Banners", to: "/banners", icon: "mdi-card-text" },
+        { label: "Tags", to: "/tags", icon: "mdi-tag-multiple" },
+        { label: "Catalog", to: "/catalog", icon: "mdi-book-cog-outline" },
+        { label: "Files", to: "/files", icon: "mdi-file-cog-outline" },
+        { label: "Map", to: "/map", icon: "mdi-map-marker-radius" },
+        { label: "Charts", to: "/charts", icon: "mdi-chart-donut" },
+        { label: "Security", to: "/security", icon: "mdi-shield-lock-outline" },
         { label: "API", to: "/api", icon: "mdi-api" },
       ],
     };
