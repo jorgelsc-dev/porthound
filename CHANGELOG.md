@@ -5,7 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on Keep a Changelog and this project adheres to Semantic Versioning.
 
 ## [Unreleased]
-- TBD
+- Update `wsbuilder` requirement to `>=0.25.7,<0.26.0`.
+- Package the `porthound` module entry point and frontend bundle for normal PyPI installs.
+- Stop background workers cleanly on the first `Ctrl+C`.
+- Expose all Vue views in navigation and add a Security/Agents console.
 
 ## [1.0.0] - 2025-04-24
 ### Added

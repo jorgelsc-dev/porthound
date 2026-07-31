@@ -37,8 +37,9 @@ La UI controla `Dashboard`, `Targets`, `Ports`, `Banners` y `API`. La API public
 Para usuario final, la ruta recomendada es `pipx`:
 
 ```bash
-python -m pip install --user pipx
-python -m pipx ensurepath
+sudo apt update
+sudo apt install pipx
+pipx ensurepath
 pipx install porthound4
 porthound
 ```

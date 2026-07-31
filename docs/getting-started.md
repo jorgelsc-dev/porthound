@@ -5,7 +5,7 @@ PortHound puede ejecutarse instalado desde PyPI o desde el repositorio. La ruta 
 ## Requisitos
 
 - Python 3.12 o superior.
-- `wsbuilder>=0.18.0,<0.19.0`.
+- `wsbuilder>=0.25.7,<0.26.0`.
 
 ## Instalacion
 
@@ -20,8 +20,9 @@ PortHound puede ejecutarse instalado desde PyPI o desde el repositorio. La ruta 
 Instalacion:
 
 ```bash
-python -m pip install --user pipx
-python -m pipx ensurepath
+sudo apt update
+sudo apt install pipx
+pipx ensurepath
 pipx install porthound4
 porthound
 ```
@@ -41,41 +42,43 @@ pipx uninstall porthound4
 
 Si `porthound` no se encuentra tras instalar:
 
-- abre una shell nueva despues de `python -m pipx ensurepath`
-- o ejecuta `python -m pipx ensurepath --force`
+- abre una shell nueva despues de `pipx ensurepath`
+- o ejecuta `pipx ensurepath --force`
 - revisa que `~/.local/bin` este en tu `PATH`
 
-### Alternativa sin `venv`: `pip --user`
+### Alternativa con `venv`
 
-Si no quieres `pipx`, instala PortHound en el perfil del usuario actual:
+Si no quieres instalar `pipx`, usa un entorno virtual normal:
 
 ```bash
-python -m pip install --user porthound4
+python3 -m venv .venv
+. .venv/bin/activate
+python -m pip install --upgrade pip
+python -m pip install porthound4
 porthound
 ```
 
-Instalacion desde el repositorio, tambien sin `venv`:
+Instalacion desde el repositorio:
 
 ```bash
-python -m pip install --user .
+python -m pip install .
 porthound
 ```
 
-Si instalaste con `pip --user`, tambien puedes usar:
+Tambien puedes arrancar con:
 
 ```bash
-porthound4
 python -m porthound
 ```
 
 Notas:
 
-- `pip install --user` suele dejar el ejecutable en `~/.local/bin`.
-- Es menos aislado que `pipx`, asi que no es la primera opcion para una CLI distribuida por PyPI.
+- En Kali, Debian y otras distros con PEP 668, `python -m pip install --user ...` puede estar bloqueado.
+- `--break-system-packages` existe, pero no se recomienda para instalar PortHound.
 
 ### Instalacion directa con `pip`
 
-Usala solo si controlas ese Python y quieres instalar ahi de forma global:
+Usala solo dentro de un `venv` o si controlas ese Python:
 
 ```bash
 python -m pip install --upgrade pip setuptools wheel
@@ -120,7 +123,7 @@ python -m pip install --upgrade pip setuptools wheel build
 python -m build
 mkdir -p wheelhouse
 cp dist/*.whl wheelhouse/
-python -m pip download --dest wheelhouse "wsbuilder>=0.18.0,<0.19.0"
+python -m pip download --dest wheelhouse "wsbuilder>=0.25.7,<0.26.0"
 tar -czf porthound-offline-bundle.tar.gz wheelhouse
 ```
 

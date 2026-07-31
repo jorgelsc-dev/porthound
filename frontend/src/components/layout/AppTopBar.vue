@@ -222,14 +222,24 @@ export default {
 
 .primary-nav {
   align-items: center;
+  flex: 1 1 auto;
   gap: 3px;
+  max-width: min(760px, 52vw);
+  overflow-x: auto;
+  overflow-y: hidden;
   padding: 5px;
   border: 1px solid rgba(165, 203, 201, 0.08);
   border-radius: 14px;
   background: rgba(12, 26, 30, 0.54);
+  scrollbar-width: none;
+}
+
+.primary-nav::-webkit-scrollbar {
+  display: none;
 }
 
 .nav-item {
+  flex: 0 0 auto;
   min-width: auto;
   min-height: 38px;
   padding-inline: 12px;
@@ -257,6 +267,21 @@ export default {
 
 .auth-chip {
   cursor: pointer;
+}
+
+@media (max-width: 1320px) {
+  .brand-lockup {
+    min-width: 180px;
+  }
+
+  .brand-tagline,
+  .endpoint-chip {
+    display: none !important;
+  }
+
+  .primary-nav {
+    max-width: min(640px, 50vw);
+  }
 }
 
 .endpoint-chip {

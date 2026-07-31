@@ -3465,7 +3465,7 @@ class API(threading.Thread):
     REQUEST_SOCKET_TIMEOUT = 10.0
 
     def __init__(self, db: DB, host="127.0.0.1", port=45678):
-        threading.Thread.__init__(self)
+        threading.Thread.__init__(self, daemon=True)
         self.host = host
         self.port = port
         self.db = db
@@ -4051,7 +4051,7 @@ class API(threading.Thread):
 
 class TCP(threading.Thread):
     def __init__(self, db: DB):
-        threading.Thread.__init__(self)
+        threading.Thread.__init__(self, daemon=True)
         self.db = db
         self.stop_event = threading.Event()
         self.threads = {}
@@ -4267,7 +4267,7 @@ class TCP(threading.Thread):
 
 class UDP(threading.Thread):
     def __init__(self, db: DB):
-        threading.Thread.__init__(self)
+        threading.Thread.__init__(self, daemon=True)
         self.db = db
         self.stop_event = threading.Event()
         self.threads = {}
@@ -4484,7 +4484,7 @@ class UDP(threading.Thread):
 
 class SCTP(threading.Thread):
     def __init__(self, db: DB):
-        threading.Thread.__init__(self)
+        threading.Thread.__init__(self, daemon=True)
         self.db = db
         self.stop_event = threading.Event()
         self.threads = {}
@@ -4867,7 +4867,7 @@ class SCTP(threading.Thread):
 
 class ICMP(threading.Thread):
     def __init__(self, db: DB):
-        threading.Thread.__init__(self)
+        threading.Thread.__init__(self, daemon=True)
         self.db = db
         self.stop_event = threading.Event()
         self.threads = {}
@@ -5242,7 +5242,7 @@ class BannerUDP(threading.Thread):
     MAX_TARGET_WORKERS = 32
 
     def __init__(self, db: DB):
-        threading.Thread.__init__(self)
+        threading.Thread.__init__(self, daemon=True)
         self.db = db
         self.stop_event = threading.Event()
         payload_sets = {}
@@ -5264,6 +5264,9 @@ class BannerUDP(threading.Thread):
         self.banner_requests = dedupe_probe_payloads(
             coverage_probes + self.generic_requests
         )
+
+    def stop(self):
+        self.stop_event.set()
 
     def _build_probe_sequence(self, port: int):
         probes = []
@@ -5440,7 +5443,7 @@ class BannerTCP(threading.Thread):
     FAVICON_ATTR_RE = re.compile(r"([a-zA-Z_:][a-zA-Z0-9_:.-]*)\s*=\s*([\"'])(.*?)\2")
 
     def __init__(self, db: DB):
-        threading.Thread.__init__(self)
+        threading.Thread.__init__(self, daemon=True)
         self.db = db
         self.stop_event = threading.Event()
         payload_sets = {}
@@ -5465,6 +5468,9 @@ class BannerTCP(threading.Thread):
         self.banner_requests = dedupe_probe_payloads(
             self.http_requests + coverage_probes + self.generic_requests
         )
+
+    def stop(self):
+        self.stop_event.set()
 
     def _build_probe_sequence(self, port: int):
         probes = []
@@ -5989,12 +5995,15 @@ class BannerTCP(threading.Thread):
 
 class HTTP(threading.Thread):
     def __init__(self, lock=None):
-        threading.Thread.__init__(self)
+        threading.Thread.__init__(self, daemon=True)
         self.db_lock = lock if lock else threading.Lock()
         self.conn = sqlite3.connect(
             "file::memory:?cache=shared", check_same_thread=False, timeout=10.0
         )
         self.stop_event = threading.Event()
+
+    def stop(self):
+        self.stop_event.set()
 
     def client_send_http_request(
         self,
