@@ -1046,6 +1046,46 @@ class TestBannerWorkers(unittest.TestCase):
         self.assertLessEqual(counter["max"], worker.MAX_TARGET_WORKERS)
 
 
+class _IcmpScanDB:
+    def __init__(self):
+        self.ports = []
+        self.tags = []
+        self.progress = []
+
+    def insert_port(self, data):
+        self.ports.append(dict(data or {}))
+
+    def insert_tags(self, data):
+        self.tags.append(dict(data or {}))
+
+    def targets_progress(self, data):
+        self.progress.append(dict(data or {}))
+
+
+class TestICMPWorker(unittest.TestCase):
+    def test_icmp_no_reply_does_not_insert_filtered_host(self):
+        db = _IcmpScanDB()
+        worker = server.ICMP(db=db)
+        worker.icmp = lambda _ip: {
+            "state": "FILTERED",
+            "tiempo_ms": 1500.0,
+            "method": "test_probe",
+        }
+
+        worker.scan(
+            identifier=1,
+            network="192.0.2.0/30",
+            timesleep=0,
+            progress=0,
+            stop_event=threading.Event(),
+        )
+
+        self.assertEqual(db.ports, [])
+        self.assertEqual(db.tags, [])
+        self.assertTrue(db.progress)
+        self.assertEqual(db.progress[-1]["progress"], 100.0)
+
+
 class TestPortActionHandlers(unittest.TestCase):
     def test_port_and_banner_actions_update_endpoint_scan_state(self):
         with tempfile.TemporaryDirectory() as tmpdir:

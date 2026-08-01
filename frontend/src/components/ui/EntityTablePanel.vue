@@ -11,6 +11,33 @@
     :variant="variant"
     @refresh="$emit('refresh')"
   >
+    <template #actions>
+      <slot name="actions">
+        <div v-if="showExport" class="entity-export-actions">
+          <v-btn
+            size="small"
+            color="secondary"
+            variant="outlined"
+            prepend-icon="mdi-file-delimited-outline"
+            :disabled="exportDisabled"
+            @click="downloadCsv"
+          >
+            CSV
+          </v-btn>
+          <v-btn
+            size="small"
+            color="secondary"
+            variant="outlined"
+            prepend-icon="mdi-code-json"
+            :disabled="exportDisabled"
+            @click="downloadJson"
+          >
+            JSON
+          </v-btn>
+        </div>
+      </slot>
+    </template>
+
     <template #skeleton>
       <div class="table-skeleton">
         <div class="table-skeleton__head" :style="skeletonGridStyle">
@@ -82,6 +109,7 @@
 
 <script>
 import DataPanel from "./DataPanel.vue";
+import { downloadRowsAsCsv, downloadRowsAsJson } from "../../utils/exportData";
 
 function getByPath(item, path) {
   if (!item || !path) return "";
@@ -161,6 +189,22 @@ export default {
       type: String,
       default: "outlined",
     },
+    showExport: {
+      type: Boolean,
+      default: false,
+    },
+    exportFilename: {
+      type: String,
+      default: "porthound-data",
+    },
+    exportRows: {
+      type: Array,
+      default: null,
+    },
+    exportColumns: {
+      type: Array,
+      default: null,
+    },
   },
   emits: ["refresh"],
   data() {
@@ -201,6 +245,15 @@ export default {
         gridTemplateColumns: `repeat(${this.skeletonColumnCount}, minmax(0, 1fr))`,
       };
     },
+    rowsForExport() {
+      return Array.isArray(this.exportRows) ? this.exportRows : this.normalizedRows;
+    },
+    columnsForExport() {
+      return Array.isArray(this.exportColumns) ? this.exportColumns : this.columns;
+    },
+    exportDisabled() {
+      return this.loading || !this.rowsForExport.length;
+    },
   },
   watch: {
     rows() {
@@ -238,11 +291,24 @@ export default {
       const width = 56 + seed;
       return { width: `${Math.min(width, 94)}%` };
     },
+    downloadCsv() {
+      downloadRowsAsCsv(this.exportFilename, this.rowsForExport, this.columnsForExport);
+    },
+    downloadJson() {
+      downloadRowsAsJson(this.exportFilename, this.rowsForExport);
+    },
   },
 };
 </script>
 
 <style scoped>
+.entity-export-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
 .entity-table {
   border-radius: 14px;
   overflow: hidden;

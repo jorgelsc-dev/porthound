@@ -201,26 +201,34 @@ export default {
       if (this.wsRefreshTimer) return;
       this.wsRefreshTimer = setTimeout(() => {
         this.wsRefreshTimer = null;
-        this.load();
+        this.load({ silent: true });
       }, 500);
     },
-    load() {
-      this.loading = true;
-      this.error = "";
+    load(options = {}) {
+      const softRefresh = this.store.shouldUseSoftRefresh(options);
+      if (!softRefresh) {
+        this.loading = true;
+        this.error = "";
+      }
       return this.store
         .fetchJsonPromise("/api/endpoints/")
         .then((res) => {
           const parsed = this.store.extractArray(res);
           if (parsed.length) this.endpoints = parsed;
+          this.error = "";
           this.lastUpdated = new Date().toLocaleTimeString();
         })
         .catch((err) => {
-          this.error = err.message || "Failed to load endpoints";
-          this.lastUpdated = "";
-          this.endpoints = FALLBACK_ENDPOINTS;
+          if (!softRefresh) {
+            this.error = err.message || "Failed to load endpoints";
+            this.lastUpdated = "";
+            this.endpoints = FALLBACK_ENDPOINTS;
+          }
         })
         .finally(() => {
-          this.loading = false;
+          if (!softRefresh) {
+            this.loading = false;
+          }
         });
     },
   },

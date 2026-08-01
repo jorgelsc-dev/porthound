@@ -18,7 +18,7 @@
           color="primary"
           prepend-icon="mdi-refresh"
           :loading="refreshLoading"
-          @click="$emit('refresh')"
+          @click="$emit('refresh', { silent: true })"
         >
           {{ refreshLabel }}
         </v-btn>

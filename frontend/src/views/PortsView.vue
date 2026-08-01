@@ -17,6 +17,29 @@
       :live-refresh="true"
       @refresh="load"
     >
+      <template #actions>
+        <v-btn
+          size="small"
+          color="secondary"
+          variant="outlined"
+          prepend-icon="mdi-file-delimited-outline"
+          :disabled="loading || !activeFilteredPortRows.length"
+          @click="downloadActivePortsCsv"
+        >
+          CSV
+        </v-btn>
+        <v-btn
+          size="small"
+          color="secondary"
+          variant="outlined"
+          prepend-icon="mdi-code-json"
+          :disabled="loading || !activeFilteredPortRows.length"
+          @click="downloadActivePortsJson"
+        >
+          JSON
+        </v-btn>
+      </template>
+
       <template #skeleton>
         <v-skeleton-loader type="heading, table-thead, table-row@6" class="skeleton-block" />
       </template>
@@ -101,6 +124,17 @@
             </v-btn>
             <v-btn size="small" variant="outlined" to="/targets">
               View Targets
+            </v-btn>
+            <v-btn
+              size="small"
+              color="error"
+              variant="outlined"
+              prepend-icon="mdi-delete-sweep-outline"
+              :loading="clearingProto === tab"
+              :disabled="loading || !activePortRows.length"
+              @click="clearActiveProtocol"
+            >
+              Clear {{ activeProtoShortLabel }}
             </v-btn>
           </div>
         </div>
@@ -203,6 +237,7 @@ import store from "../state/appStore";
 import ViewHeader from "../components/ui/ViewHeader.vue";
 import DataPanel from "../components/ui/DataPanel.vue";
 import ProgressCell from "../components/ui/ProgressCell.vue";
+import { downloadRowsAsCsv, downloadRowsAsJson } from "../utils/exportData";
 
 const FALLBACK_PROTOCOLS = ["tcp", "udp", "icmp", "sctp"];
 const PAGE_SIZE = 80;
@@ -229,6 +264,7 @@ export default {
         state: "",
       },
       actionLoading: "",
+      clearingProto: "",
       portActionLoading: {
         id: null,
         action: "",
@@ -325,6 +361,27 @@ export default {
         mapped[proto] = rows.slice(start, start + PAGE_SIZE);
       });
       return mapped;
+    },
+    activeFilteredPortRows() {
+      const proto = String(this.tab || "").trim().toLowerCase();
+      return this.filteredRowsByProto[proto] || [];
+    },
+    activePortRows() {
+      const proto = String(this.tab || "").trim().toLowerCase();
+      return this.rowsFor(proto);
+    },
+    portExportColumns() {
+      return [
+        { key: "id", label: "ID" },
+        { key: "ip", label: "IP" },
+        { key: "port", label: "Port" },
+        { key: "proto", label: "Proto" },
+        { key: "state", label: "State" },
+        { key: "scan_state", label: "Scan Status" },
+        { key: "progress", label: "Banner Progress" },
+        { key: "created_at", label: "Created At" },
+        { key: "updated_at", label: "Updated At" },
+      ];
     },
   },
   watch: {
@@ -477,7 +534,7 @@ export default {
       const now = Date.now();
       const shouldSyncProtocols = now - this.lastProtocolsSyncAt >= 30000;
       if (shouldSyncProtocols) {
-        return this.load().catch(() => {
+        return this.load({ silent: true }).catch(() => {
           // keep stale table on transient refresh errors
         });
       }
@@ -497,8 +554,11 @@ export default {
           // keep stale table on transient refresh errors
         });
     },
-    load() {
-      this.loading = true;
+    load(options = {}) {
+      const softRefresh = this.store.shouldUseSoftRefresh(options);
+      if (!softRefresh) {
+        this.loading = true;
+      }
       this.error = "";
       return Promise.allSettled([this.loadProtocols(), this.loadTargets()])
         .then(([protocolsRes, targetsRes]) => {
@@ -523,15 +583,19 @@ export default {
           this.lastProtocolsSyncAt = Date.now();
         })
         .catch((err) => {
-          this.protocols = FALLBACK_PROTOCOLS;
-          this.targets = [];
-          this.portsByProto = {};
-          this.resetPagination();
-          this.lastUpdated = "";
+          if (!softRefresh) {
+            this.protocols = FALLBACK_PROTOCOLS;
+            this.targets = [];
+            this.portsByProto = {};
+            this.resetPagination();
+            this.lastUpdated = "";
+          }
           this.error = err.message || "Failed to load ports";
         })
         .finally(() => {
-          this.loading = false;
+          if (!softRefresh) {
+            this.loading = false;
+          }
         });
     },
     runBulkTargetAction(action) {
@@ -613,6 +677,42 @@ export default {
         })
         .finally(() => {
           this.portActionLoading = { id: null, action: "" };
+        });
+    },
+    downloadActivePortsCsv() {
+      const proto = String(this.tab || "ports").trim().toLowerCase();
+      downloadRowsAsCsv(
+        `porthound-ports-${proto}`,
+        this.activeFilteredPortRows,
+        this.portExportColumns
+      );
+    },
+    downloadActivePortsJson() {
+      const proto = String(this.tab || "ports").trim().toLowerCase();
+      downloadRowsAsJson(`porthound-ports-${proto}`, this.activeFilteredPortRows);
+    },
+    clearActiveProtocol() {
+      const proto = String(this.tab || "").trim().toLowerCase();
+      if (!proto) {
+        this.error = "No active protocol selected";
+        return Promise.resolve();
+      }
+      const ok = typeof window !== "undefined"
+        ? window.confirm(`Delete all ${proto.toUpperCase()} port results from the local database?`)
+        : true;
+      if (!ok) return Promise.resolve();
+      this.error = "";
+      this.clearingProto = proto;
+      return this.store
+        .fetchJsonPromise(`/ports/${proto}/`, {
+          method: "DELETE",
+        })
+        .then(() => this.load())
+        .catch((err) => {
+          this.error = err.message || `Failed to clear ${proto.toUpperCase()} ports`;
+        })
+        .finally(() => {
+          this.clearingProto = "";
         });
     },
   },

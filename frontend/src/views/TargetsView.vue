@@ -195,6 +195,9 @@
       :error="error"
       :last-updated="lastUpdated"
       :live-refresh="true"
+      :show-export="true"
+      export-filename="porthound-targets"
+      :export-rows="filteredTargets"
       empty-text="No targets registered"
       @refresh="load"
     >
@@ -476,7 +479,7 @@ export default {
       if (this.wsRefreshTimer) return;
       this.wsRefreshTimer = setTimeout(() => {
         this.wsRefreshTimer = null;
-        this.load();
+        this.load({ silent: true });
       }, 350);
     },
     normalizeProtocols(raw) {
@@ -484,8 +487,11 @@ export default {
       const unique = [...new Set(items.map((item) => String(item).trim().toLowerCase()))];
       return unique.filter(Boolean);
     },
-    load() {
-      this.loading = true;
+    load(options = {}) {
+      const softRefresh = this.store.shouldUseSoftRefresh(options);
+      if (!softRefresh) {
+        this.loading = true;
+      }
       this.error = "";
       return Promise.all([
         this.store.fetchJsonPromise("/targets/"),
@@ -503,16 +509,20 @@ export default {
           this.lastUpdated = new Date().toLocaleTimeString();
         })
         .catch((err) => {
-          this.targets = [];
-          this.protos = ["tcp", "udp", "icmp", "sctp"];
-          if (!this.protos.includes(this.form.proto)) {
-            this.form.proto = this.protos[0];
+          if (!softRefresh) {
+            this.targets = [];
+            this.protos = ["tcp", "udp", "icmp", "sctp"];
+            if (!this.protos.includes(this.form.proto)) {
+              this.form.proto = this.protos[0];
+            }
+            this.lastUpdated = "";
           }
-          this.lastUpdated = "";
           this.error = err.message || "Failed to load targets";
         })
         .finally(() => {
-          this.loading = false;
+          if (!softRefresh) {
+            this.loading = false;
+          }
         });
     },
     createTarget() {

@@ -64,7 +64,7 @@
             v-if="showRefresh && !showPanelHeader"
             :loading="loading"
             :show-manual="true"
-            :show-live="true"
+            :show-live="false"
             refresh-label="Refresh"
             @refresh="manualRefresh"
           />
@@ -1208,31 +1208,39 @@ export default {
       };
       this.lastUpdated = new Date().toLocaleTimeString();
     },
-    reloadData() {
-      this.loading = true;
-      this.error = "";
+    reloadData(options = {}) {
+      const softRefresh = this.store.shouldUseSoftRefresh(options);
+      if (!softRefresh) {
+        this.loading = true;
+        this.error = "";
+      }
       return this.store
         .fetchJsonPromise("/api/map/scan?limit=500")
         .then((payload) => {
+          this.error = "";
           this.applySnapshot(payload && payload.data ? payload.data : payload);
         })
         .catch((err) => {
-          this.error = err.message || "Failed to load scan map data.";
-          this.lastUpdated = "";
+          if (!softRefresh) {
+            this.error = err.message || "Failed to load scan map data.";
+            this.lastUpdated = "";
+          }
         })
         .finally(() => {
-          this.loading = false;
+          if (!softRefresh) {
+            this.loading = false;
+          }
         });
     },
-    manualRefresh() {
-      return this.reloadData();
+    manualRefresh(options = {}) {
+      return this.reloadData(options);
     },
     handleWsRefresh() {
       if (this.loading) return;
       if (this.wsRefreshTimer) return;
       this.wsRefreshTimer = setTimeout(() => {
         this.wsRefreshTimer = null;
-        this.reloadData();
+        this.reloadData({ silent: true });
       }, 450);
     },
   },

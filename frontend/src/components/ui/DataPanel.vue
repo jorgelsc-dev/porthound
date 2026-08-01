@@ -13,17 +13,18 @@
           </div>
         </div>
       </div>
-      <div class="d-flex align-center ga-2">
+      <div class="d-flex align-center ga-2 flex-wrap">
+        <slot name="actions" />
         <v-chip v-if="lastUpdated" size="small" variant="outlined" color="info">
           {{ lastUpdated }}
         </v-chip>
         <LiveRefreshControl
           v-if="showRefresh || liveRefresh"
           :loading="loading"
-          :show-manual="showRefresh"
-          :show-live="liveRefresh"
+          :show-manual="showRefresh || liveRefresh"
+          :show-live="false"
           :refresh-label="refreshLabel"
-          @refresh="$emit('refresh')"
+          @refresh="$emit('refresh', $event)"
         />
       </div>
     </div>

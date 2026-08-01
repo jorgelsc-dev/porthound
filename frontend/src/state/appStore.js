@@ -13,6 +13,7 @@ const STORAGE_KEY_API = "porthound.apiBase";
 const STORAGE_KEY_AUTH = "porthound.apiToken";
 const WS_RECONNECT_DELAY_MS = 1800;
 const WS_REFRESH_THROTTLE_MS = 800;
+const WS_AUTO_TABLE_REFRESH_ENABLED = false;
 const WS_REFRESH_EVENT_TYPES = new Set([
   "welcome",
   "scan_map_snapshot",
@@ -257,6 +258,23 @@ function extractArray(payload) {
   return [];
 }
 
+function isTextEntryActive() {
+  if (typeof document === "undefined") return false;
+  const element = document.activeElement;
+  if (!element || element === document.body) return false;
+  const tagName = String(element.tagName || "").trim().toUpperCase();
+  if (["INPUT", "TEXTAREA", "SELECT"].includes(tagName)) return true;
+  const role = String(element.getAttribute && element.getAttribute("role") || "")
+    .trim()
+    .toLowerCase();
+  if (["combobox", "searchbox", "spinbutton", "textbox"].includes(role)) return true;
+  return Boolean(element.isContentEditable);
+}
+
+function shouldUseSoftRefresh(options = {}) {
+  return Boolean((options && options.silent) || isTextEntryActive());
+}
+
 function notifyTableRefresh(payload) {
   if (!tableRefreshSubscribers.size) return;
   tableRefreshSubscribers.forEach((subscriber) => {
@@ -383,6 +401,7 @@ function connectRealtime() {
     const payload = parseJsonSafe(event.data);
     if (!payload || typeof payload !== "object") return;
     const type = String(payload.type || "").trim().toLowerCase();
+    if (!WS_AUTO_TABLE_REFRESH_ENABLED) return;
     if (!WS_REFRESH_EVENT_TYPES.has(type)) return;
     scheduleTableRefresh({
       type,
@@ -434,6 +453,8 @@ export default {
   fetchJsonPromise,
   fetchJson,
   extractArray,
+  isTextEntryActive,
+  shouldUseSoftRefresh,
   reconnectRealtime,
   destroyRealtime,
   subscribeTableRefresh,

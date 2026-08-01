@@ -1,6 +1,24 @@
 import { register } from 'register-service-worker'
 
-if (process.env.NODE_ENV === 'production') {
+const enableServiceWorker =
+  process.env.NODE_ENV === 'production' &&
+  process.env.VUE_APP_ENABLE_SERVICE_WORKER === 'true'
+
+function unregisterExistingServiceWorkers () {
+  if (typeof window === 'undefined' || !('serviceWorker' in navigator)) return
+  window.addEventListener('load', () => {
+    navigator.serviceWorker
+      .getRegistrations()
+      .then((registrations) => {
+        registrations.forEach((registration) => registration.unregister())
+      })
+      .catch((error) => {
+        console.error('Error unregistering service workers:', error)
+      })
+  })
+}
+
+if (enableServiceWorker) {
   register(`${process.env.BASE_URL}service-worker.js`, {
     ready () {
       console.log(
@@ -27,4 +45,6 @@ if (process.env.NODE_ENV === 'production') {
       console.error('Error during service worker registration:', error)
     }
   })
+} else {
+  unregisterExistingServiceWorkers()
 }
