@@ -205,7 +205,7 @@ export default {
       return `${Math.round(numeric / 1000)}s`;
     },
     emitRefresh() {
-      this.$emit("refresh");
+      this.$emit("refresh", { silent: true });
     },
     clearTimer() {
       if (this.timerId) {
@@ -217,7 +217,7 @@ export default {
       this.clearTimer();
       if (!this.showLive || !this.liveEnabled) return;
       if (refreshImmediately && !this.loading) {
-        this.$emit("refresh");
+        this.emitRefresh();
       }
       this.scheduleNext();
     },
@@ -228,7 +228,7 @@ export default {
       this.timerId = setTimeout(() => {
         this.timerId = null;
         if (this.showLive && this.liveEnabled && !this.loading) {
-          this.$emit("refresh");
+          this.emitRefresh();
         }
         this.scheduleNext();
       }, delay);

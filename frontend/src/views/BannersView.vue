@@ -52,6 +52,18 @@
           density="comfortable"
         />
       </v-col>
+      <v-col cols="12" md="3" class="d-flex align-center">
+        <v-btn
+          color="error"
+          variant="outlined"
+          prepend-icon="mdi-delete-sweep-outline"
+          :loading="clearing"
+          :disabled="loading || clearing || !activeDatasetRows.length"
+          @click="clearActiveDataset"
+        >
+          Clear {{ activeDatasetLabel }}
+        </v-btn>
+      </v-col>
     </v-row>
 
     <EntityTablePanel
@@ -64,6 +76,9 @@
       :error="error"
       :last-updated="lastUpdated"
       :live-refresh="true"
+      :show-export="true"
+      export-filename="porthound-banners"
+      :export-rows="filteredBanners"
       empty-text="No banners found"
       @refresh="load"
     >
@@ -124,6 +139,9 @@
       :error="error"
       :last-updated="lastUpdated"
       :live-refresh="true"
+      :show-export="true"
+      export-filename="porthound-favicons"
+      :export-rows="filteredFavicons"
       empty-text="No favicons found"
       @refresh="load"
     >
@@ -141,6 +159,17 @@
       <template #cell-size="{ value }">
         {{ formatSize(value) }}
       </template>
+      <template #cell-actions="{ item }">
+        <v-btn
+          size="x-small"
+          color="secondary"
+          variant="tonal"
+          prepend-icon="mdi-download"
+          @click="downloadFavicon(item)"
+        >
+          Raw
+        </v-btn>
+      </template>
     </EntityTablePanel>
   </div>
 </template>
@@ -149,6 +178,7 @@
 import store from "../state/appStore";
 import ViewHeader from "../components/ui/ViewHeader.vue";
 import EntityTablePanel from "../components/ui/EntityTablePanel.vue";
+import { downloadUrl } from "../utils/exportData";
 
 export default {
   name: "BannersView",
@@ -161,6 +191,7 @@ export default {
       store,
       tab: "banners",
       loading: false,
+      clearing: false,
       error: "",
       lastUpdated: "",
       banners: [],
@@ -184,6 +215,7 @@ export default {
         { key: "icon_url", label: "Icon URL" },
         { key: "mime_type", label: "MIME" },
         { key: "size", label: "Size" },
+        { key: "actions", label: "Actions" },
       ],
       tableFilters: {
         query: "",
@@ -256,6 +288,15 @@ export default {
         return haystack.includes(query);
       });
     },
+    activeDatasetRows() {
+      return this.tab === "favicons" ? this.favicons : this.banners;
+    },
+    activeDatasetLabel() {
+      return this.tab === "favicons" ? "Favicons" : "Banners";
+    },
+    activeDatasetEndpoint() {
+      return this.tab === "favicons" ? "/favicons/" : "/banners/";
+    },
   },
   watch: {
     apiBase() {
@@ -313,7 +354,7 @@ export default {
       if (this.wsRefreshTimer) return;
       this.wsRefreshTimer = setTimeout(() => {
         this.wsRefreshTimer = null;
-        this.load();
+        this.load({ silent: true });
       }, 350);
     },
     faviconSrc(item) {
@@ -322,6 +363,17 @@ export default {
     openFavicon(item) {
       if (typeof window === "undefined") return;
       window.open(this.faviconSrc(item), "_blank", "noopener,noreferrer");
+    },
+    downloadFavicon(item) {
+      const id = Number(item && item.id);
+      if (!Number.isFinite(id) || id <= 0) return;
+      const mime = String(item && item.mime_type || "").toLowerCase();
+      let extension = "ico";
+      if (mime.includes("png")) extension = "png";
+      if (mime.includes("gif")) extension = "gif";
+      if (mime.includes("jpeg") || mime.includes("jpg")) extension = "jpg";
+      if (mime.includes("svg")) extension = "svg";
+      downloadUrl(this.faviconSrc(item), `porthound-favicon-${id}.${extension}`);
     },
     formatSize(value) {
       const bytes = Number(value || 0);
@@ -369,8 +421,31 @@ export default {
           this.bannerActionLoading = { id: null, action: "" };
         });
     },
-    load() {
-      this.loading = true;
+    clearActiveDataset() {
+      const label = this.activeDatasetLabel;
+      const ok = typeof window !== "undefined"
+        ? window.confirm(`Delete all ${label.toLowerCase()} from the local database?`)
+        : true;
+      if (!ok) return Promise.resolve();
+      this.error = "";
+      this.clearing = true;
+      return this.store
+        .fetchJsonPromise(this.activeDatasetEndpoint, {
+          method: "DELETE",
+        })
+        .then(() => this.load())
+        .catch((err) => {
+          this.error = err.message || `Failed to clear ${label.toLowerCase()}`;
+        })
+        .finally(() => {
+          this.clearing = false;
+        });
+    },
+    load(options = {}) {
+      const softRefresh = this.store.shouldUseSoftRefresh(options);
+      if (!softRefresh) {
+        this.loading = true;
+      }
       this.error = "";
       return Promise.allSettled([
         this.store.fetchJsonPromise("/banners/"),
@@ -381,7 +456,9 @@ export default {
           if (bannersRes.status === "fulfilled") {
             this.banners = this.store.extractArray(bannersRes.value);
           } else {
-            this.banners = [];
+            if (!softRefresh) {
+              this.banners = [];
+            }
             errors.push(
               (bannersRes.reason && bannersRes.reason.message) ||
                 "Failed to load banners"
@@ -390,7 +467,9 @@ export default {
           if (faviconsRes.status === "fulfilled") {
             this.favicons = this.store.extractArray(faviconsRes.value);
           } else {
-            this.favicons = [];
+            if (!softRefresh) {
+              this.favicons = [];
+            }
             errors.push(
               (faviconsRes.reason && faviconsRes.reason.message) ||
                 "Failed to load favicons"
@@ -400,7 +479,9 @@ export default {
           this.error = errors.join(" | ");
         })
         .finally(() => {
-          this.loading = false;
+          if (!softRefresh) {
+            this.loading = false;
+          }
         });
     },
   },

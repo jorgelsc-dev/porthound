@@ -1549,9 +1549,12 @@ export default {
           this.targetActionLoading.action = "";
         });
     },
-    load() {
-      this.loading = true;
-      this.error = "";
+    load(options = {}) {
+      const softRefresh = this.store.shouldUseSoftRefresh(options);
+      if (!softRefresh) {
+        this.loading = true;
+        this.error = "";
+      }
       const errors = [];
 
       return Promise.allSettled([
@@ -1565,28 +1568,28 @@ export default {
           if (targetsRes.status === "fulfilled") {
             this.targets = this.store.extractArray(targetsRes.value);
           } else {
-            this.targets = [];
+            if (!softRefresh) this.targets = [];
             errors.push(targetsRes.reason?.message || "Failed to load targets");
           }
 
           if (bannersRes.status === "fulfilled") {
             this.banners = this.store.extractArray(bannersRes.value);
           } else {
-            this.banners = [];
+            if (!softRefresh) this.banners = [];
             errors.push(bannersRes.reason?.message || "Failed to load banners");
           }
 
           if (tagsRes.status === "fulfilled") {
             this.tags = this.store.extractArray(tagsRes.value);
           } else {
-            this.tags = [];
+            if (!softRefresh) this.tags = [];
             errors.push(tagsRes.reason?.message || "Failed to load tags");
           }
 
           if (faviconsRes.status === "fulfilled") {
             this.favicons = this.store.extractArray(faviconsRes.value);
           } else {
-            this.favicons = [];
+            if (!softRefresh) this.favicons = [];
             errors.push(faviconsRes.reason?.message || "Failed to load favicons");
           }
 
@@ -1610,7 +1613,9 @@ export default {
               if (result && result.status === "fulfilled") {
                 mapped[proto] = this.store.extractArray(result.value);
               } else {
-                mapped[proto] = [];
+                mapped[proto] = softRefresh && this.portsByProto[proto]
+                  ? this.portsByProto[proto]
+                  : [];
                 errors.push(`Failed to load ports/${proto}`);
               }
             });
@@ -1620,11 +1625,13 @@ export default {
         .then(() => {
           this.applyLastUpdated();
           this.lastServicesAuxReloadAt = Date.now();
-          this.error = errors.join(" | ");
+          this.error = softRefresh && errors.length ? this.error : errors.join(" | ");
           this.ensurePageInRangeForTab(this.tab);
         })
         .finally(() => {
-          this.loading = false;
+          if (!softRefresh) {
+            this.loading = false;
+          }
         });
     },
   },

@@ -451,7 +451,7 @@ export default {
       if (this.wsRefreshTimer) return;
       this.wsRefreshTimer = setTimeout(() => {
         this.wsRefreshTimer = null;
-        this.load();
+        this.load({ silent: true });
       }, 350);
     },
     extractPortsMap(rawPorts) {
@@ -503,9 +503,12 @@ export default {
           this.actionLoading.action = "";
         });
     },
-    load() {
-      this.loading = true;
-      this.error = "";
+    load(options = {}) {
+      const softRefresh = this.store.shouldUseSoftRefresh(options);
+      if (!softRefresh) {
+        this.loading = true;
+        this.error = "";
+      }
       return this.store
         .fetchJsonPromise("/api/dashboard/")
         .then((dashboard) => {
@@ -519,6 +522,7 @@ export default {
           this.banners = this.store.extractArray(dashboard.banners);
           this.wsClients = this.store.extractArray(dashboard.ws_clients);
           this.portsByProto = this.extractPortsMap(dashboard.ports);
+          this.error = "";
           this.lastUpdated = new Date().toLocaleTimeString();
         })
         .catch(() =>
@@ -554,11 +558,15 @@ export default {
               this.lastUpdated = new Date().toLocaleTimeString();
             })
             .catch((fallbackErr) => {
-              this.error = fallbackErr.message || "Failed to load dashboard";
+              if (!softRefresh) {
+                this.error = fallbackErr.message || "Failed to load dashboard";
+              }
             })
         )
         .finally(() => {
-          this.loading = false;
+          if (!softRefresh) {
+            this.loading = false;
+          }
         });
     },
   },

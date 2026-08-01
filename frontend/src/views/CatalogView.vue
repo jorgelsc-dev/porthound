@@ -14,6 +14,21 @@
       <v-tab value="ips">IP Presets</v-tab>
     </v-tabs>
 
+    <v-row density="comfortable" class="mb-4">
+      <v-col cols="12" md="6">
+        <v-text-field
+          v-model.trim="search"
+          label="Search catalog"
+          placeholder="Rule, request, IP, source..."
+          prepend-inner-icon="mdi-magnify"
+          :loading="loadingAny"
+          clearable
+          variant="outlined"
+          density="comfortable"
+        />
+      </v-col>
+    </v-row>
+
     <DataPanel
       v-if="tab === 'rules'"
       title="Banner Regex Rules"
@@ -147,6 +162,9 @@
       :error="rulesError"
       :last-updated="lastUpdatedRules"
       :live-refresh="true"
+      :show-export="true"
+      export-filename="porthound-catalog-rules"
+      :export-rows="filteredRules"
       empty-text="No regex rules found"
       @refresh="loadRules"
     >
@@ -316,6 +334,9 @@
       :error="requestsError"
       :last-updated="lastUpdatedRequests"
       :live-refresh="true"
+      :show-export="true"
+      export-filename="porthound-catalog-requests"
+      :export-rows="filteredRequests"
       empty-text="No banner requests found"
       @refresh="loadRequests"
     >
@@ -438,6 +459,9 @@
       :error="ipsError"
       :last-updated="lastUpdatedIps"
       :live-refresh="true"
+      :show-export="true"
+      export-filename="porthound-catalog-ip-presets"
+      :export-rows="filteredIps"
       empty-text="No IP presets found"
       @refresh="loadIps"
     >
@@ -680,55 +704,83 @@ export default {
     this.loadAll();
   },
   methods: {
-    loadAll() {
-      return Promise.all([this.loadRules(), this.loadRequests(), this.loadIps()]);
+    loadAll(options = {}) {
+      return Promise.all([
+        this.loadRules(options),
+        this.loadRequests(options),
+        this.loadIps(options),
+      ]);
     },
-    loadRules() {
-      this.loadingRules = true;
-      this.rulesError = "";
+    loadRules(options = {}) {
+      const softRefresh = this.store.shouldUseSoftRefresh(options);
+      if (!softRefresh) {
+        this.loadingRules = true;
+        this.rulesError = "";
+      }
       return this.store.fetchJsonPromise("/api/catalog/banner-rules/")
         .then((payload) => {
           this.rules = this.store.extractArray(payload);
+          this.rulesError = "";
           this.lastUpdatedRules = new Date().toLocaleTimeString();
         })
         .catch((err) => {
-          this.rulesError = err.message || "Failed to load regex rules";
-          this.lastUpdatedRules = "";
+          if (!softRefresh) {
+            this.rulesError = err.message || "Failed to load regex rules";
+            this.lastUpdatedRules = "";
+          }
         })
         .finally(() => {
-          this.loadingRules = false;
+          if (!softRefresh) {
+            this.loadingRules = false;
+          }
         });
     },
-    loadRequests() {
-      this.loadingRequests = true;
-      this.requestsError = "";
+    loadRequests(options = {}) {
+      const softRefresh = this.store.shouldUseSoftRefresh(options);
+      if (!softRefresh) {
+        this.loadingRequests = true;
+        this.requestsError = "";
+      }
       return this.store.fetchJsonPromise("/api/catalog/banner-requests/")
         .then((payload) => {
           this.requests = this.store.extractArray(payload);
+          this.requestsError = "";
           this.lastUpdatedRequests = new Date().toLocaleTimeString();
         })
         .catch((err) => {
-          this.requestsError = err.message || "Failed to load banner requests";
-          this.lastUpdatedRequests = "";
+          if (!softRefresh) {
+            this.requestsError = err.message || "Failed to load banner requests";
+            this.lastUpdatedRequests = "";
+          }
         })
         .finally(() => {
-          this.loadingRequests = false;
+          if (!softRefresh) {
+            this.loadingRequests = false;
+          }
         });
     },
-    loadIps() {
-      this.loadingIps = true;
-      this.ipsError = "";
+    loadIps(options = {}) {
+      const softRefresh = this.store.shouldUseSoftRefresh(options);
+      if (!softRefresh) {
+        this.loadingIps = true;
+        this.ipsError = "";
+      }
       return this.store.fetchJsonPromise("/api/catalog/ip-presets/")
         .then((payload) => {
           this.ips = this.store.extractArray(payload);
+          this.ipsError = "";
           this.lastUpdatedIps = new Date().toLocaleTimeString();
         })
         .catch((err) => {
-          this.ipsError = err.message || "Failed to load IP presets";
-          this.lastUpdatedIps = "";
+          if (!softRefresh) {
+            this.ipsError = err.message || "Failed to load IP presets";
+            this.lastUpdatedIps = "";
+          }
         })
         .finally(() => {
-          this.loadingIps = false;
+          if (!softRefresh) {
+            this.loadingIps = false;
+          }
         });
     },
     resetRuleForm() {

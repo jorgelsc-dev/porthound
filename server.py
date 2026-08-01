@@ -2673,7 +2673,11 @@ class DB(object):
         self.lock.acquire()
         cursor = self.conn.cursor()
         try:
-            cursor.execute("SELECT * FROM ports;")
+            cursor.execute(
+                "SELECT * FROM ports "
+                "WHERE NOT (proto = ? AND state = ?);",
+                ("icmp", "filtered"),
+            )
             column_names = [col[0] for col in cursor.description]
             output = [dict(zip(column_names, row)) for row in cursor.fetchall()]
             cursor.close()
@@ -2794,7 +2798,7 @@ class DB(object):
         self.lock.acquire()
         cursor = self.conn.cursor()
         try:
-            cursor.execute("SELECT * FROM ports WHERE proto='icmp';")
+            cursor.execute("SELECT * FROM ports WHERE proto = ? AND state = ?;", ("icmp", "open"))
             column_names = [col[0] for col in cursor.description]
             output = [dict(zip(column_names, row)) for row in cursor.fetchall()]
             cursor.close()
@@ -3267,7 +3271,11 @@ class DB(object):
         self.lock.acquire()
         cursor = self.conn.cursor()
         try:
-            cursor.execute("SELECT COUNT(id) FROM ports;")
+            cursor.execute(
+                "SELECT COUNT(id) FROM ports "
+                "WHERE NOT (proto = ? AND state = ?);",
+                ("icmp", "filtered"),
+            )
             count = cursor.fetchone()[0]
             cursor.close()
         except Exception as e:
@@ -3312,7 +3320,10 @@ class DB(object):
         self.lock.acquire()
         cursor = self.conn.cursor()
         try:
-            cursor.execute("SELECT COUNT(id) FROM ports WHERE proto = ?;", ("icmp",))
+            cursor.execute(
+                "SELECT COUNT(id) FROM ports WHERE proto = ? AND state = ?;",
+                ("icmp", "open"),
+            )
             count = cursor.fetchone()[0]
             cursor.close()
         except Exception as e:
@@ -5013,15 +5024,6 @@ class ICMP(threading.Thread):
                                     "value": str(reply_ttl),
                                 },
                             )
-                    elif result["state"] == "FILTERED":
-                        self.db.insert_port(
-                            data={
-                                "ip": ip,
-                                "port": 0,
-                                "proto": "icmp",
-                                "state": "filtered",
-                            },
-                        )
                 except BreakLoop:
                     print("FIN", network)
                     break
@@ -5049,11 +5051,12 @@ class ICMP(threading.Thread):
             if ping_probe:
                 return ping_probe
             tcp_probe = tcp_reachability_probe(host=host, timeout=min(1.0, timeout))
+            tcp_state = str(tcp_probe.get("state", "NO_REPLY") or "NO_REPLY").strip().upper()
             return {
                 "protocolo": "ICMP",
                 "host": host,
                 "port": 0,
-                "state": tcp_probe.get("state", "FILTERED"),
+                "state": "OPEN" if tcp_state == "OPEN" else "NO_REPLY",
                 "tiempo_ms": tcp_probe.get("tiempo_ms"),
                 "method": tcp_probe.get("method", "tcp_connect_fallback"),
             }
@@ -5065,7 +5068,7 @@ class ICMP(threading.Thread):
                 "protocolo": "ICMP",
                 "host": host,
                 "port": 0,
-                "state": "FILTERED",
+                "state": "NO_REPLY",
                 "tiempo_ms": None,
                 "method": "fallback_unavailable",
             }
@@ -5111,7 +5114,7 @@ class ICMP(threading.Thread):
                 if completed.returncode == 0:
                     state = "OPEN"
                 elif completed.returncode == 1:
-                    state = "FILTERED"
+                    state = "NO_REPLY"
                 else:
                     continue
                 return {
@@ -5130,7 +5133,7 @@ class ICMP(threading.Thread):
                     "protocolo": "ICMP",
                     "host": host,
                     "port": 0,
-                    "state": "FILTERED",
+                    "state": "NO_REPLY",
                     "tiempo_ms": round((end - start) * 1000, 2),
                     "method": "ping_subprocess",
                 }
@@ -5217,11 +5220,11 @@ class ICMP(threading.Thread):
                     return result
                 if icmp_type == 3:
                     end = time.time()
-                    result["state"] = "FILTERED"
+                    result["state"] = "NO_REPLY"
                     result["tiempo_ms"] = round((end - start) * 1000, 2)
                     return result
         except socket.timeout:
-            result["state"] = "FILTERED"
+            result["state"] = "NO_REPLY"
             result["tiempo_ms"] = round(timeout * 1000, 2)
         finally:
             try:

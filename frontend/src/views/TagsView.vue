@@ -58,6 +58,9 @@
       :error="error"
       :last-updated="lastUpdated"
       :live-refresh="true"
+      :show-export="true"
+      export-filename="porthound-tags"
+      :export-rows="filteredTags"
       empty-text="No tags available"
       @refresh="load"
     />
@@ -164,11 +167,14 @@ export default {
       if (this.wsRefreshTimer) return;
       this.wsRefreshTimer = setTimeout(() => {
         this.wsRefreshTimer = null;
-        this.load();
+        this.load({ silent: true });
       }, 350);
     },
-    load() {
-      this.loading = true;
+    load(options = {}) {
+      const softRefresh = this.store.shouldUseSoftRefresh(options);
+      if (!softRefresh) {
+        this.loading = true;
+      }
       this.error = "";
       return this.store
         .fetchJsonPromise("/tags/")
@@ -177,12 +183,16 @@ export default {
           this.lastUpdated = new Date().toLocaleTimeString();
         })
         .catch((err) => {
-          this.tags = [];
-          this.lastUpdated = "";
+          if (!softRefresh) {
+            this.tags = [];
+            this.lastUpdated = "";
+          }
           this.error = err.message || "Failed to load tags";
         })
         .finally(() => {
-          this.loading = false;
+          if (!softRefresh) {
+            this.loading = false;
+          }
         });
     },
   },

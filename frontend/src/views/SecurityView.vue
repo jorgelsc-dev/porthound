@@ -21,7 +21,7 @@
           variant="outlined"
           prepend-icon="mdi-refresh"
           :loading="loading"
-          @click="load"
+          @click="load({ silent: true })"
         >
           Refresh
         </v-btn>
@@ -406,7 +406,7 @@ export default {
       if (this.wsRefreshTimer) return;
       this.wsRefreshTimer = setTimeout(() => {
         this.wsRefreshTimer = null;
-        this.load();
+        this.load({ silent: true });
       }, 500);
     },
     isActionLoading(agentId, action) {
@@ -430,12 +430,15 @@ export default {
       if (payload && payload.credential) return payload.credential;
       return payload || {};
     },
-    load() {
-      this.loading = true;
-      this.accessError = "";
-      this.agentsError = "";
-      this.credentialsError = "";
-      this.agentStatusError = "";
+    load(options = {}) {
+      const softRefresh = this.store.shouldUseSoftRefresh(options);
+      if (!softRefresh) {
+        this.loading = true;
+        this.accessError = "";
+        this.agentsError = "";
+        this.credentialsError = "";
+        this.agentStatusError = "";
+      }
       return Promise.allSettled([
         this.store.fetchJsonPromise("/api/cluster/agents"),
         this.store.fetchJsonPromise("/api/cluster/agent/credentials"),
@@ -444,35 +447,46 @@ export default {
         .then(([agentsRes, credentialsRes, agentStatusRes]) => {
           if (agentsRes.status === "fulfilled") {
             this.agents = this.store.extractArray(agentsRes.value);
+            this.agentsError = "";
           } else {
-            this.agents = [];
-            this.agentsError = agentsRes.reason && agentsRes.reason.message
-              ? agentsRes.reason.message
-              : "Failed to load agents";
+            if (!softRefresh) {
+              this.agents = [];
+              this.agentsError = agentsRes.reason && agentsRes.reason.message
+                ? agentsRes.reason.message
+                : "Failed to load agents";
+            }
           }
 
           if (credentialsRes.status === "fulfilled") {
             this.credentials = this.store.extractArray(credentialsRes.value);
+            this.credentialsError = "";
           } else {
-            this.credentials = [];
-            this.credentialsError = credentialsRes.reason && credentialsRes.reason.message
-              ? credentialsRes.reason.message
-              : "Failed to load credentials";
+            if (!softRefresh) {
+              this.credentials = [];
+              this.credentialsError = credentialsRes.reason && credentialsRes.reason.message
+                ? credentialsRes.reason.message
+                : "Failed to load credentials";
+            }
           }
 
           if (agentStatusRes.status === "fulfilled") {
             this.agentStatus = agentStatusRes.value || {};
+            this.agentStatusError = "";
           } else {
-            this.agentStatus = {};
-            this.agentStatusError = agentStatusRes.reason && agentStatusRes.reason.message
-              ? agentStatusRes.reason.message
-              : "Failed to load agent runtime";
+            if (!softRefresh) {
+              this.agentStatus = {};
+              this.agentStatusError = agentStatusRes.reason && agentStatusRes.reason.message
+                ? agentStatusRes.reason.message
+                : "Failed to load agent runtime";
+            }
           }
 
           this.lastUpdated = new Date().toLocaleTimeString();
         })
         .finally(() => {
-          this.loading = false;
+          if (!softRefresh) {
+            this.loading = false;
+          }
         });
     },
     createCredential() {

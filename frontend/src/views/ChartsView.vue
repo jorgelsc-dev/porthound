@@ -280,13 +280,17 @@ export default {
       this.d3 = await loadD3FromCdn();
       return this.d3;
     },
-    async load() {
-      this.loading = true;
-      this.error = "";
-      this.d3Error = "";
+    async load(options = {}) {
+      const softRefresh = this.store.shouldUseSoftRefresh(options);
+      if (!softRefresh) {
+        this.loading = true;
+        this.error = "";
+        this.d3Error = "";
+      }
       try {
         const payload = await this.store.fetchJson("/api/charts/analytics");
         this.analytics = payload && typeof payload === "object" ? payload : emptyAnalytics();
+        this.error = "";
         this.lastUpdated = this.analytics.generated_at || new Date().toISOString();
         try {
           await this.ensureD3();
@@ -295,9 +299,13 @@ export default {
         }
         this.$nextTick(() => this.renderAllCharts());
       } catch (err) {
-        this.error = String(err || "Failed to load chart analytics");
+        if (!softRefresh) {
+          this.error = String(err || "Failed to load chart analytics");
+        }
       } finally {
-        this.loading = false;
+        if (!softRefresh) {
+          this.loading = false;
+        }
       }
     },
     onResize() {
