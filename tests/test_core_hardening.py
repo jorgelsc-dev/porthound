@@ -763,6 +763,46 @@ class TestAgentStatusView(unittest.TestCase):
         finally:
             app.settings.ROLE = original_role
 
+    def test_root_view_standalone_defaults_to_frontend_html(self):
+        original_role = str(getattr(app.settings, "ROLE", "master") or "master")
+        try:
+            app.settings.ROLE = "standalone"
+            request = framework.Request(
+                method="GET",
+                path="/",
+                query_string="",
+                headers={},
+                body=b"",
+                client=("127.0.0.1", 0),
+            )
+            response = app.root_view(request)
+            self.assertEqual(response.status, 200)
+            self.assertIn("text/html", response.headers.get("Content-Type", ""))
+            self.assertIn(b"PortHound", response.body)
+        finally:
+            app.settings.ROLE = original_role
+
+    def test_root_view_json_accept_keeps_counts_payload(self):
+        original_role = str(getattr(app.settings, "ROLE", "master") or "master")
+        try:
+            app.settings.ROLE = "standalone"
+            request = framework.Request(
+                method="GET",
+                path="/",
+                query_string="",
+                headers={"accept": "application/json"},
+                body=b"",
+                client=("127.0.0.1", 0),
+            )
+            response = app.root_view(request)
+            self.assertEqual(response.status, 200)
+            payload = json.loads(response.body.decode("utf-8"))
+            self.assertIn("count_ports", payload)
+            self.assertIn("count_banners", payload)
+            self.assertIn("count_targets", payload)
+        finally:
+            app.settings.ROLE = original_role
+
 
 class TestChartAnalytics(unittest.TestCase):
     def test_build_chart_analytics_example_payload_shape(self):

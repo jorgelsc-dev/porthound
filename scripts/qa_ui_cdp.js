@@ -378,6 +378,9 @@ async function main() {
       }
     };
 
+    const rowExistsExpression = (rowText) =>
+      `Array.from(document.querySelectorAll('tr')).some(r => r.innerText.includes(${JSON.stringify(rowText)}))`;
+
     const confirmDialog = async () => {
       await evalExpr(`(() => {
         const btn = Array.from(document.querySelectorAll('.v-dialog button, [role="dialog"] button'))
@@ -451,12 +454,13 @@ async function main() {
       await delay(1000);
     }, '02-targets');
 
-    const testNetwork = `127.0.0.1/32`;
+    const testHostOctet = 10 + (Date.now() % 200);
+    const testNetwork = `127.0.0.${testHostOctet}/32`;
 
     await recordStep('Create Target', async () => {
       await setInputValue('input[placeholder="10.0.0.0/24"]', testNetwork);
       await clickButton('Add');
-      await waitFor(`document.body.innerText.includes(${JSON.stringify(testNetwork)})`, 10000);
+      await waitFor(rowExistsExpression(testNetwork), 10000);
       await delay(1000);
     }, '03-target-added');
 
@@ -475,7 +479,7 @@ async function main() {
       await delay(1000);
       await confirmDialog();
       await delay(1000);
-      await waitFor(`!document.body.innerText.includes(${JSON.stringify(testNetwork)})`, 10000);
+      await waitFor(`!(${rowExistsExpression(testNetwork)})`, 10000);
     }, '06-target-deleted');
 
     const navItems = [
@@ -487,7 +491,7 @@ async function main() {
       { label: 'Charts', path: '/charts', shot: '12-charts' },
       { label: 'Map', path: '/map', shot: '13-map' },
       { label: 'Explorer', path: '/explorer', shot: '14-explorer' },
-      { label: 'Agents', path: '/agents', shot: '15-agents' },
+      { label: 'Security', path: '/security', shot: '15-security' },
     ];
 
     for (const item of navItems) {
