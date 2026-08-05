@@ -13,7 +13,6 @@ recursive-include porthound *.py
 recursive-include data *
 recursive-include docs *
 recursive-include tests *.py
-include frontend/.env.development
 include frontend/babel.config.js
 include frontend/eslint.config.cjs
 include frontend/jsconfig.json
@@ -27,4 +26,5 @@ recursive-include frontend/src *
 prune frontend/node_modules
 prune build
 prune dist
+global-exclude .env .env.* *.env
 global-exclude __pycache__ *.py[cod]

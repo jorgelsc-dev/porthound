@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   github-release:
-    name: GitHub Release (.deb + .zip)
+    name: GitHub Release (Python distributions)
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
     steps:
@@ -35,30 +35,27 @@ jobs:
 
       - name: Run unit tests
         run: |
-          python -m pip install --upgrade pip
+          python -m pip install --upgrade pip build
           python -m pip install pytest
           python -m pip install .
           pytest -q
 
-      - name: Build Debian package
-        run: ./packaging/deb/build.sh --output-dir dist/deb
-
-      - name: Build ZIP package
-        run: ./packaging/zip/build.sh --output-dir dist/zip
+      - name: Build Python distributions
+        run: python -m build
 
       - name: Resolve release assets
         id: assets
         run: |
-          DEB_FILE="$(ls dist/deb/porthound_*_*.deb | head -n1)"
-          ZIP_FILE="$(ls dist/zip/porthound_*.zip | head -n1)"
-          if [[ -z "${DEB_FILE}" || -z "${ZIP_FILE}" ]]; then
-            echo "Release assets not found"
+          WHEEL_FILE="$(ls dist/*.whl | head -n1)"
+          SDIST_FILE="$(ls dist/*.tar.gz | head -n1)"
+          if [[ -z "${WHEEL_FILE}" || -z "${SDIST_FILE}" ]]; then
+            echo "Python release assets not found"
             exit 1
           fi
           {
             echo "files<<EOF"
-            echo "${DEB_FILE}"
-            echo "${ZIP_FILE}"
+            echo "${WHEEL_FILE}"
+            echo "${SDIST_FILE}"
             echo "EOF"
           } >> "${GITHUB_OUTPUT}"
 
