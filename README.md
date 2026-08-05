@@ -6,7 +6,7 @@ Sitio oficial: [https://porthound.jorgelsc.dev](https://porthound.jorgelsc.dev)<
 Repositorio: [https://github.com/jorgelsc-dev/porthound](https://github.com/jorgelsc-dev/porthound)<br>
 Distribucion PyPI: `porthound4`<br>
 Comando principal: `porthound`<br>
-Palabras clave: `python`, `network-scanner`, `port-scanner`, `cybersecurity`, `banner-grabbing`, `sqlite`, `websocket`.
+Palabras clave: `python`, `network-scanner`, `port-scanner`, `cybersecurity`, `banner-grabbing`, `sqlite`, `websocket`, `master/agent`.
 
 ## Resumen
 
@@ -23,7 +23,7 @@ Palabras clave: `python`, `network-scanner`, `port-scanner`, `cybersecurity`, `b
 - El sitio se genera con MkDocs Material desde `mkdocs.yml` y `docs/`.
 - `.github/workflows/docs-pages.yml` compila y publica el sitio en GitHub Pages.
 - `docs/CNAME` fija el dominio custom y `docs/404.html` redirige enlaces heredados.
-- La guia publica cubre la UI activa (`Dashboard`, `Targets`, `Ports`, `Banners`, `API`) y las vistas auxiliares del frontend (`Explorer`, `Charts`, `Tags`, `Catalog`, `FileCatalog`, `MapWorld`).
+- La guia publica cubre la UI activa (`Dashboard`, `Explorer`, `Targets`, `Ports`, `Banners`, `Tags`, `Catalog`, `Files`, `Map`, `Charts`, `Security`, `API`).
 - Este README sigue siendo la fuente de verdad para instalacion y uso rapido.
 
 ## Flujo de ramas
@@ -390,20 +390,18 @@ networksetup -setdnsservers "Wi-Fi" 10.10.0.2 10.10.0.3
 
 ## Empaquetado
 
-### Debian
+PortHound publica distribuciones Python (`sdist` y `wheel`). El build incluye el frontend de produccion: si `frontend/dist` no existe, `setup.py` ejecuta `npm ci` y `npm run build` antes de empaquetar.
 
 ```bash
-./packaging/deb/build.sh
-sudo apt install ./dist/deb/porthound_<version>-1_all.deb
+python -m pip install --upgrade build
+python -m build
 ```
 
-### ZIP
+Instalacion local desde el wheel generado:
 
 ```bash
-./packaging/zip/build.sh
-unzip dist/zip/porthound_<version>-1.zip
-cd porthound_<version>-1
-python3 manage.py
+python -m pip install dist/porthound4-*.whl
+porthound
 ```
 
 ## Desarrollo
@@ -425,6 +423,8 @@ npm run serve
 Docs:
 
 ```bash
+python3 -m venv .venv
+. .venv/bin/activate
 python -m pip install -r requirements-docs.txt
 mkdocs serve
 ```
@@ -434,6 +434,8 @@ Validacion local:
 ```bash
 python -m compileall -q .
 python -m unittest discover -s tests -q
+python3 -m venv .venv
+. .venv/bin/activate
 python -m pip install -r requirements-docs.txt
 mkdocs build --strict
 ```
@@ -473,7 +475,7 @@ PortHound solo debe usarse en sistemas propios o con autorizacion explicita. El 
 - `dns.py`: resolucion DNS y utilidades de transporte.
 - `data/`: datasets.
 - `docs/`: sitio publico.
-- `packaging/`: scripts de `.deb` y `.zip`.
+- `.github/workflows/`: CI, documentacion y publicacion de paquetes.
 
 ## Soporte
 

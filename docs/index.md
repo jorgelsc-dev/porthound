@@ -13,7 +13,7 @@
 
 Cliente -> UI -> API -> SQLite -> resultados
 
-La UI controla `Dashboard`, `Targets`, `Ports`, `Banners` y `API`. La API publica el estado, el motor guarda los resultados y el WebSocket mantiene las vistas sincronizadas.
+La UI controla `Dashboard`, `Explorer`, `Targets`, `Ports`, `Banners`, `Tags`, `Catalog`, `Files`, `Map`, `Charts`, `Security` y `API`. La API publica el estado, el motor guarda los resultados y el WebSocket mantiene las vistas sincronizadas.
 
 ## Flujo mental
 

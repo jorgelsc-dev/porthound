@@ -46,6 +46,7 @@ El repositorio todavia contiene superficies auxiliares en el frontend que sirven
 - `TagsView.vue` para el registro de metadatos y tiempos.
 - `CatalogView.vue` y `FileCatalogView.vue` para catalogos DB-backed y seed files.
 - `MapWorldView.vue` para el atlas inmersivo con proyecciones flat y globe.
+- `SecurityView.vue` para token local, credenciales de agente, leases y controles de cluster.
 
 ## Persistencia y UI
 

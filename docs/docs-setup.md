@@ -28,6 +28,17 @@ PortHound usa MkDocs Material para publicar la documentacion del proyecto en Git
 
 ## Workflow recomendado
 
+Validacion local:
+
+```bash
+python3 -m venv .venv
+. .venv/bin/activate
+python -m pip install -r requirements-docs.txt
+mkdocs build --strict
+```
+
+Usa un `venv` en Kali, Debian y otros sistemas con PEP 668 para evitar instalaciones globales bloqueadas.
+
 El flujo de publicación hace esto:
 
 - se dispara en `push` a `main` y en `workflow_dispatch`;

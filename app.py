@@ -4317,8 +4317,10 @@ def wants_html(request):
         return True
     if fmt == "json":
         return False
-    accept = request.headers.get("accept", "")
-    return "text/html" in accept
+    accept = str(request.headers.get("accept", "") or "").lower()
+    if "application/json" in accept and "text/html" not in accept:
+        return False
+    return True
 
 
 def json_error(message, status=500):
