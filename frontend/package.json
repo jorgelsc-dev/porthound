@@ -6,7 +6,7 @@
   "scripts": {
     "serve": "node ./scripts/vue-cli-safe.js serve",
     "build": "node ./scripts/vue-cli-safe.js build",
-    "lint": "eslint . --ext .js,.vue",
+    "lint": "eslint .",
     "test": "npm run lint"
   },
   "main": "index.js",

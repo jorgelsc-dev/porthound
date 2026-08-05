@@ -4317,8 +4317,10 @@ def wants_html(request):
         return True
     if fmt == "json":
         return False
-    accept = request.headers.get("accept", "")
-    return "text/html" in accept
+    accept = str(request.headers.get("accept", "") or "").lower()
+    if "application/json" in accept and "text/html" not in accept:
+        return False
+    return True
 
 
 def json_error(message, status=500):
@@ -5601,7 +5603,8 @@ def build_chart_analytics(example=False):
 def root_view(request):
     role = current_role()
     if role == "agent":
-        if wants_html(request):
+        accept = str(request.headers.get("accept", "") or "").lower()
+        if request.query.get("format") == "html" or "text/html" in accept:
             return Response.html(AGENT_STATUS_HTML)
         return Response.json(build_agent_status_snapshot())
     if is_example(request):
