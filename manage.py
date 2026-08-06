@@ -5,6 +5,7 @@ import ctypes
 import getpass
 import ipaddress
 import json
+import os
 import secrets
 import sqlite3
 import sys
@@ -1089,6 +1090,22 @@ def apply_cli_overrides(args):
         environ[key] = value
 
 
+def _write_terminal_value(value):
+    payload = (str(value) + "\n").encode("utf-8", errors="ignore")
+    fd = None
+    try:
+        fd = os.open("/dev/tty", os.O_WRONLY)
+        os.write(fd, payload)
+    except Exception:
+        os.write(1, payload)
+    finally:
+        if fd is not None:
+            try:
+                os.close(fd)
+            except Exception:
+                pass
+
+
 def ensure_api_access_token():
     api_token = str(environ.get("PORTHOUND_API_TOKEN", "") or "").strip()
     if api_token:
@@ -1102,7 +1119,7 @@ def ensure_api_access_token():
     environ["PORTHOUND_API_TOKEN"] = api_token
     environ["PORTHOUND_API_REQUIRE_TOKEN"] = "1"
     print("[security] PortHound access token:")
-    print(api_token)
+    _write_terminal_value(api_token)
     print("[security] Paste this token in the frontend Auth dialog.")
     return api_token
 

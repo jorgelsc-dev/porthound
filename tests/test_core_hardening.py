@@ -938,7 +938,11 @@ class TestManageInteractiveFallback(unittest.TestCase):
         with mock.patch.object(manage, "environ", fake_env), mock.patch(
             "manage.secrets.token_urlsafe",
             return_value="generated-token",
-        ), mock.patch("builtins.print") as mocked_print:
+        ), mock.patch("builtins.print") as mocked_print, mock.patch.object(
+            manage.os,
+            "open",
+            side_effect=OSError("no tty"),
+        ), mock.patch.object(manage.os, "write") as mocked_write:
             token = manage.ensure_api_access_token()
 
         self.assertEqual(token, "generated-token")
@@ -946,7 +950,12 @@ class TestManageInteractiveFallback(unittest.TestCase):
         self.assertEqual(fake_env["PORTHOUND_API_REQUIRE_TOKEN"], "1")
         printed = "\n".join(str(call.args[0]) for call in mocked_print.call_args_list if call.args)
         self.assertIn("PortHound access token", printed)
-        self.assertIn("generated-token", printed)
+        writes = b"".join(
+            bytes(call.args[1])
+            for call in mocked_write.call_args_list
+            if len(call.args) >= 2
+        )
+        self.assertIn(b"generated-token", writes)
 
     def test_enforce_fixed_web_port_master_role(self):
         args = _make_manage_args(role="master", host="0.0.0.0", port=9999)
