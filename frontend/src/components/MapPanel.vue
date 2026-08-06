@@ -83,14 +83,14 @@
       >
         <defs>
           <radialGradient :id="oceanGradientId" cx="50%" cy="48%" r="72%">
-            <stop offset="0%" stop-color="rgba(24, 92, 143, 0.96)" />
-            <stop offset="48%" stop-color="rgba(10, 41, 73, 0.98)" />
-            <stop offset="100%" stop-color="rgba(3, 16, 30, 1)" />
+            <stop offset="0%" stop-color="rgba(25, 89, 130, 0.98)" />
+            <stop offset="52%" stop-color="rgba(9, 38, 67, 0.98)" />
+            <stop offset="100%" stop-color="rgba(3, 14, 27, 1)" />
           </radialGradient>
           <radialGradient :id="globeOceanGradientId" cx="34%" cy="28%" r="82%">
-            <stop offset="0%" stop-color="rgba(43, 167, 255, 0.96)" />
-            <stop offset="42%" stop-color="rgba(12, 61, 117, 0.98)" />
-            <stop offset="100%" stop-color="rgba(2, 16, 32, 1)" />
+            <stop offset="0%" stop-color="rgba(42, 146, 213, 0.96)" />
+            <stop offset="46%" stop-color="rgba(11, 56, 98, 0.98)" />
+            <stop offset="100%" stop-color="rgba(2, 14, 27, 1)" />
           </radialGradient>
           <radialGradient :id="globeAtmosphereGradientId" cx="50%" cy="50%" r="70%">
             <stop offset="64%" stop-color="rgba(94, 227, 255, 0)" />
@@ -98,9 +98,9 @@
             <stop offset="100%" stop-color="rgba(94, 227, 255, 0.02)" />
           </radialGradient>
           <linearGradient :id="landGradientId" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stop-color="rgba(102, 255, 210, 0.28)" />
-            <stop offset="55%" stop-color="rgba(76, 175, 228, 0.18)" />
-            <stop offset="100%" stop-color="rgba(48, 102, 160, 0.22)" />
+            <stop offset="0%" stop-color="rgba(116, 222, 192, 0.42)" />
+            <stop offset="56%" stop-color="rgba(70, 156, 190, 0.32)" />
+            <stop offset="100%" stop-color="rgba(49, 101, 142, 0.38)" />
           </linearGradient>
           <linearGradient :id="frameGradientId" x1="0%" y1="0%" x2="100%" y2="0%">
             <stop offset="0%" stop-color="rgba(85, 219, 255, 0.18)" />
@@ -237,7 +237,7 @@
             :d="shape.d"
             :fill="`url(#${landGradientId})`"
             stroke="rgba(143, 231, 202, 0.24)"
-            stroke-width="0.9"
+            stroke-width="0.72"
           />
         </g>
 
@@ -250,7 +250,7 @@
             :x2="mapWidth - mapPadding"
             :y2="latitudeToY(lat)"
             stroke="rgba(110, 192, 240, 0.18)"
-            stroke-width="0.6"
+            stroke-width="0.48"
           />
           <line
             v-for="lon in graticuleLongitudes"
@@ -260,7 +260,7 @@
             :x2="longitudeToX(lon)"
             :y2="mapHeight - mapPadding"
             stroke="rgba(110, 192, 240, 0.12)"
-            stroke-width="0.6"
+            stroke-width="0.48"
           />
         </g>
 
@@ -271,7 +271,7 @@
             :d="shape.d"
             :fill="`url(#${landGradientId})`"
             stroke="rgba(143, 231, 202, 0.22)"
-            stroke-width="0.8"
+            stroke-width="0.64"
             opacity="0.96"
           />
         </g>
@@ -386,9 +386,9 @@
             :y1="originCoord[1]"
             :x2="privateCoord[0]"
             :y2="privateCoord[1]"
-            stroke="rgba(243, 177, 75, 0.5)"
-            stroke-width="1.1"
-            stroke-dasharray="5 5"
+            stroke="rgba(243, 177, 75, 0.36)"
+            stroke-width="0.85"
+            stroke-dasharray="4 7"
           />
 
           <circle
@@ -398,7 +398,7 @@
             :cy="node.y"
             r="12"
             :fill="node.glow"
-            opacity="0.28"
+            opacity="0.2"
             :filter="`url(#${pointGlowFilterId})`"
           />
           <circle
@@ -408,8 +408,8 @@
             :cy="node.y"
             r="5.5"
             :fill="node.color"
-            stroke="rgba(235, 247, 255, 0.78)"
-            stroke-width="0.8"
+            stroke="rgba(235, 247, 255, 0.86)"
+            stroke-width="0.95"
           />
 
           <text
@@ -418,7 +418,8 @@
             :x="node.anchor === 'start' ? node.x + 10 : node.x - 10"
             :y="node.y - 8"
             :text-anchor="node.anchor"
-            fill="rgba(225, 238, 255, 0.9)"
+            class="map-node-label"
+            fill="rgba(235, 243, 255, 0.94)"
             font-size="11px"
             font-weight="600"
           >
@@ -1296,25 +1297,24 @@ export default {
 
 .map-wrapper {
   position: relative;
-  border-radius: 24px;
+  border-radius: 18px;
   overflow: hidden;
-  border: 1px solid rgba(94, 176, 226, 0.24);
+  border: 1px solid rgba(98, 170, 210, 0.18);
   background: radial-gradient(
       125% 140% at 0% 0%,
-      rgba(69, 173, 255, 0.28),
-      rgba(8, 16, 28, 0.16) 46%,
+      rgba(42, 126, 186, 0.2),
+      rgba(8, 16, 28, 0.12) 46%,
       rgba(4, 10, 18, 0.95) 100%
     ),
     radial-gradient(
       120% 120% at 100% 0%,
-      rgba(255, 173, 82, 0.12),
+      rgba(255, 173, 82, 0.05),
       rgba(255, 173, 82, 0) 42%
     ),
     linear-gradient(175deg, rgba(4, 14, 28, 0.99), rgba(3, 9, 17, 0.98));
   box-shadow:
-    inset 0 0 0 1px rgba(255, 255, 255, 0.03),
-    inset 0 30px 80px rgba(47, 124, 196, 0.06),
-    0 24px 60px rgba(4, 8, 15, 0.5);
+    inset 0 0 0 1px rgba(255, 255, 255, 0.025),
+    0 18px 44px rgba(4, 8, 15, 0.42);
 }
 
 .map-wrapper::before {
@@ -1324,36 +1324,21 @@ export default {
   pointer-events: none;
   background: linear-gradient(
     180deg,
-    rgba(140, 218, 255, 0.06) 0%,
+    rgba(140, 218, 255, 0.035) 0%,
     rgba(140, 218, 255, 0) 26%,
-    rgba(140, 218, 255, 0.08) 100%
+    rgba(140, 218, 255, 0.04) 100%
   );
   z-index: 1;
 }
 
 .map-wrapper::after {
-  content: "";
-  position: absolute;
-  inset: -20% 0 auto;
-  height: 42%;
-  pointer-events: none;
-  background: linear-gradient(
-    180deg,
-    rgba(102, 222, 255, 0),
-    rgba(102, 222, 255, 0.1),
-    rgba(102, 222, 255, 0)
-  );
-  mix-blend-mode: screen;
-  opacity: 0.55;
-  transform: translateY(-100%);
-  animation: map-scan 9s linear infinite;
-  z-index: 1;
+  content: none;
 }
 
 .map-wrapper--globe {
   background: radial-gradient(
       120% 120% at 50% 0%,
-      rgba(69, 173, 255, 0.18),
+      rgba(69, 173, 255, 0.12),
       rgba(8, 16, 28, 0.1) 46%,
       rgba(4, 10, 18, 0.98) 100%
     ),
@@ -1367,9 +1352,9 @@ export default {
 
 .map-overlay {
   position: absolute;
-  top: 16px;
-  left: 16px;
-  right: 16px;
+  top: 14px;
+  left: 14px;
+  right: 14px;
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
@@ -1380,23 +1365,28 @@ export default {
 
 .map-overlay__group {
   display: grid;
-  gap: 8px;
+  gap: 7px;
+  padding: 10px;
+  border: 1px solid rgba(104, 178, 221, 0.14);
+  border-radius: 14px;
+  background: rgba(5, 13, 24, 0.62);
+  backdrop-filter: blur(12px);
 }
 
 .map-overlay__label {
   color: rgba(162, 206, 229, 0.86);
-  font-size: 0.7rem;
+  font-size: 0.64rem;
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
 }
 
 .map-projection-toggle {
-  padding: 4px;
-  border-radius: 999px;
-  background: rgba(6, 14, 28, 0.72);
-  border: 1px solid rgba(102, 188, 229, 0.16);
-  backdrop-filter: blur(10px);
+  padding: 3px;
+  border-radius: 12px;
+  background: rgba(3, 10, 19, 0.72);
+  border: 1px solid rgba(102, 188, 229, 0.14);
+  backdrop-filter: blur(12px);
 }
 
 .map-overlay__meta {
@@ -1407,17 +1397,17 @@ export default {
 }
 
 .map-status-pill {
-  padding: 6px 12px;
-  border-radius: 999px;
-  border: 1px solid rgba(98, 185, 230, 0.18);
-  background: linear-gradient(180deg, rgba(6, 15, 31, 0.84), rgba(5, 10, 18, 0.76));
-  color: rgba(220, 239, 255, 0.94);
-  font-size: 0.72rem;
+  padding: 6px 10px;
+  border-radius: 12px;
+  border: 1px solid rgba(98, 185, 230, 0.14);
+  background: rgba(5, 12, 23, 0.72);
+  color: rgba(226, 239, 250, 0.92);
+  font-size: 0.68rem;
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
-  backdrop-filter: blur(10px);
-  box-shadow: 0 14px 30px rgba(2, 8, 14, 0.26);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 10px 24px rgba(2, 8, 14, 0.22);
 }
 
 .map-refresh-btn {
@@ -1450,15 +1440,14 @@ export default {
 }
 
 .map-wrapper--immersive {
-  border-radius: 28px;
+  border-radius: 22px;
   box-shadow:
-    inset 0 0 0 1px rgba(255, 255, 255, 0.03),
-    inset 0 40px 120px rgba(47, 124, 196, 0.08),
-    0 30px 80px rgba(4, 8, 15, 0.58);
+    inset 0 0 0 1px rgba(255, 255, 255, 0.025),
+    0 26px 64px rgba(4, 8, 15, 0.52);
 }
 
 .map-land {
-  opacity: 0.94;
+  opacity: 0.98;
 }
 
 .map-land--globe {
@@ -1466,12 +1455,12 @@ export default {
 }
 
 .map-arc-flow {
-  stroke-dasharray: 10 12;
+  stroke-dasharray: 8 11;
   animation: arc-flow 3.2s linear infinite;
 }
 
 .map-arc-trace {
-  opacity: 0.96;
+  opacity: 0.82;
 }
 
 .map-legend {
@@ -1480,54 +1469,57 @@ export default {
   bottom: 18px;
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 8px;
   max-width: 320px;
-  padding: 10px 12px;
-  border: 1px solid rgba(106, 192, 231, 0.16);
-  border-radius: 18px;
-  background: linear-gradient(180deg, rgba(6, 14, 28, 0.82), rgba(5, 10, 20, 0.7));
-  backdrop-filter: blur(10px);
+  padding: 9px 10px;
+  border: 1px solid rgba(106, 192, 231, 0.14);
+  border-radius: 14px;
+  background: rgba(5, 12, 23, 0.74);
+  backdrop-filter: blur(12px);
   box-shadow:
     inset 0 0 0 1px rgba(255, 255, 255, 0.02),
-    0 14px 30px rgba(4, 9, 18, 0.38);
+    0 12px 28px rgba(4, 9, 18, 0.34);
   z-index: 2;
 }
 
 .legend-item {
-  border-radius: 999px;
-  border: 1px solid transparent;
-  padding: 4px 10px;
-  font-size: 0.7rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 10px;
+  padding: 3px 6px;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
-  background: rgba(5, 12, 24, 0.82);
-  backdrop-filter: blur(6px);
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.02);
+  background: transparent;
+}
+
+.legend-item::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  box-shadow: 0 0 10px currentColor;
 }
 
 .legend-item.public {
-  border-color: rgba(53, 230, 177, 0.82);
   color: rgba(132, 248, 213, 0.95);
 }
 
 .legend-item.origin {
-  border-color: rgba(52, 230, 255, 0.9);
   color: rgba(154, 241, 255, 0.95);
 }
 
 .legend-item.private {
-  border-color: rgba(243, 177, 75, 0.9);
   color: rgba(255, 211, 140, 0.95);
 }
 
-@keyframes map-scan {
-  from {
-    transform: translateY(-110%);
-  }
-  to {
-    transform: translateY(240%);
-  }
+.map-node-label {
+  paint-order: stroke;
+  stroke: rgba(2, 8, 15, 0.82);
+  stroke-width: 3px;
+  stroke-linejoin: round;
 }
 
 @keyframes arc-flow {
