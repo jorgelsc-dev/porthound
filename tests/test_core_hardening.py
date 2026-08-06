@@ -13,6 +13,7 @@ import app
 import framework
 import getDBNIC
 import manage
+import master
 import server
 import utils
 
@@ -616,6 +617,25 @@ class TestClusterSecurityHelpers(unittest.TestCase):
 
 
 class TestClusterLocalAgentHelpers(unittest.TestCase):
+    def test_master_startup_contract_includes_frontend_route_registration(self):
+        callbacks = []
+
+        class DummyApp:
+            def add_startup(self, callback):
+                callbacks.append(callback)
+
+            def run(self, *args, **kwargs):
+                return None
+
+        original_app = master.app_module.app
+        try:
+            master.app_module.app = DummyApp()
+            master.run_master_mode(enable_local_scanners=True)
+        finally:
+            master.app_module.app = original_app
+
+        self.assertIn(app.register_frontend_dist_routes, callbacks)
+
     def test_local_placeholder_appears_in_cluster_snapshot(self):
         with app.cluster_lock:
             original_agents = dict(app.cluster_agents)
