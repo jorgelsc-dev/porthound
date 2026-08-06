@@ -47,8 +47,8 @@
         <v-card-title class="text-h5 pt-6">API Access Token</v-card-title>
         <v-card-text class="pt-4">
           <p class="auth-dialog-copy">
-            Save a local token to automatically authorize protected requests. It stays in
-            `sessionStorage` and is sent as `Authorization: Bearer` when the backend requires it.
+            Paste the token printed in the PortHound terminal. It stays in sessionStorage and is
+            sent as Authorization Bearer for protected requests.
           </p>
           <v-text-field
             ref="authInput"
@@ -124,7 +124,7 @@ export default {
         { label: "Files", to: "/files", icon: "mdi-file-cog-outline" },
         { label: "Map", to: "/map", icon: "mdi-map-marker-radius" },
         { label: "Charts", to: "/charts", icon: "mdi-chart-donut" },
-        { label: "Security", to: "/security", icon: "mdi-shield-lock-outline" },
+        { label: "Access", to: "/security", icon: "mdi-shield-key-outline" },
         { label: "API", to: "/api", icon: "mdi-api" },
       ],
     };

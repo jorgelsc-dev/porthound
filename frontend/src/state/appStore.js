@@ -4,7 +4,7 @@ const state = reactive({
   apiBase: "",
   wsStatus: "offline",
   authToken: "",
-  authStatus: "open",
+  authStatus: "required",
   authError: "",
   authPromptOpen: false,
 });
@@ -93,20 +93,20 @@ function setAuthToken(token, nextStatus = null) {
   if (nextStatus) {
     state.authStatus = nextStatus;
   } else {
-    state.authStatus = cleaned ? "saved" : "open";
+    state.authStatus = cleaned ? "saved" : "required";
   }
 }
 
 function initAuth() {
   if (typeof window === "undefined") {
     state.authToken = "";
-    state.authStatus = "open";
+    state.authStatus = "required";
     state.authError = "";
     state.authPromptOpen = false;
     return;
   }
   const storedToken = readStoredAuthToken();
-  setAuthToken(storedToken, storedToken ? "saved" : "open");
+  setAuthToken(storedToken, storedToken ? "saved" : "required");
   state.authError = "";
   state.authPromptOpen = false;
 }
@@ -129,7 +129,7 @@ function closeAuthPrompt() {
 }
 
 function clearAuthToken() {
-  setAuthToken("", "open");
+  setAuthToken("", "required");
   closeAuthPrompt();
 }
 

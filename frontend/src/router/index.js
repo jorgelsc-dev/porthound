@@ -12,7 +12,6 @@ const routes = [
   { path: "/map", name: "map", component: () => import("../views/MapWorldView.vue") },
   { path: "/charts", name: "charts", component: () => import("../views/ChartsView.vue") },
   { path: "/security", name: "security", component: () => import("../views/SecurityView.vue") },
-  { path: "/agents", redirect: "/security" },
   { path: "/api", name: "api", component: () => import("../views/ApiView.vue") },
   { path: "/:pathMatch(.*)*", redirect: "/" },
 ];

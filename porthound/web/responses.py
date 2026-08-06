@@ -12,7 +12,6 @@ SPA_ROUTES = (
     "/map",
     "/charts",
     "/explorer",
-    "/agents",
     "/targets",
     "/ports",
     "/banners",

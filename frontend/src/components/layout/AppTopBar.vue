@@ -104,7 +104,7 @@ export default {
       if (value === "saved") return "Token saved";
       if (value === "required") return "Token required";
       if (value === "checking") return "Checking token";
-      return "Open access";
+      return "Token required";
     },
     authStateColor() {
       const value = String(this.authStatus || "").trim().toLowerCase();
@@ -112,7 +112,7 @@ export default {
       if (value === "saved") return "info";
       if (value === "required") return "warning";
       if (value === "checking") return "info";
-      return "secondary";
+      return "warning";
     },
     wsStateLabel() {
       const value = String(this.wsStatus || "").trim().toLowerCase();
