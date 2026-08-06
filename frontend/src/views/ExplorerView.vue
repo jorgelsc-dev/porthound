@@ -136,7 +136,18 @@
                 <td>{{ row.proto }}</td>
                 <td :title="formatStateTooltip(row)">{{ formatStateLabel(row) }}</td>
                 <td>
-                  <span class="ellipsis-cell">{{ row.banner || "-" }}</span>
+                  <div class="banner-preview">
+                    <span class="ellipsis-cell">{{ row.banner || "-" }}</span>
+                    <v-btn
+                      v-if="hasBannerText(row.banner)"
+                      icon="mdi-arrow-expand"
+                      size="x-small"
+                      variant="text"
+                      aria-label="View full banner"
+                      title="View full banner"
+                      @click="openBannerDialog(row)"
+                    />
+                  </div>
                 </td>
                 <td>
                   <span class="ellipsis-cell">{{ row.tags_text || "-" }}</span>
@@ -267,7 +278,20 @@
                 <td>{{ row.ip }}</td>
                 <td>{{ row.port }}</td>
                 <td>{{ row.proto }}</td>
-                <td><span class="ellipsis-cell">{{ row.response_plain || "-" }}</span></td>
+                <td>
+                  <div class="banner-preview">
+                    <span class="ellipsis-cell">{{ row.response_plain || "-" }}</span>
+                    <v-btn
+                      v-if="hasBannerText(row.response_plain)"
+                      icon="mdi-arrow-expand"
+                      size="x-small"
+                      variant="text"
+                      aria-label="View full banner"
+                      title="View full banner"
+                      @click="openBannerDialog(row)"
+                    />
+                  </div>
+                </td>
               </tr>
               <tr v-if="!filteredBanners.length">
                 <td colspan="5" class="text-medium-emphasis py-4 text-center">
@@ -768,6 +792,45 @@
           </div>
         </v-card>
       </v-dialog>
+
+      <v-dialog v-model="bannerDialog.open" max-width="960">
+        <v-card class="banner-dialog">
+          <v-card-title class="banner-dialog__title">
+            <div>
+              <div class="text-overline text-primary">Full Banner</div>
+              <div class="text-h6">
+                {{ bannerDialog.ip || "-" }}:{{ bannerDialog.port || "-" }}
+                <span class="text-medium-emphasis">{{ bannerDialog.proto || "" }}</span>
+              </div>
+            </div>
+            <v-btn
+              icon="mdi-close"
+              variant="text"
+              aria-label="Close banner details"
+              title="Close"
+              @click="bannerDialog.open = false"
+            />
+          </v-card-title>
+          <v-card-text>
+            <pre class="banner-dialog__content">{{ bannerDialog.text || "-" }}</pre>
+          </v-card-text>
+          <v-card-actions>
+            <v-spacer />
+            <v-btn
+              color="secondary"
+              variant="tonal"
+              prepend-icon="mdi-content-copy"
+              :disabled="!bannerDialog.text"
+              @click="copyBannerDialogText"
+            >
+              Copy
+            </v-btn>
+            <v-btn color="primary" variant="flat" @click="bannerDialog.open = false">
+              Close
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
     </DataPanel>
   </div>
 </template>
@@ -830,6 +893,13 @@ export default {
         loading: false,
         error: "",
         data: null,
+      },
+      bannerDialog: {
+        open: false,
+        ip: "",
+        port: "",
+        proto: "",
+        text: "",
       },
       targetActionLoading: {
         id: null,
@@ -1466,6 +1536,24 @@ export default {
       if (typeof window === "undefined") return;
       window.open(this.faviconSrcById(id), "_blank", "noopener,noreferrer");
     },
+    hasBannerText(value) {
+      return String(value || "").trim().length > 0;
+    },
+    openBannerDialog(row) {
+      this.bannerDialog = {
+        open: true,
+        ip: String(row?.ip || ""),
+        port: String(row?.port ?? ""),
+        proto: String(row?.proto || "").toUpperCase(),
+        text: String(row?.response_plain || row?.banner || row?.banner_preview || ""),
+      };
+    },
+    copyBannerDialogText() {
+      if (!this.bannerDialog.text || typeof navigator === "undefined" || !navigator.clipboard) {
+        return Promise.resolve();
+      }
+      return navigator.clipboard.writeText(this.bannerDialog.text).catch(() => {});
+    },
     isIntelLoadingForIp(ip) {
       const key = String(ip || "").trim();
       if (!key) return false;
@@ -1660,6 +1748,45 @@ export default {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.banner-preview {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+
+.banner-preview .ellipsis-cell {
+  flex: 0 1 auto;
+}
+
+.banner-dialog {
+  border: 1px solid rgba(106, 180, 222, 0.22);
+  background: linear-gradient(180deg, rgba(8, 16, 29, 0.99), rgba(5, 12, 22, 0.99));
+}
+
+.banner-dialog__title {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.banner-dialog__content {
+  max-height: min(64vh, 680px);
+  overflow: auto;
+  margin: 0;
+  padding: 14px;
+  border: 1px solid rgba(130, 170, 200, 0.22);
+  border-radius: 8px;
+  background: rgba(3, 8, 14, 0.78);
+  color: rgba(231, 242, 252, 0.94);
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }
 
 .intel-dialog {

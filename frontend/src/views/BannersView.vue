@@ -82,8 +82,19 @@
       empty-text="No banners found"
       @refresh="load"
     >
-      <template #cell-response_plain="{ value }">
-        <span class="banner-text">{{ value }}</span>
+      <template #cell-response_plain="{ item, value }">
+        <div class="banner-preview">
+          <span class="banner-text">{{ value || "-" }}</span>
+          <v-btn
+            v-if="hasBannerText(value)"
+            icon="mdi-arrow-expand"
+            size="x-small"
+            variant="text"
+            aria-label="View full banner"
+            title="View full banner"
+            @click="openBannerDialog(item)"
+          />
+        </div>
       </template>
       <template #cell-scan_state="{ value }">
         <v-chip size="x-small" :color="scanStatusColor(value)" variant="tonal">
@@ -171,6 +182,45 @@
         </v-btn>
       </template>
     </EntityTablePanel>
+
+    <v-dialog v-model="bannerDialog.open" max-width="960">
+      <v-card class="banner-dialog">
+        <v-card-title class="banner-dialog__title">
+          <div>
+            <div class="text-overline text-primary">Full Banner</div>
+            <div class="text-h6">
+              {{ bannerDialog.ip || "-" }}:{{ bannerDialog.port || "-" }}
+              <span class="text-medium-emphasis">{{ bannerDialog.proto || "" }}</span>
+            </div>
+          </div>
+          <v-btn
+            icon="mdi-close"
+            variant="text"
+            aria-label="Close banner details"
+            title="Close"
+            @click="bannerDialog.open = false"
+          />
+        </v-card-title>
+        <v-card-text>
+          <pre class="banner-dialog__content">{{ bannerDialog.text || "-" }}</pre>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer />
+          <v-btn
+            color="secondary"
+            variant="tonal"
+            prepend-icon="mdi-content-copy"
+            :disabled="!bannerDialog.text"
+            @click="copyBannerDialogText"
+          >
+            Copy
+          </v-btn>
+          <v-btn color="primary" variant="flat" @click="bannerDialog.open = false">
+            Close
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -225,6 +275,13 @@ export default {
       bannerActionLoading: {
         id: null,
         action: "",
+      },
+      bannerDialog: {
+        open: false,
+        ip: "",
+        port: "",
+        proto: "",
+        text: "",
       },
       wsRefreshTimer: null,
       stopTableRefreshSubscription: null,
@@ -345,6 +402,24 @@ export default {
       const numeric = Number(value);
       if (!Number.isFinite(numeric)) return "-";
       return `${numeric.toFixed(0)}%`;
+    },
+    hasBannerText(value) {
+      return String(value || "").trim().length > 0;
+    },
+    openBannerDialog(item) {
+      this.bannerDialog = {
+        open: true,
+        ip: String(item?.ip || ""),
+        port: String(item?.port ?? ""),
+        proto: String(item?.proto || "").toUpperCase(),
+        text: String(item?.response_plain || ""),
+      };
+    },
+    copyBannerDialogText() {
+      if (!this.bannerDialog.text || typeof navigator === "undefined" || !navigator.clipboard) {
+        return Promise.resolve();
+      }
+      return navigator.clipboard.writeText(this.bannerDialog.text).catch(() => {});
     },
     isBannerActionLoading(id, action) {
       return this.bannerActionLoading.id === id && this.bannerActionLoading.action === action;
@@ -489,12 +564,47 @@ export default {
 </script>
 
 <style scoped>
+.banner-preview {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+
 .banner-text {
   display: inline-block;
   max-width: 480px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.banner-dialog {
+  border: 1px solid rgba(106, 180, 222, 0.22);
+  background: linear-gradient(180deg, rgba(8, 16, 29, 0.99), rgba(5, 12, 22, 0.99));
+}
+
+.banner-dialog__title {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.banner-dialog__content {
+  max-height: min(64vh, 680px);
+  overflow: auto;
+  margin: 0;
+  padding: 14px;
+  border: 1px solid rgba(130, 170, 200, 0.22);
+  border-radius: 8px;
+  background: rgba(3, 8, 14, 0.78);
+  color: rgba(231, 242, 252, 0.94);
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }
 
 .banner-actions {
