@@ -13,7 +13,6 @@ import app
 import framework
 import getDBNIC
 import manage
-import master
 import server
 import utils
 
@@ -617,25 +616,6 @@ class TestClusterSecurityHelpers(unittest.TestCase):
 
 
 class TestClusterLocalAgentHelpers(unittest.TestCase):
-    def test_master_startup_contract_includes_frontend_route_registration(self):
-        callbacks = []
-
-        class DummyApp:
-            def add_startup(self, callback):
-                callbacks.append(callback)
-
-            def run(self, *args, **kwargs):
-                return None
-
-        original_app = master.app_module.app
-        try:
-            master.app_module.app = DummyApp()
-            master.run_master_mode(enable_local_scanners=True)
-        finally:
-            master.app_module.app = original_app
-
-        self.assertIn(app.register_frontend_dist_routes, callbacks)
-
     def test_local_placeholder_appears_in_cluster_snapshot(self):
         with app.cluster_lock:
             original_agents = dict(app.cluster_agents)
@@ -932,6 +912,21 @@ class TestManageInteractiveFallback(unittest.TestCase):
         manage._apply_positional_mode_and_enroll(args)
         self.assertEqual(args.role, "agent")
         self.assertEqual(args.agent_enroll, "eyJ2ZXJzaW9uIjoxfQ==")
+
+    def test_ensure_api_access_token_generates_required_terminal_token(self):
+        fake_env = {}
+        with mock.patch.object(manage, "environ", fake_env), mock.patch(
+            "manage.secrets.token_urlsafe",
+            return_value="generated-token",
+        ), mock.patch("builtins.print") as mocked_print:
+            token = manage.ensure_api_access_token()
+
+        self.assertEqual(token, "generated-token")
+        self.assertEqual(fake_env["PORTHOUND_API_TOKEN"], "generated-token")
+        self.assertEqual(fake_env["PORTHOUND_API_REQUIRE_TOKEN"], "1")
+        printed = "\n".join(str(call.args[0]) for call in mocked_print.call_args_list if call.args)
+        self.assertIn("PortHound access token", printed)
+        self.assertIn("generated-token", printed)
 
     def test_enforce_fixed_web_port_master_role(self):
         args = _make_manage_args(role="master", host="0.0.0.0", port=9999)

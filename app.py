@@ -7264,12 +7264,6 @@ def ws_handler(ws, request):
             pass
 
 
-def build_master_ssl_context():
-    from master import build_master_ssl_context as master_build_master_ssl_context
-
-    return master_build_master_ssl_context()
-
-
 def normalize_master_base_url(value):
     from agent import normalize_master_base_url as agent_normalize_master_base_url
 
@@ -7296,38 +7290,23 @@ def post_json_over_tls(url, payload, ssl_context, timeout_seconds):
     )
 
 
-def run_master_mode(enable_local_scanners=False):
-    from master import run_master_mode as master_run_master_mode
-
-    return master_run_master_mode(enable_local_scanners=enable_local_scanners)
-
-
-def run_agent_worker_mode():
-    from agent import run_agent_mode as agent_run_agent_mode
-
-    return agent_run_agent_mode(db=scan_db)
-
-
-def run_agent_mode():
+def run_standalone_mode():
     try:
-        start_geoip_blocks_db()
-        start_scanners()
-        start_agent_runtime_background()
+        app.add_startup(register_frontend_dist_routes)
+        app.add_startup(start_geoip_blocks_db)
+        app.add_startup(start_scanners)
+        app.add_startup(start_scan_map_telemetry)
+        app.add_startup(start_attack_telemetry)
         if not str(getattr(settings, "API_TOKEN", "") or "").strip():
-            bind_host = str(getattr(settings, "HOST", "") or "").strip().lower()
-            if bind_host not in {"127.0.0.1", "localhost", "::1"}:
-                print(
-                    "[security] PORTHOUND_API_TOKEN is not set. "
-                    "Admin endpoints are restricted to loopback clients."
-                )
-        print(f"[bootstrap] role=agent host={settings.HOST} port={settings.PORT}")
+            print("[security] PORTHOUND_API_TOKEN is not set. Protected endpoints will reject writes.")
+        print(f"[bootstrap] role=standalone host={settings.HOST} port={settings.PORT}")
         app.run(settings.HOST, settings.PORT, ssl_context=None)
     finally:
         shutdown_runtime()
 
 
 def main():
-    run_master_mode(enable_local_scanners=True)
+    run_standalone_mode()
 
 
 if __name__ == "__main__":
