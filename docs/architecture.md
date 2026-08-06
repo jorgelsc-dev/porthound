@@ -8,7 +8,7 @@ PortHound esta organizado como una aplicacion local con cuatro capas claras: boo
 | --- | --- | --- |
 | Bootstrap | `manage.py` | Carga entorno, normaliza el launcher publico y arranca la instancia local. |
 | Configuracion | `settings.py` | Resuelve variables de entorno y defaults efectivos del runtime. |
-| Web backend | `app.py` | Expone vistas HTML, API JSON, WebSocket, mapas y telemetria. |
+| Web backend | `app.py`, `porthound/web/` | Expone vistas HTML, API JSON, WebSocket, mapas y telemetria sobre `wsbuilder`. |
 | Persistencia y scan engine | `server.py` | Esquema SQLite, normalizacion, workers TCP/UDP/ICMP/SCTP y banner grabbing. |
 | UI | `frontend/src/` | SPA Vue 3 + Vuetify para dashboard, tablas, paneles y refresco en vivo. |
 
@@ -32,7 +32,8 @@ PortHound esta organizado como una aplicacion local con cuatro capas claras: boo
 
 - `manage.py` aplica politicas de host y puerto fijos para la app local y materializa la configuracion de arranque.
 - `settings.py` consolida los env vars que realmente ve el runtime.
-- `app.py` usa `wsbuilder.App` como runtime principal, registra rutas y mantiene caches como `IP_INTEL_CACHE`.
+- `porthound/web/app.py` crea la instancia `wsbuilder.App`; `app.py` conserva la fachada de compatibilidad, registra rutas y mantiene caches como `IP_INTEL_CACHE`.
+- `porthound/web/responses.py` concentra respuestas HTTP reutilizables, serving de `frontend/dist` y decision de shell HTML vs JSON.
 - `server.py` concentra el acceso a SQLite y las reglas de normalizacion de targets, banners, catalogos y scan payloads.
 - `frontend/src/state/appStore.js` administra `apiBase`, token de acceso, reconexion WebSocket y refresco de tablas.
 - `frontend/src/views/` define las pantallas activas y las vistas auxiliares.
