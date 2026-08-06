@@ -32,7 +32,7 @@ porthound = "manage:main"
 porthound4 = "manage:main"
 
 [tool.setuptools]
-packages = ["porthound"]
+packages = ["porthound", "porthound.web"]
 py-modules = [
   "agent",
   "dns",

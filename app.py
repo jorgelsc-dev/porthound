@@ -1,5 +1,4 @@
 import json
-import mimetypes
 import random
 import sqlite3
 import re
@@ -16,11 +15,19 @@ import uuid
 from collections import Counter, deque
 from datetime import datetime, timedelta, timezone
 from ipaddress import IPv4Address, ip_address
-from os import getenv
 from pathlib import Path
 from urllib.parse import urlsplit
 import settings
-from wsbuilder import App, Response, Route, parse_close_payload
+from wsbuilder import Response, parse_close_payload
+
+from porthound.paths import resolve_frontend_dist_dir
+from porthound.web.responses import (
+    SPA_ROUTES,
+    frontend_index_response as _frontend_index_response,
+    json_error,
+    wants_html,
+)
+from porthound.web.app import create_app
 
 from server import (
     DB,
@@ -49,49 +56,8 @@ from utils import clamp_int, current_role, is_master_role, normalize_target_payl
 
 
 REGEX_IPV4_CIDR = re.compile(r"^(\d{1,3}\.){3}\d{1,3}/\d{1,2}$")
-PROJECT_ROOT = Path(__file__).resolve().parent
-SOURCE_FRONTEND_DIST_DIR = PROJECT_ROOT / "frontend" / "dist"
-PACKAGE_FRONTEND_DIST_DIR = PROJECT_ROOT / "porthound" / "_frontend_dist"
 
-
-def _resolve_frontend_dist_dir():
-    override = str(getenv("PORTHOUND_FRONTEND_DIST", "")).strip()
-    candidates = []
-    if override:
-        candidates.append(Path(override).expanduser())
-    candidates.extend([SOURCE_FRONTEND_DIST_DIR, PACKAGE_FRONTEND_DIST_DIR])
-    for candidate in candidates:
-        if candidate.exists():
-            return candidate
-    return candidates[0]
-
-
-FRONTEND_DIST_DIR = _resolve_frontend_dist_dir()
-SPA_ROUTES = (
-    "/map",
-    "/charts",
-    "/explorer",
-    "/agents",
-    "/targets",
-    "/ports",
-    "/banners",
-    "/tags",
-    "/catalog",
-    "/files",
-    "/security",
-    "/api",
-)
-STATIC_CONTENT_TYPE_OVERRIDES = {
-    ".js": "application/javascript; charset=utf-8",
-    ".mjs": "application/javascript; charset=utf-8",
-    ".css": "text/css; charset=utf-8",
-    ".json": "application/json; charset=utf-8",
-    ".map": "application/json; charset=utf-8",
-    ".svg": "image/svg+xml",
-}
-_frontend_dist_routes_registered = False
-
-app = App()
+app = create_app()
 scan_db = DB(path=settings.SCAN_DB_PATH)
 ws_db = Database(
     path=":memory:",
@@ -4260,72 +4226,6 @@ def start_attack_telemetry():
     attack_telemetry.start()
 
 
-def dist_file_response(file_path: Path, cache_control="public, max-age=300"):
-    try:
-        body = file_path.read_bytes()
-    except Exception:
-        return Response.text("Not Found", status=404)
-
-    suffix = file_path.suffix.lower()
-    content_type = STATIC_CONTENT_TYPE_OVERRIDES.get(suffix)
-    if not content_type:
-        guessed, _ = mimetypes.guess_type(str(file_path))
-        content_type = guessed or "application/octet-stream"
-        if content_type.startswith("text/") and "charset=" not in content_type:
-            content_type += "; charset=utf-8"
-
-    headers = {"Content-Type": content_type}
-    if cache_control:
-        headers["Cache-Control"] = cache_control
-    return Response(status=200, body=body, headers=headers)
-
-
-def frontend_index_response():
-    index_path = FRONTEND_DIST_DIR / "index.html"
-    if index_path.is_file():
-        return dist_file_response(index_path, cache_control="no-cache")
-    return Response.html(INDEX_HTML)
-
-
-def register_frontend_dist_routes():
-    global _frontend_dist_routes_registered
-    if _frontend_dist_routes_registered:
-        return
-    if not FRONTEND_DIST_DIR.is_dir():
-        print(f"[frontend] dist not found: {FRONTEND_DIST_DIR}")
-        _frontend_dist_routes_registered = True
-        return
-
-    for file_path in sorted(FRONTEND_DIST_DIR.rglob("*")):
-        if not file_path.is_file():
-            continue
-        route_path = "/" + file_path.relative_to(FRONTEND_DIST_DIR).as_posix()
-        if app.router.resolve(route_path, method="GET"):
-            continue
-
-        def static_handler(request, _file_path=file_path):
-            return dist_file_response(_file_path)
-
-        app.router.add(Route(route_path, ("GET",), static_handler, "plain"))
-
-    _frontend_dist_routes_registered = True
-
-
-def wants_html(request):
-    fmt = request.query.get("format")
-    if fmt == "html":
-        return True
-    if fmt == "json":
-        return False
-    accept = str(request.headers.get("accept", "") or "").lower()
-    if "application/json" in accept and "text/html" not in accept:
-        return False
-    return True
-
-
-def json_error(message, status=500):
-    return Response.json({"status": str(message)}, status=status)
-
 def _read_catalog_file(path: Path, key: str):
     payload = {}
     try:
@@ -5610,7 +5510,10 @@ def root_view(request):
     if is_example(request):
         return Response.json(example_counts())
     if wants_html(request):
-        return frontend_index_response()
+        return _frontend_index_response(
+            resolve_frontend_dist_dir(),
+            fallback_html=INDEX_HTML,
+        )
     data = {
         "count_ports": scan_db.count_ports(),
         "count_banners": scan_db.count_banners(),
@@ -5620,7 +5523,10 @@ def root_view(request):
 
 
 def spa_shell_view(request):
-    return frontend_index_response()
+    return _frontend_index_response(
+        resolve_frontend_dist_dir(),
+        fallback_html=INDEX_HTML,
+    )
 
 
 for _spa_path in SPA_ROUTES:
