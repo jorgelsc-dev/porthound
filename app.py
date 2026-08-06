@@ -25,6 +25,7 @@ from porthound.web.responses import (
     SPA_ROUTES,
     frontend_index_response as _frontend_index_response,
     json_error,
+    register_frontend_dist_routes as _register_frontend_dist_routes,
     wants_html,
 )
 from porthound.web.app import create_app
@@ -56,6 +57,7 @@ from utils import clamp_int, current_role, is_master_role, normalize_target_payl
 
 
 REGEX_IPV4_CIDR = re.compile(r"^(\d{1,3}\.){3}\d{1,3}/\d{1,2}$")
+_frontend_dist_route_state = {"registered": False}
 
 app = create_app()
 scan_db = DB(path=settings.SCAN_DB_PATH)
@@ -4224,6 +4226,14 @@ def start_scan_map_telemetry():
 
 def start_attack_telemetry():
     attack_telemetry.start()
+
+
+def register_frontend_dist_routes():
+    return _register_frontend_dist_routes(
+        app,
+        resolve_frontend_dist_dir(),
+        route_state=_frontend_dist_route_state,
+    )
 
 
 def _read_catalog_file(path: Path, key: str):
