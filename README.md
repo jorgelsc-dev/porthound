@@ -99,6 +99,9 @@ Notas:
 - Si `frontend/dist` no existe, el script ejecuta `npm ci && npm run build`.
 - El paquete incluye una wheelhouse local y crea `/usr/lib/porthound/venv` durante la instalacion o actualizacion.
 - `porthound` se ejecuta desde ese `venv`, asi que no instala `wsbuilder` ni otras dependencias dentro del Python global del sistema.
+- La version del `.deb` ya no se incrementa a mano: se calcula desde Git con `python -m porthound.versioning`.
+- El flujo usa tags `vX.Y.Z` para evitar repeticiones y mantener releases consecutivas.
+- Peso de cambios: `BREAKING CHANGE` o `type!:` sube `major`, `feat:` sube `minor`, y `fix:` o cambios de docs, tests, CI y packaging suben `patch`.
 - Esta es la ruta soportada para distribucion binaria.
 - El `.sha256` del mismo release permite verificar integridad antes de instalar.
 

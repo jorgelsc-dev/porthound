@@ -20,14 +20,7 @@ require_command sha256sum
 python3 -m pip --version >/dev/null
 
 ARCHITECTURE="${DEB_ARCHITECTURE:-$(dpkg --print-architecture)}"
-VERSION="$(python3 - <<'PY'
-import tomllib
-from pathlib import Path
-
-pyproject = tomllib.loads(Path("pyproject.toml").read_text(encoding="utf-8"))
-print(pyproject["project"]["version"])
-PY
-)"
+VERSION="${PORTHOUND_VERSION:-$(python3 -m porthound.versioning --root "${ROOT_DIR}")}"
 DESCRIPTION="$(python3 - <<'PY'
 import tomllib
 from pathlib import Path

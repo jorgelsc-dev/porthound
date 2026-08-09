@@ -1,5 +1,6 @@
 [project]
 name = "porthound"
+# Bootstrap seed only. Debian releases resolve the final version from Git tags/history.
 version = "1.0.6"
 description = "PortHound new-generation network scanner built on wsbuilder."
 readme = "README.md"
