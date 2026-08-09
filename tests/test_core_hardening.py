@@ -1006,6 +1006,33 @@ class TestManageInteractiveFallback(unittest.TestCase):
         payload = json.loads(response.body.decode("utf-8"))
         self.assertIn("Security code required", payload["message"])
 
+    def test_frontend_security_policy_observe_response_is_compatible_with_wsbuilder_hooks(self):
+        allowed_request = framework.Request(
+            method="GET",
+            path="/ws/",
+            query_string="security_code=security-code",
+            headers={"upgrade": "websocket"},
+            body=b"",
+            client=("127.0.0.1", 0),
+        )
+        denied_request = framework.Request(
+            method="GET",
+            path="/targets/",
+            query_string="",
+            headers={},
+            body=b"",
+            client=("127.0.0.1", 0),
+        )
+        with mock.patch.object(app.settings, "API_TOKEN", "security-code"), mock.patch.object(
+            app.settings, "API_REQUIRE_TOKEN", True
+        ):
+            allowed = app.app.security.evaluate(allowed_request)
+            denied = app.app.security.evaluate(denied_request)
+            self.assertTrue(allowed.allowed)
+            self.assertFalse(denied.allowed)
+            self.assertIsNone(app.app.security.observe_response(allowed_request, 101))
+            self.assertIsNone(app.app.security.observe_response(denied_request, denied.status))
+
     def test_frontend_security_allows_html_shell_without_code(self):
         request = framework.Request(
             method="GET",

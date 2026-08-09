@@ -4409,6 +4409,11 @@ class FrontendSecurityPolicy:
             message=FRONTEND_SECURITY_REQUIRED_MESSAGE,
         )
 
+    def observe_response(self, request, status_code):
+        # wsbuilder calls this hook after every HTTP/WebSocket response.
+        # Frontend access control is stateless, so there is nothing to record.
+        return None
+
 
 def require_admin_access(request):
     configured_token = str(getattr(settings, "API_TOKEN", "") or "").strip()
