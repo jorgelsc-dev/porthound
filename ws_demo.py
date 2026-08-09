@@ -14,11 +14,17 @@ import uuid
 import time
 import json
 import sqlite3
+import settings
 
 HOST = '0.0.0.0'
 PORT = 8765
 
 MAGIC_WS = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
+
+
+def _debug_log(*args, **kwargs):
+    if getattr(settings, "DEBUG", False):
+        print(*args, **kwargs)
 
 # ============================================================
 #  SHA1 (implementación pura en Python para no importar hashlib)
@@ -792,13 +798,13 @@ class Database:
     def set_pragma(self, name, value):
         sql = "PRAGMA %s=%s" % (name, value)
         with self._lock:
-            print("[DB]", sql)
+            _debug_log("[DB]", sql)
             self._conn.execute(sql)
 
     def get_pragma(self, name):
         sql = "PRAGMA %s" % name
         with self._lock:
-            print("[DB]", sql)
+            _debug_log("[DB]", sql)
             cur = self._conn.execute(sql)
             row = cur.fetchone()
         if row is None:
@@ -824,7 +830,7 @@ class Database:
             "CREATE", "DROP", "ALTER",
         )
         with self._lock:
-            print("[DB] SQL:", sql_trim, "params=", params)
+            _debug_log("[DB] SQL:", sql_trim, "params=", params)
             cur = self._conn.execute(sql, params)
             if is_write and not self.in_transaction():
                 self._conn.commit()
@@ -837,7 +843,7 @@ class Database:
         with self._lock:
             count = 0
             for p in seq_of_params:
-                print("[DB] SQL many:", sql_trim, "params=", p)
+                _debug_log("[DB] SQL many:", sql_trim, "params=", p)
                 self._conn.execute(sql, p)
                 count += 1
             if is_write and not self.in_transaction():
@@ -857,13 +863,13 @@ class Transaction:
         depth = self.db._get_tx_depth()
         if depth == 0:
             with self.db._lock:
-                print("[DB] BEGIN")
+                _debug_log("[DB] BEGIN")
                 self.db._conn.execute("BEGIN")
             self.db._set_tx_depth(1)
         else:
             self._sp_name = "sp_%d" % depth
             with self.db._lock:
-                print("[DB] SAVEPOINT", self._sp_name)
+                _debug_log("[DB] SAVEPOINT", self._sp_name)
                 self.db._conn.execute("SAVEPOINT %s" % self._sp_name)
             self.db._set_tx_depth(depth + 1)
         self._entered = True
@@ -878,25 +884,25 @@ class Transaction:
             if exc_type is not None:
                 if self._sp_name is None:
                     with self.db._lock:
-                        print("[DB] ROLLBACK")
+                        _debug_log("[DB] ROLLBACK")
                         self.db._conn.rollback()
                     self.db._set_tx_depth(0)
                 else:
                     with self.db._lock:
-                        print("[DB] ROLLBACK TO SAVEPOINT", self._sp_name)
+                        _debug_log("[DB] ROLLBACK TO SAVEPOINT", self._sp_name)
                         self.db._conn.execute("ROLLBACK TO SAVEPOINT %s" % self._sp_name)
-                        print("[DB] RELEASE SAVEPOINT", self._sp_name)
+                        _debug_log("[DB] RELEASE SAVEPOINT", self._sp_name)
                         self.db._conn.execute("RELEASE SAVEPOINT %s" % self._sp_name)
                     self.db._set_tx_depth(depth - 1)
             else:
                 if self._sp_name is None:
                     with self.db._lock:
-                        print("[DB] COMMIT")
+                        _debug_log("[DB] COMMIT")
                         self.db._conn.commit()
                     self.db._set_tx_depth(0)
                 else:
                     with self.db._lock:
-                        print("[DB] RELEASE SAVEPOINT", self._sp_name)
+                        _debug_log("[DB] RELEASE SAVEPOINT", self._sp_name)
                         self.db._conn.execute("RELEASE SAVEPOINT %s" % self._sp_name)
                     self.db._set_tx_depth(depth - 1)
         finally:
@@ -1263,7 +1269,7 @@ class ClientRegistry:
                 'created': time.time()
             }
         try:
-            print(f"[WS] Registrado cliente {client_id} desde {addr} (subprotocol={subprotocol or ''})")
+            _debug_log(f"[WS] Registrado cliente {client_id} desde {addr} (subprotocol={subprotocol or ''})")
         except Exception:
             pass
 
@@ -1276,7 +1282,7 @@ class ClientRegistry:
             except Exception:
                 pass
             try:
-                print(f"[WS] Cliente {client_id} desconectado")
+                _debug_log(f"[WS] Cliente {client_id} desconectado")
             except Exception:
                 pass
 
@@ -1290,35 +1296,35 @@ class ClientRegistry:
                     'subprotocol': info.get('subprotocol',''),
                     'created': info.get('created',0)
                 })
-        print(f"[WS] list_clients_info -> {len(out)} clientes")
+        _debug_log(f"[WS] list_clients_info -> {len(out)} clientes")
         return out
 
     def send_to_client(self, client_id, opcode, payload=b''):
         with self._lock:
             info = self._clients.get(client_id)
             if not info:
-                print(f"[WS] send_to_client: cliente {client_id} no encontrado")
+                _debug_log(f"[WS] send_to_client: cliente {client_id} no encontrado")
                 return False, "no such client"
             sock = info['sock']
         try:
             sock.sendall(make_ws_frame_bytes(opcode, payload))
-            print(f"[WS] send_to_client: cid={client_id} opcode={opcode} len={len(payload)}")
+            _debug_log(f"[WS] send_to_client: cid={client_id} opcode={opcode} len={len(payload)}")
             return True, "sent"
         except Exception as e:
-            print(f"[WS] Error en send_to_client {client_id}: {e}")
+            _debug_log(f"[WS] Error en send_to_client {client_id}: {e}")
             return False, str(e)
 
     def broadcast(self, opcode, payload=b''):
         failed = []
         with self._lock:
             items = list(self._clients.items())
-        print(f"[WS] broadcast: opcode={opcode} len={len(payload)} a {len(items)} clientes")
+        _debug_log(f"[WS] broadcast: opcode={opcode} len={len(payload)} a {len(items)} clientes")
         for cid, info in items:
             try:
                 info['sock'].sendall(make_ws_frame_bytes(opcode, payload))
-                print(f"[WS]  broadcast -> cid={cid} OK")
+                _debug_log(f"[WS]  broadcast -> cid={cid} OK")
             except Exception as e:
-                print(f"[WS]  broadcast -> cid={cid} ERROR: {e}")
+                _debug_log(f"[WS]  broadcast -> cid={cid} ERROR: {e}")
                 failed.append((cid, str(e)))
         return failed
 
@@ -1595,7 +1601,7 @@ class ConnectionThread(threading.Thread):
 
         key = headers.get('sec-websocket-key', '')
         if not key:
-            print(f"[WS] Handshake inválido desde {self.addr}, falta Sec-WebSocket-Key")
+            _debug_log(f"[WS] Handshake inválido desde {self.addr}, falta Sec-WebSocket-Key")
             send_http_response(self.conn, 400, 'Bad Request',
                                {'Content-Type':'text/plain; charset=utf-8'},
                                b'Missing Sec-WebSocket-Key')
@@ -1605,7 +1611,7 @@ class ConnectionThread(threading.Thread):
                 pass
             return
 
-        print(f"[WS] Handshake desde {self.addr} client_id={client_id} subprotocols_ofrecidos={saw_proto!r}")
+        _debug_log(f"[WS] Handshake desde {self.addr} client_id={client_id} subprotocols_ofrecidos={saw_proto!r}")
 
         accept_src = (key + MAGIC_WS).encode('utf-8')
         digest = sha1(accept_src)
@@ -1629,9 +1635,9 @@ class ConnectionThread(threading.Thread):
                 "subprotocol": subprotocol
             }).encode('utf-8')
             self.conn.sendall(make_ws_frame_bytes(1, welcome))
-            print(f"[WS] Enviado mensaje welcome a {client_id}")
+            _debug_log(f"[WS] Enviado mensaje welcome a {client_id}")
         except Exception as e:
-            print(f"[WS] Error enviando welcome a {client_id}: {e}")
+            _debug_log(f"[WS] Error enviando welcome a {client_id}: {e}")
 
         fragmented_msg_opcode = None
         fragmented_parts = []
@@ -1639,32 +1645,32 @@ class ConnectionThread(threading.Thread):
             while True:
                 fin, opcode, payload, masked, mask = read_ws_frame_raw(self.conn)
                 plen = len(payload)
-                print(f"[WS RECV] cid={client_id} opcode={opcode} fin={fin} masked={masked} len={plen}")
+                _debug_log(f"[WS RECV] cid={client_id} opcode={opcode} fin={fin} masked={masked} len={plen}")
 
                 if opcode == 0x8:
                     code, reason = parse_close_payload(payload)
-                    print(f"[WS CLOSE] cid={client_id} code={code} reason={reason!r}")
+                    _debug_log(f"[WS CLOSE] cid={client_id} code={code} reason={reason!r}")
                     try:
                         close_payload = payload if payload else b''
                         self.conn.sendall(make_ws_frame_bytes(0x8, close_payload))
                     except Exception as e:
-                        print(f"[WS] Error respondiendo CLOSE a {client_id}: {e}")
+                        _debug_log(f"[WS] Error respondiendo CLOSE a {client_id}: {e}")
                     break
                 elif opcode == 0x9:
-                    print(f"[WS PING] cid={client_id} len={plen}")
+                    _debug_log(f"[WS PING] cid={client_id} len={plen}")
                     try:
                         self.conn.sendall(make_ws_frame_bytes(0xA, payload))
-                        print(f"[WS PONG] enviado a cid={client_id}")
+                        _debug_log(f"[WS PONG] enviado a cid={client_id}")
                     except Exception as e:
-                        print(f"[WS] Error enviando PONG a {client_id}: {e}")
+                        _debug_log(f"[WS] Error enviando PONG a {client_id}: {e}")
                     continue
                 elif opcode == 0xA:
-                    print(f"[WS PONG RECV] cid={client_id} len={plen}")
+                    _debug_log(f"[WS PONG RECV] cid={client_id} len={plen}")
                     continue
 
                 if opcode == 0x0:
                     if fragmented_msg_opcode is None:
-                        print(f"[WS] CONTINUATION sin inicio previo en cid={client_id}, descartando fragmentos")
+                        _debug_log(f"[WS] CONTINUATION sin inicio previo en cid={client_id}, descartando fragmentos")
                         fragmented_parts = []
                         fragmented_msg_opcode = None
                         continue
@@ -1676,37 +1682,37 @@ class ConnectionThread(threading.Thread):
                                 text = full.decode('utf-8', errors='ignore')
                             except Exception:
                                 text = ''
-                            print(f"[WS TEXT FRAG COMPLETO] cid={client_id} text={text[:120]!r}")
+                            _debug_log(f"[WS TEXT FRAG COMPLETO] cid={client_id} text={text[:120]!r}")
                             self._handle_text_message(client_id, text, fragmented=True)
                         elif fragmented_msg_opcode == 2:
-                            print(f"[WS BIN FRAG COMPLETO] cid={client_id} len={len(full)}")
+                            _debug_log(f"[WS BIN FRAG COMPLETO] cid={client_id} len={len(full)}")
                             prefix = b"BIN ECHO:"
                             self.conn.sendall(make_ws_frame_bytes(2, prefix + full))
                         fragmented_parts = []
                         fragmented_msg_opcode = None
                     else:
-                        print(f"[WS] CONTINUATION (parte intermedia) cid={client_id} len_parte={plen}")
+                        _debug_log(f"[WS] CONTINUATION (parte intermedia) cid={client_id} len_parte={plen}")
                 elif opcode == 0x1 or opcode == 0x2:
                     if fin:
                         if opcode == 0x1:
                             text = payload.decode('utf-8', errors='ignore')
-                            print(f"[WS TEXT] cid={client_id} text={text[:200]!r}")
+                            _debug_log(f"[WS TEXT] cid={client_id} text={text[:200]!r}")
                             self._handle_text_message(client_id, text, fragmented=False)
                         else:
-                            print(f"[WS BIN] cid={client_id} len={plen}")
+                            _debug_log(f"[WS BIN] cid={client_id} len={plen}")
                             prefix = b"BIN ECHO:"
                             self.conn.sendall(make_ws_frame_bytes(2, prefix + payload))
                     else:
                         fragmented_msg_opcode = opcode
                         fragmented_parts = [payload]
-                        print(f"[WS] Inicio de mensaje fragmentado cid={client_id} opcode={opcode} len={plen}")
+                        _debug_log(f"[WS] Inicio de mensaje fragmentado cid={client_id} opcode={opcode} len={plen}")
                 else:
-                    print(f"[WS] Opcode reservado/no soportado {opcode} en cid={client_id}, ignorando.")
+                    _debug_log(f"[WS] Opcode reservado/no soportado {opcode} en cid={client_id}, ignorando.")
                     continue
         except ConnectionError:
-            print(f"[WS] ConnectionError en cid={client_id}")
+            _debug_log(f"[WS] ConnectionError en cid={client_id}")
         except Exception as e:
-            print(f"[WS] Excepción en loop de cid={client_id}: {e}")
+            _debug_log(f"[WS] Excepción en loop de cid={client_id}: {e}")
         finally:
             self.registry.unregister_client(client_id)
             try:
@@ -1735,7 +1741,7 @@ class ConnectionThread(threading.Thread):
         try:
             self.conn.sendall(make_ws_frame_bytes(1, reply.encode('utf-8')))
         except Exception as e:
-            print(f"[WS] Error enviando echo a cid={client_id}: {e}")
+            _debug_log(f"[WS] Error enviando echo a cid={client_id}: {e}")
 
 # ============================================================
 #  Servidor principal

@@ -29,7 +29,7 @@ def _as_float(value, default):
 HOST = str(_env("PORTHOUND_HOST", _env("HOST", "127.0.0.1"))).strip() or "127.0.0.1"
 PORT = _as_int(_env("PORTHOUND_PORT", _env("PORT", "45678")), 45678)
 SCAN_DB_PATH = str(_env("PORTHOUND_DB_PATH", "Standalone.db")).strip() or "Standalone.db"
-DEBUG = _as_bool(_env("PORTHOUND_DEBUG", "1"), default=True)
+DEBUG = _as_bool(_env("PORTHOUND_DEBUG", "0"), default=False)
 API_TOKEN = str(_env("PORTHOUND_API_TOKEN", "")).strip()
 API_REQUIRE_TOKEN = _as_bool(_env("PORTHOUND_API_REQUIRE_TOKEN", "0"), default=False)
 CORS_ALLOW_ORIGIN = str(_env("PORTHOUND_CORS_ALLOW_ORIGIN", "")).strip()

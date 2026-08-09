@@ -7,6 +7,7 @@ PortHound lee variables de entorno y unos pocos flags de CLI. En la rama publica
 - `PORTHOUND_DB_PATH` para cambiar la base de datos.
 - `PORTHOUND_API_TOKEN` para proteger rutas administrativas.
 - `PORTHOUND_API_REQUIRE_TOKEN` para exigir token incluso en loopback.
+- `PORTHOUND_DEBUG=1` para reactivar logs verbosos de WebSocket y base de datos cuando haga falta depurar.
 - `PORTHOUND_CORS_ALLOW_ORIGIN` para limitar CORS.
 - `PORTHOUND_DNS_RESOLVERS`, `PORTHOUND_DNS_TIMEOUT_SECONDS` y `PORTHOUND_DNS_USE_SYSTEM_RESOLVER` para resolver hosts.
 - `PORTHOUND_IP` para fijar la IP de salida en pruebas o scans.

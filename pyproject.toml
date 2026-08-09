@@ -1,6 +1,6 @@
 [project]
 name = "porthound"
-version = "1.0.4"
+version = "1.0.5"
 description = "PortHound new-generation network scanner built on wsbuilder."
 readme = "README.md"
 requires-python = ">=3.12"

@@ -16,6 +16,7 @@ import manage
 import master
 import server
 import utils
+import ws_demo
 
 
 class _MemorySocket:
@@ -956,6 +957,64 @@ class TestManageInteractiveFallback(unittest.TestCase):
             if len(call.args) >= 2
         )
         self.assertIn(b"generated-token", writes)
+
+    def test_ws_and_db_debug_logs_are_disabled_by_default(self):
+        with mock.patch.object(ws_demo.settings, "DEBUG", False), mock.patch(
+            "builtins.print"
+        ) as mocked_print:
+            db = ws_demo.Database(path=":memory:", shared_cache=True, timeout=0.1)
+            try:
+                registry = ws_demo.ClientRegistry()
+                registry.list_clients_info()
+                registry.broadcast(1, b"hello")
+                registry.register_client(
+                    "cid-1",
+                    _MemorySocket(),
+                    ("127.0.0.1", 45678),
+                    threading.current_thread(),
+                    "",
+                )
+                registry.unregister_client("cid-1")
+                db.get_pragma("foreign_keys")
+            finally:
+                db._conn.close()
+
+        printed = "\n".join(
+            " ".join(str(part) for part in call.args)
+            for call in mocked_print.call_args_list
+            if call.args
+        )
+        self.assertNotIn("[DB]", printed)
+        self.assertNotIn("[WS]", printed)
+
+    def test_ws_and_db_debug_logs_can_be_reenabled_explicitly(self):
+        with mock.patch.object(ws_demo.settings, "DEBUG", True), mock.patch(
+            "builtins.print"
+        ) as mocked_print:
+            db = ws_demo.Database(path=":memory:", shared_cache=True, timeout=0.1)
+            try:
+                registry = ws_demo.ClientRegistry()
+                registry.list_clients_info()
+                registry.broadcast(1, b"hello")
+                registry.register_client(
+                    "cid-1",
+                    _MemorySocket(),
+                    ("127.0.0.1", 45678),
+                    threading.current_thread(),
+                    "",
+                )
+                registry.unregister_client("cid-1")
+                db.get_pragma("foreign_keys")
+            finally:
+                db._conn.close()
+
+        printed = "\n".join(
+            " ".join(str(part) for part in call.args)
+            for call in mocked_print.call_args_list
+            if call.args
+        )
+        self.assertIn("[DB]", printed)
+        self.assertIn("[WS]", printed)
 
     def test_frontend_security_dispatch_rejects_protected_api_without_code(self):
         request = framework.Request(

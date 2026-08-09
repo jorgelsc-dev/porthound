@@ -5,7 +5,9 @@ All notable changes to this project will be documented in this file.
 The format is based on Keep a Changelog and this project adheres to Semantic Versioning.
 
 ## [Unreleased]
-- Prepare `1.0.4` for the isolated Debian runtime venv flow.
+- Prepare `1.0.5` with quieter default runtime logs.
+- Disable verbose `[WS]` and `[DB]` console logging by default; re-enable it only with `PORTHOUND_DEBUG=1`.
+- Keep the isolated Debian runtime venv flow introduced in `1.0.4`.
 - Create `/usr/lib/porthound/venv` during Debian install and update so PortHound keeps its Python runtime outside the system environment.
 - Bundle a local wheelhouse in the `.deb` and install dependencies into the app venv without hitting PyPI during `dpkg` or `apt`.
 - Follow the latest published `wsbuilder` release instead of pinning a narrow version range.

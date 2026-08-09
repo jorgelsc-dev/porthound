@@ -195,6 +195,7 @@ Comportamientos comunes:
 - `PORTHOUND_API_TOKEN` se envia por `Authorization: Bearer` o `X-API-Key` en HTTP.
 - El handshake de WebSocket acepta `security_code` en la query para abrir `/ws/`.
 - `PORTHOUND_API_REQUIRE_TOKEN=1` queda activo junto con `PORTHOUND_API_TOKEN`.
+- `PORTHOUND_DEBUG=1` reactiva los logs verbosos de `[WS]` y `[DB]` cuando necesites depurar.
 - `PORTHOUND_CORS_ALLOW_ORIGIN` define el origen permitido para CORS.
 - Si el navegador entra por loopback pero el `Origin` no es loopback, el backend tambien bloquea las acciones administrativas.
 - `PORTHOUND_TLS_ENABLED=0` es el valor por defecto del launcher standalone.
