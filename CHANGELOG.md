@@ -5,10 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on Keep a Changelog and this project adheres to Semantic Versioning.
 
 ## [Unreleased]
-- Prepare `1.0.3` for the Debian-only package flow after removing the legacy PyPI layout.
+- Prepare `1.0.4` for the isolated Debian runtime venv flow.
+- Create `/usr/lib/porthound/venv` during Debian install and update so PortHound keeps its Python runtime outside the system environment.
+- Bundle a local wheelhouse in the `.deb` and install dependencies into the app venv without hitting PyPI during `dpkg` or `apt`.
+- Follow the latest published `wsbuilder` release instead of pinning a narrow version range.
 - Restore `FrontendSecurityPolicy` compatibility with the `wsbuilder` response hook contract.
-- Update `wsbuilder` requirement to `>=0.25.7,<0.26.0`.
-- Package the `porthound` module entry point and frontend bundle for normal PyPI installs.
 - Stop background workers cleanly on the first `Ctrl+C`.
 - Expose all Vue views in navigation and add a Security/Agents console.
 

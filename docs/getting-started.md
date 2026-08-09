@@ -5,7 +5,7 @@ PortHound se distribuye como paquete Debian y tambien puede ejecutarse directame
 ## Requisitos
 
 - Python 3.12 o superior.
-- `wsbuilder>=0.18.4,<0.19.0`.
+- La ultima version publicada de `wsbuilder`.
 
 ## Instalacion
 
@@ -37,7 +37,8 @@ porthound
 Notas:
 
 - Si `frontend/dist` no existe, el build Debian ejecuta `npm ci && npm run build`.
-- El paquete incluye el codigo Python de PortHound y vendorea sus dependencias.
+- El paquete incluye una wheelhouse local y crea `/usr/lib/porthound/venv` durante la instalacion o actualizacion.
+- `porthound` se ejecuta desde ese `venv`, asi que no instala dependencias en el Python global del sistema.
 - La pestaña `Packages` de GitHub puede seguir vacia; el `.deb` se distribuye desde `Releases`.
 
 ### Desde el repositorio
@@ -46,7 +47,7 @@ Notas:
 python3 -m venv .venv
 . .venv/bin/activate
 python -m pip install --upgrade pip
-python -m pip install -r requirements.txt
+python -m pip install --upgrade -r requirements.txt
 python -m porthound
 ```
 

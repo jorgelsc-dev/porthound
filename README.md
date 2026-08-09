@@ -43,7 +43,7 @@ Reglas:
 ## Requisitos
 
 - Python 3.12 o superior.
-- `wsbuilder>=0.18.4,<0.19.0`.
+- La ultima version publicada de `wsbuilder`.
 - Acceso local al puerto HTTP configurado (por defecto `127.0.0.1:45678`).
 
 ## Instalacion
@@ -97,7 +97,8 @@ sudo apt install /tmp/porthound-release/*.deb
 Notas:
 
 - Si `frontend/dist` no existe, el script ejecuta `npm ci && npm run build`.
-- El paquete incluye el codigo Python del proyecto y vendorea sus dependencias dentro del `.deb`.
+- El paquete incluye una wheelhouse local y crea `/usr/lib/porthound/venv` durante la instalacion o actualizacion.
+- `porthound` se ejecuta desde ese `venv`, asi que no instala `wsbuilder` ni otras dependencias dentro del Python global del sistema.
 - Esta es la ruta soportada para distribucion binaria.
 - El `.sha256` del mismo release permite verificar integridad antes de instalar.
 
@@ -107,7 +108,7 @@ Notas:
 python3 -m venv .venv
 . .venv/bin/activate
 python -m pip install --upgrade pip
-python -m pip install -r requirements.txt
+python -m pip install --upgrade -r requirements.txt
 python -m porthound
 ```
 

@@ -43,7 +43,7 @@ PACKAGE_BASENAME="${PACKAGE_NAME}_${VERSION}-${REVISION}_${ARCHITECTURE}"
 STAGE_DIR="${WORK_DIR}/${PACKAGE_BASENAME}"
 PKGROOT="${STAGE_DIR}/pkgroot"
 APP_ROOT="${PKGROOT}/usr/lib/${PACKAGE_NAME}/app"
-VENDOR_ROOT="${PKGROOT}/usr/lib/${PACKAGE_NAME}/vendor"
+WHEELHOUSE_ROOT="${PKGROOT}/usr/lib/${PACKAGE_NAME}/wheels"
 BIN_DIR="${PKGROOT}/usr/bin"
 DOC_DIR="${PKGROOT}/usr/share/doc/${PACKAGE_NAME}"
 CONTROL_DIR="${PKGROOT}/DEBIAN"
@@ -60,7 +60,7 @@ if [[ ! -d "${ROOT_DIR}/frontend/dist" ]]; then
 fi
 
 rm -rf "${STAGE_DIR}" "${DEB_FILE}" "${CHECKSUM_FILE}"
-mkdir -p "${APP_ROOT}" "${VENDOR_ROOT}" "${BIN_DIR}" "${DOC_DIR}" "${CONTROL_DIR}"
+mkdir -p "${APP_ROOT}" "${WHEELHOUSE_ROOT}" "${BIN_DIR}" "${DOC_DIR}" "${CONTROL_DIR}"
 
 python3 - <<'PY' "${ROOT_DIR}" "${APP_ROOT}"
 from __future__ import annotations
@@ -85,7 +85,7 @@ target_frontend_dist = app_root / "frontend" / "dist"
 target_frontend_dist.parent.mkdir(parents=True, exist_ok=True)
 shutil.copytree(frontend_dist, target_frontend_dist, ignore=ignore)
 
-for relative in ("README.md", "LICENSE", "CHANGELOG.md"):
+for relative in ("README.md", "LICENSE", "CHANGELOG.md", "requirements.txt"):
     source = root / relative
     if source.exists():
         shutil.copy2(source, app_root / relative)
@@ -100,14 +100,19 @@ mapfile -t PROJECT_DEPENDENCIES < <(
 )
 
 if (( ${#PROJECT_DEPENDENCIES[@]} > 0 )); then
-  python3 -m pip install --no-compile --target "${VENDOR_ROOT}" "${PROJECT_DEPENDENCIES[@]}"
+  python3 -m pip wheel --no-cache-dir --wheel-dir "${WHEELHOUSE_ROOT}" "${PROJECT_DEPENDENCIES[@]}"
 fi
 
 cat > "${BIN_DIR}/porthound" <<EOF
 #!/bin/sh
 set -eu
-export PYTHONPATH="/usr/lib/${PACKAGE_NAME}/vendor:/usr/lib/${PACKAGE_NAME}/app\${PYTHONPATH:+:\$PYTHONPATH}"
-exec /usr/bin/python3 /usr/lib/${PACKAGE_NAME}/app/manage.py "\$@"
+VENV_PYTHON="/usr/lib/${PACKAGE_NAME}/venv/bin/python"
+if [ ! -x "\${VENV_PYTHON}" ]; then
+  printf '%s\n' "PortHound runtime venv is missing. Reinstall with: sudo apt install --reinstall ${PACKAGE_NAME}" >&2
+  exit 1
+fi
+export PYTHONPATH="/usr/lib/${PACKAGE_NAME}/app\${PYTHONPATH:+:\$PYTHONPATH}"
+exec "\${VENV_PYTHON}" /usr/lib/${PACKAGE_NAME}/app/manage.py "\$@"
 EOF
 chmod 0755 "${BIN_DIR}/porthound"
 
@@ -125,7 +130,7 @@ Section: net
 Priority: optional
 Architecture: ${ARCHITECTURE}
 Maintainer: PortHound Authors
-Depends: python3 (>= 3.12)
+Depends: python3 (>= 3.12), python3-venv
 Installed-Size: ${INSTALLED_SIZE}
 Homepage: https://github.com/jorgelsc-dev/porthound
 Description: ${DESCRIPTION}
@@ -133,9 +138,50 @@ Description: ${DESCRIPTION}
 EOF
 chmod 0644 "${CONTROL_DIR}/control"
 
+cat > "${CONTROL_DIR}/postinst" <<EOF
+#!/bin/sh
+set -eu
+
+APP_ROOT="/usr/lib/${PACKAGE_NAME}/app"
+VENV_ROOT="/usr/lib/${PACKAGE_NAME}/venv"
+WHEELHOUSE_ROOT="/usr/lib/${PACKAGE_NAME}/wheels"
+
+case "\${1:-configure}" in
+  configure)
+    rm -rf "\${VENV_ROOT}"
+    /usr/bin/python3 -m venv "\${VENV_ROOT}"
+    "\${VENV_ROOT}/bin/python" -m pip install \
+      --disable-pip-version-check \
+      --no-cache-dir \
+      --no-index \
+      --find-links "\${WHEELHOUSE_ROOT}" \
+      --upgrade \
+      -r "\${APP_ROOT}/requirements.txt"
+    ;;
+esac
+
+exit 0
+EOF
+chmod 0755 "${CONTROL_DIR}/postinst"
+
+cat > "${CONTROL_DIR}/postrm" <<EOF
+#!/bin/sh
+set -eu
+
+case "\${1:-remove}" in
+  remove|purge)
+    rm -rf "/usr/lib/${PACKAGE_NAME}/venv"
+    ;;
+esac
+
+exit 0
+EOF
+chmod 0755 "${CONTROL_DIR}/postrm"
+
 find "${PKGROOT}" -type d -exec chmod 0755 {} +
 find "${PKGROOT}" -type f ! -path "${BIN_DIR}/porthound" -exec chmod 0644 {} +
 chmod 0755 "${BIN_DIR}/porthound"
+chmod 0755 "${CONTROL_DIR}/postinst" "${CONTROL_DIR}/postrm"
 
 dpkg-deb --root-owner-group --build "${PKGROOT}" "${DEB_FILE}"
 sha256sum "${DEB_FILE}" > "${CHECKSUM_FILE}"
