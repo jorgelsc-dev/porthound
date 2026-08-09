@@ -977,6 +977,21 @@ class TestManageInteractiveFallback(unittest.TestCase):
     def test_frontend_security_dispatch_allows_matching_query_code(self):
         request = framework.Request(
             method="GET",
+            path="/ws/",
+            query_string="security_code=security-code",
+            headers={"upgrade": "websocket"},
+            body=b"",
+            client=("127.0.0.1", 0),
+        )
+        with mock.patch.object(app.settings, "API_TOKEN", "security-code"), mock.patch.object(
+            app.settings, "API_REQUIRE_TOKEN", True
+        ):
+            decision = app.app.security.evaluate(request)
+        self.assertTrue(decision.allowed)
+
+    def test_frontend_security_dispatch_rejects_http_query_code(self):
+        request = framework.Request(
+            method="GET",
             path="/targets/",
             query_string="security_code=security-code",
             headers={},
@@ -985,11 +1000,11 @@ class TestManageInteractiveFallback(unittest.TestCase):
         )
         with mock.patch.object(app.settings, "API_TOKEN", "security-code"), mock.patch.object(
             app.settings, "API_REQUIRE_TOKEN", True
-        ), mock.patch.object(app.scan_db, "select_targets", return_value=[]):
+        ):
             response = app.app.dispatch(request)
-        self.assertEqual(response.status, 200)
+        self.assertEqual(response.status, 401)
         payload = json.loads(response.body.decode("utf-8"))
-        self.assertEqual(payload["datas"], [])
+        self.assertIn("Security code required", payload["message"])
 
     def test_frontend_security_allows_html_shell_without_code(self):
         request = framework.Request(

@@ -4318,7 +4318,16 @@ def _is_loopback_client(request):
         return raw_ip in {"localhost"}
 
 
-def _extract_request_token(request):
+def _extract_request_query_token(request):
+    query = getattr(request, "query", {}) or {}
+    for key in ("security_code", "securityCode", "api_token", "token"):
+        value = str(query.get(key, "") or "").strip()
+        if value:
+            return value
+    return ""
+
+
+def _extract_request_token(request, *, allow_query=False):
     headers = getattr(request, "headers", {}) or {}
     auth = str(
         headers.get("authorization", "")
@@ -4329,11 +4338,8 @@ def _extract_request_token(request):
     header_token = str(headers.get("x-api-key", "") or headers.get("X-API-Key", "")).strip()
     if header_token:
         return header_token
-    query = getattr(request, "query", {}) or {}
-    for key in ("security_code", "securityCode", "api_token", "token"):
-        value = str(query.get(key, "") or "").strip()
-        if value:
-            return value
+    if allow_query:
+        return _extract_request_query_token(request)
     return ""
 
 
@@ -4365,6 +4371,11 @@ def _request_path(request):
     return str(getattr(request, "path", "") or "").strip() or "/"
 
 
+def _is_websocket_upgrade(request):
+    headers = getattr(request, "headers", {}) or {}
+    return str(headers.get("upgrade", "") or headers.get("Upgrade", "")).strip().lower() == "websocket"
+
+
 def is_frontend_security_protected_request(request):
     path = _request_path(request)
     if path in FRONTEND_SECURITY_EXEMPT_PATHS:
@@ -4378,7 +4389,7 @@ def is_frontend_security_protected_request(request):
     return any(path.startswith(prefix) for prefix in FRONTEND_SECURITY_PROTECTED_PREFIXES)
 
 
-def require_frontend_access(request):
+def require_frontend_access(request, *, allow_query=False):
     if not is_frontend_security_protected_request(request):
         return None
 
@@ -4386,7 +4397,7 @@ def require_frontend_access(request):
     require_token = bool(getattr(settings, "API_REQUIRE_TOKEN", False))
 
     if configured_token:
-        provided_token = _extract_request_token(request)
+        provided_token = _extract_request_token(request, allow_query=allow_query)
         if provided_token and hmac.compare_digest(provided_token, configured_token):
             return None
         return json_error(FRONTEND_SECURITY_REQUIRED_MESSAGE, status=401)
@@ -4398,7 +4409,7 @@ def require_frontend_access(request):
 
 class FrontendSecurityPolicy:
     def evaluate(self, request):
-        denial = require_frontend_access(request)
+        denial = require_frontend_access(request, allow_query=_is_websocket_upgrade(request))
         if denial is None:
             return SecurityDecision(
                 allowed=True,
@@ -7241,7 +7252,7 @@ def _handle_text_message(ws, client_id, text, fragmented=False, example=False):
 
 @app.ws("/ws/")
 def ws_handler(ws, request):
-    frontend_access_error = require_frontend_access(request)
+    frontend_access_error = require_frontend_access(request, allow_query=True)
     if frontend_access_error:
         try:
             _send_ws_json(

@@ -107,7 +107,7 @@ Valores por defecto:
 
 - UI/API: `http://127.0.0.1:45678`
 - Al arrancar, PortHound imprime un codigo de seguridad en la terminal.
-- Abre el chip `Auth`, pegalo y la UI lo guardara en `localStorage` para reutilizarlo en API y WebSocket.
+- Abre el chip `Auth`, pegalo y la UI lo guardara en `sessionStorage` para reutilizarlo en API y WebSocket durante esa sesion del navegador.
 
 ## Ejecucion
 
@@ -148,7 +148,7 @@ Valores por defecto:
 - WebSocket: `ws://HOST:PORT/ws/`
 - HTTP API: disponible desde el mismo servidor.
 - La API controla scans y vistas de estado locales.
-- El chip `Auth` de la barra superior guarda el codigo de seguridad en `localStorage`, lo reenvia
+- El chip `Auth` de la barra superior guarda el codigo de seguridad en `sessionStorage`, lo reenvia
   como `Authorization: Bearer` y tambien lo adjunta al handshake de WebSocket.
 
 Comportamientos comunes:
@@ -161,7 +161,8 @@ Comportamientos comunes:
 
 - `manage.py` genera un codigo de seguridad al arrancar y lo imprime en la terminal.
 - Sin un codigo valido, la UI no puede hablar con la API ni abrir WebSocket.
-- `PORTHOUND_API_TOKEN` se envia por `Authorization: Bearer`, `X-API-Key` o `security_code` en el WebSocket.
+- `PORTHOUND_API_TOKEN` se envia por `Authorization: Bearer` o `X-API-Key` en HTTP.
+- El handshake de WebSocket acepta `security_code` en la query para abrir `/ws/`.
 - `PORTHOUND_API_REQUIRE_TOKEN=1` queda activo junto con `PORTHOUND_API_TOKEN`.
 - `PORTHOUND_CORS_ALLOW_ORIGIN` define el origen permitido para CORS.
 - Si el navegador entra por loopback pero el `Origin` no es loopback, el backend tambien bloquea las acciones administrativas.

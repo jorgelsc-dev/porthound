@@ -22,8 +22,8 @@
     <v-row density="comfortable">
       <v-col cols="12" lg="7">
         <DataPanel
-          title="Browser Storage"
-          subtitle="The security code is stored in localStorage for this browser."
+          title="Browser Session"
+          subtitle="The security code is stored in sessionStorage for this browser tab."
           :loading="loading"
           :error="accessError"
           :last-updated="lastUpdated"
@@ -44,7 +44,7 @@
             </div>
             <div class="security-metric">
               <span>Storage</span>
-              <strong>Local</strong>
+              <strong>Session</strong>
             </div>
           </div>
 

@@ -12,6 +12,7 @@ const state = reactive({
 const STORAGE_KEY_API = "porthound.apiBase";
 const STORAGE_KEY_AUTH = "porthound.securityCode";
 const LEGACY_STORAGE_KEY_AUTH = "porthound.apiToken";
+const LEGACY_STORAGE_KEY_AUTH_LOCAL = "porthound.securityCode";
 const WS_RECONNECT_DELAY_MS = 1800;
 const WS_REFRESH_THROTTLE_MS = 800;
 const WS_AUTO_TABLE_REFRESH_ENABLED = false;
@@ -85,53 +86,62 @@ function setApiBase(value) {
 }
 
 function readStoredAuthToken() {
-  if (typeof window === "undefined") {
+  if (typeof window === "undefined" || !window.sessionStorage) {
     return "";
   }
   const localStorageRef = window.localStorage || null;
-  const sessionStorageRef = window.sessionStorage || null;
-  const storedCode = localStorageRef
-    ? String(localStorageRef.getItem(STORAGE_KEY_AUTH) || "").trim()
-    : "";
+  const sessionStorageRef = window.sessionStorage;
+  const storedCode = String(sessionStorageRef.getItem(STORAGE_KEY_AUTH) || "").trim();
   if (storedCode) {
+    if (localStorageRef) {
+      localStorageRef.removeItem(STORAGE_KEY_AUTH);
+      localStorageRef.removeItem(LEGACY_STORAGE_KEY_AUTH);
+      localStorageRef.removeItem(LEGACY_STORAGE_KEY_AUTH_LOCAL);
+    }
     return storedCode;
   }
-  const legacyLocal = localStorageRef
-    ? String(localStorageRef.getItem(LEGACY_STORAGE_KEY_AUTH) || "").trim()
-    : "";
-  if (legacyLocal) {
-    localStorageRef.removeItem(LEGACY_STORAGE_KEY_AUTH);
-    localStorageRef.setItem(STORAGE_KEY_AUTH, legacyLocal);
-    return legacyLocal;
-  }
-  const legacySession = sessionStorageRef
-    ? String(sessionStorageRef.getItem(LEGACY_STORAGE_KEY_AUTH) || "").trim()
-    : "";
-  if (legacySession && localStorageRef) {
-    localStorageRef.setItem(STORAGE_KEY_AUTH, legacySession);
+  const legacySession = String(sessionStorageRef.getItem(LEGACY_STORAGE_KEY_AUTH) || "").trim();
+  if (legacySession) {
     sessionStorageRef.removeItem(LEGACY_STORAGE_KEY_AUTH);
+    sessionStorageRef.setItem(STORAGE_KEY_AUTH, legacySession);
+    if (localStorageRef) {
+      localStorageRef.removeItem(STORAGE_KEY_AUTH);
+      localStorageRef.removeItem(LEGACY_STORAGE_KEY_AUTH);
+      localStorageRef.removeItem(LEGACY_STORAGE_KEY_AUTH_LOCAL);
+    }
     return legacySession;
   }
-  return legacySession;
+  if (localStorageRef) {
+    localStorageRef.removeItem(STORAGE_KEY_AUTH);
+    localStorageRef.removeItem(LEGACY_STORAGE_KEY_AUTH);
+    localStorageRef.removeItem(LEGACY_STORAGE_KEY_AUTH_LOCAL);
+  }
+  return "";
 }
 
 function persistAuthToken(token) {
-  if (typeof window === "undefined" || !window.localStorage) {
+  if (typeof window === "undefined" || !window.sessionStorage) {
     return;
   }
+  const sessionStorageRef = window.sessionStorage;
+  const localStorageRef = window.localStorage || null;
   if (token) {
-    window.localStorage.setItem(STORAGE_KEY_AUTH, token);
-    if (window.sessionStorage) {
-      window.sessionStorage.removeItem(LEGACY_STORAGE_KEY_AUTH);
+    sessionStorageRef.setItem(STORAGE_KEY_AUTH, token);
+    sessionStorageRef.removeItem(LEGACY_STORAGE_KEY_AUTH);
+    if (localStorageRef) {
+      localStorageRef.removeItem(STORAGE_KEY_AUTH);
+      localStorageRef.removeItem(LEGACY_STORAGE_KEY_AUTH);
+      localStorageRef.removeItem(LEGACY_STORAGE_KEY_AUTH_LOCAL);
     }
-    window.localStorage.removeItem(LEGACY_STORAGE_KEY_AUTH);
     return;
   }
-  window.localStorage.removeItem(STORAGE_KEY_AUTH);
-  if (window.sessionStorage) {
-    window.sessionStorage.removeItem(LEGACY_STORAGE_KEY_AUTH);
+  sessionStorageRef.removeItem(STORAGE_KEY_AUTH);
+  sessionStorageRef.removeItem(LEGACY_STORAGE_KEY_AUTH);
+  if (localStorageRef) {
+    localStorageRef.removeItem(STORAGE_KEY_AUTH);
+    localStorageRef.removeItem(LEGACY_STORAGE_KEY_AUTH);
+    localStorageRef.removeItem(LEGACY_STORAGE_KEY_AUTH_LOCAL);
   }
-  window.localStorage.removeItem(LEGACY_STORAGE_KEY_AUTH);
 }
 
 function setAuthToken(token, nextStatus = null) {

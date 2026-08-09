@@ -68,7 +68,7 @@ python -m porthound --db-path Standalone.db
 
 ## Codigo de seguridad
 
-Cuando `PORTHOUND_API_TOKEN` esta configurado, la UI envia el codigo como `Authorization: Bearer` o `X-API-Key`. El valor se conserva en `localStorage` y tambien se adjunta al handshake de WebSocket.
+Cuando `PORTHOUND_API_TOKEN` esta configurado, la UI envia el codigo como `Authorization: Bearer` o `X-API-Key`. El valor se conserva en `sessionStorage` y tambien se adjunta al handshake de WebSocket.
 
 Si el backend responde `401`, el dialogo de autenticacion se abre de nuevo para que puedas corregir o limpiar el codigo.
 

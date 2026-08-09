@@ -27,6 +27,6 @@ PortHound se usa desde una SPA Vue 3 + Vuetify. La barra superior muestra el est
 ## Estado local
 
 - `apiBase` se guarda en `localStorage`.
-- `authToken` se guarda en `localStorage`.
+- `authToken` se guarda en `sessionStorage`.
 - `wsStatus` cambia en tiempo real.
 - `authStatus` pasa por `open`, `saved`, `checking`, `required` y `authenticated`.
