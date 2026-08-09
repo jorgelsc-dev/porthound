@@ -939,24 +939,16 @@ class TestManageInteractiveFallback(unittest.TestCase):
         with mock.patch.object(manage, "environ", fake_env), mock.patch(
             "manage.secrets.token_urlsafe",
             return_value="generated-token",
-        ), mock.patch("builtins.print") as mocked_print, mock.patch.object(
-            manage.os,
-            "open",
-            side_effect=OSError("no tty"),
-        ), mock.patch.object(manage.os, "write") as mocked_write:
+        ):
             token = manage.ensure_api_access_token()
 
         self.assertEqual(token, "generated-token")
         self.assertEqual(fake_env["PORTHOUND_API_TOKEN"], "generated-token")
         self.assertEqual(fake_env["PORTHOUND_API_REQUIRE_TOKEN"], "1")
-        printed = "\n".join(str(call.args[0]) for call in mocked_print.call_args_list if call.args)
-        self.assertIn("PortHound frontend security code", printed)
-        writes = b"".join(
-            bytes(call.args[1])
-            for call in mocked_write.call_args_list
-            if len(call.args) >= 2
-        )
-        self.assertIn(b"generated-token", writes)
+        banner = manage.render_startup_banner(token, "127.0.0.1", 45678)
+        self.assertIn("generated-token", banner)
+        self.assertIn("http://127.0.0.1:45678/", banner)
+        self.assertIn("Press Ctrl+C to stop", banner)
 
     def test_ws_and_db_debug_logs_are_disabled_by_default(self):
         with mock.patch.object(ws_demo.settings, "DEBUG", False), mock.patch(
@@ -1032,6 +1024,43 @@ class TestManageInteractiveFallback(unittest.TestCase):
         self.assertEqual(response.status, 401)
         payload = json.loads(response.body.decode("utf-8"))
         self.assertIn("Security code required", payload["message"])
+
+    def test_api_runtime_shutdown_requires_admin_access(self):
+        request = framework.Request(
+            method="POST",
+            path="/api/runtime/shutdown",
+            query_string="",
+            headers={},
+            body=b"{}",
+            client=("198.51.100.10", 0),
+        )
+        with mock.patch.object(app.settings, "API_TOKEN", ""), mock.patch.object(
+            app.settings, "API_REQUIRE_TOKEN", False
+        ):
+            response = app.api_runtime_shutdown(request)
+        self.assertEqual(response.status, 403)
+
+    def test_api_runtime_shutdown_schedules_graceful_stop(self):
+        request = framework.Request(
+            method="POST",
+            path="/api/runtime/shutdown",
+            query_string="",
+            headers={"authorization": "Bearer security-code"},
+            body=b"{}",
+            client=("127.0.0.1", 0),
+        )
+        with mock.patch.object(app.settings, "API_TOKEN", "security-code"), mock.patch.object(
+            app.settings, "API_REQUIRE_TOKEN", True
+        ), mock.patch.object(
+            app, "request_runtime_shutdown", return_value=(True, "PortHound shutdown scheduled.")
+        ) as mocked_shutdown:
+            response = app.api_runtime_shutdown(request)
+        self.assertEqual(response.status, 202)
+        payload = json.loads(response.body.decode("utf-8"))
+        self.assertEqual(payload["status"], "ok")
+        self.assertTrue(payload["scheduled"])
+        self.assertIn("shutdown", payload["message"].lower())
+        mocked_shutdown.assert_called_once_with(source="frontend")
 
     def test_frontend_security_dispatch_allows_matching_query_code(self):
         request = framework.Request(

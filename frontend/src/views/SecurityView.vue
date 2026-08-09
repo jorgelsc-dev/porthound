@@ -84,6 +84,37 @@
             </div>
           </div>
         </DataPanel>
+
+        <DataPanel
+          title="Runtime Control"
+          subtitle="Stop the local PortHound process from this authenticated browser tab."
+          :show-refresh="false"
+          class="mt-4"
+        >
+          <v-alert type="warning" variant="tonal" class="mb-4">
+            This sends a graceful shutdown request to the local backend and disconnects the current UI session.
+          </v-alert>
+
+          <div class="row-actions">
+            <v-btn
+              color="error"
+              variant="flat"
+              prepend-icon="mdi-power"
+              :loading="shutdownLoading"
+              :disabled="!hasToken || shutdownRequested"
+              @click="requestShutdown"
+            >
+              Stop PortHound
+            </v-btn>
+          </div>
+
+          <div v-if="shutdownMessage" class="shutdown-note mt-3">
+            {{ shutdownMessage }}
+          </div>
+          <div v-if="shutdownError" class="shutdown-error mt-3">
+            {{ shutdownError }}
+          </div>
+        </DataPanel>
       </v-col>
     </v-row>
   </div>
@@ -106,6 +137,10 @@ export default {
       loading: false,
       accessError: "",
       lastUpdated: "",
+      shutdownLoading: false,
+      shutdownRequested: false,
+      shutdownMessage: "",
+      shutdownError: "",
     };
   },
   computed: {
@@ -148,6 +183,30 @@ export default {
         })
         .finally(() => {
           this.loading = false;
+        });
+    },
+    requestShutdown() {
+      if (this.shutdownLoading || this.shutdownRequested) return;
+      this.shutdownError = "";
+      const confirmed =
+        typeof window === "undefined"
+          ? true
+          : window.confirm("Stop PortHound on this machine now?");
+      if (!confirmed) return;
+      this.shutdownLoading = true;
+      return this.store
+        .requestRuntimeShutdown()
+        .then((payload) => {
+          this.shutdownRequested = true;
+          this.shutdownMessage =
+            String((payload && payload.message) || "PortHound shutdown scheduled.").trim() ||
+            "PortHound shutdown scheduled.";
+        })
+        .catch((err) => {
+          this.shutdownError = err.message || "Unable to stop PortHound";
+        })
+        .finally(() => {
+          this.shutdownLoading = false;
         });
     },
   },
@@ -214,6 +273,16 @@ export default {
 .terminal-token-note span {
   margin-top: 4px;
   color: var(--text-dim);
+  line-height: 1.45;
+}
+
+.shutdown-note {
+  color: rgba(214, 228, 226, 0.92);
+  line-height: 1.45;
+}
+
+.shutdown-error {
+  color: rgb(255, 167, 167);
   line-height: 1.45;
 }
 

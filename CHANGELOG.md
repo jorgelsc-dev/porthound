@@ -5,7 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on Keep a Changelog and this project adheres to Semantic Versioning.
 
 ## [Unreleased]
-- Prepare `1.0.5` with quieter default runtime logs.
+- Prepare `1.0.6` with startup UX and runtime controls improvements.
+- Print a compact startup banner with the local URL, security code and shutdown hint.
+- Add a protected `/api/runtime/shutdown` endpoint and a frontend control to stop the local PortHound process from the web UI.
+- Keep `1.0.5` quieter default runtime logs.
 - Disable verbose `[WS]` and `[DB]` console logging by default; re-enable it only with `PORTHOUND_DEBUG=1`.
 - Keep the isolated Debian runtime venv flow introduced in `1.0.4`.
 - Create `/usr/lib/porthound/venv` during Debian install and update so PortHound keeps its Python runtime outside the system environment.

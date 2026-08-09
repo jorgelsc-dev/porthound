@@ -19,6 +19,7 @@ from pathlib import Path
 from urllib.parse import urlsplit
 import settings
 from wsbuilder import Response, parse_close_payload
+from wsbuilder.server import HTTPServer as WSBuilderHTTPServer
 from wsbuilder.security import SecurityDecision
 
 from porthound.paths import resolve_frontend_dist_dir
@@ -3958,6 +3959,7 @@ API_ENDPOINTS = [
     {"method": "GET", "path": "/api/ip/domains/?ip=<ipv4>", "desc": "Discover domains associated with an IPv4 target."},
     {"method": "GET", "path": "/api/ip/ttl-path/?ip=<ipv4>", "desc": "Estimate hop count and intermediate devices with TTL."},
     {"method": "GET", "path": "/api/ip/intel/?ip=<ipv4>", "desc": "Combined IP intel (domains + TTL path + host profile with HTTP/TLS metrics)."},
+    {"method": "POST", "path": "/api/runtime/shutdown", "desc": "Gracefully stop the local PortHound process."},
     {"method": "GET", "path": "/api/ws/clients", "desc": "List WS clients."},
     {"method": "POST", "path": "/api/ws/broadcast", "desc": "Broadcast WS message."},
     {"method": "POST", "path": "/api/ws/ping", "desc": "Ping WS clients."},
@@ -3985,8 +3987,86 @@ _agent_mode_runtime_last_error = ""
 _agent_mode_runtime = None
 _runtime_shutdown_lock = threading.Lock()
 _runtime_shutdown_started = False
+_runtime_server_lock = threading.Lock()
+_runtime_server = None
+_runtime_server_stop_requested = False
 inline_ca_lock = threading.Lock()
 inline_ca_tempfile_path = ""
+
+
+class RuntimeHTTPServer(WSBuilderHTTPServer):
+    def __init__(self, host, port, app, ssl_context=None):
+        super().__init__(host, port, app, ssl_context=ssl_context)
+        self._stop_event = threading.Event()
+
+    def request_shutdown(self):
+        self._stop_event.set()
+        sock = self._sock
+        if sock is None:
+            return
+        try:
+            sock.close()
+        except Exception:
+            pass
+
+    def serve_forever(self):
+        for hook in self.app.startup_hooks:
+            try:
+                hook()
+            except Exception as exc:
+                print(f"[startup] error: {exc}")
+
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        s.bind((self.host, self.port))
+        s.listen(128)
+        s.settimeout(self.ACCEPT_TIMEOUT_SECONDS)
+        self._sock = s
+        scheme = "https" if self.ssl_context else "http"
+        print(f"Server listening on {scheme}://{self.host}:{self.port}/")
+        worker_limiter = threading.BoundedSemaphore(self.MAX_CONNECTION_WORKERS)
+        interrupted = False
+        try:
+            while not self._stop_event.is_set():
+                try:
+                    conn, addr = s.accept()
+                except socket.timeout:
+                    continue
+                except OSError:
+                    if self._stop_event.is_set():
+                        break
+                    raise
+                acquired = worker_limiter.acquire(timeout=self.ACQUIRE_WORKER_TIMEOUT_SECONDS)
+                if not acquired:
+                    try:
+                        conn.close()
+                    except Exception:
+                        pass
+                    continue
+                t = threading.Thread(
+                    target=self._handle_conn_with_release,
+                    args=(conn, addr, worker_limiter),
+                    name=f"framework-http-{addr[0]}:{addr[1]}",
+                    daemon=True,
+                )
+                t.start()
+        except KeyboardInterrupt:
+            interrupted = True
+            self._stop_event.set()
+            print("\n[shutdown] interrupted by user (Ctrl+C). stopping server...")
+        finally:
+            self._sock = None
+            try:
+                s.close()
+            except Exception:
+                pass
+            try:
+                if hasattr(self.app, "close"):
+                    self.app.close()
+            except Exception as exc:
+                print(f"[shutdown] app.close() error: {exc}")
+            if interrupted or self._stop_event.is_set():
+                print("[shutdown] server stopped.")
 
 
 def start_scanners_for_db(db, thread_store=None):
@@ -4044,6 +4124,59 @@ def _stop_scanner_threads(thread_store, label):
         worker_name = str(getattr(thread, "name", "") or "").strip() or thread.__class__.__name__
         _stop_background_worker(thread, f"{label}:{worker_name}:{index}", timeout=3.0)
     threads_ref[:] = [thread for thread in threads_ref if thread.is_alive()]
+
+
+def _set_runtime_server(server):
+    global _runtime_server
+    global _runtime_server_stop_requested
+    global _runtime_shutdown_started
+    with _runtime_server_lock:
+        _runtime_server = server
+        _runtime_server_stop_requested = False
+    with _runtime_shutdown_lock:
+        _runtime_shutdown_started = False
+
+
+def _clear_runtime_server(server=None):
+    global _runtime_server
+    global _runtime_server_stop_requested
+    with _runtime_server_lock:
+        if server is not None and _runtime_server is not server:
+            return
+        _runtime_server = None
+        _runtime_server_stop_requested = False
+
+
+def request_runtime_shutdown(*, source="web", delay_seconds=0.25):
+    global _runtime_server_stop_requested
+    with _runtime_server_lock:
+        server = _runtime_server
+        if server is None:
+            return False, "PortHound runtime server is not active."
+        if _runtime_server_stop_requested:
+            return True, "PortHound shutdown is already scheduled."
+        _runtime_server_stop_requested = True
+
+    print(f"[shutdown] runtime stop requested via {source}.")
+
+    def _deferred_shutdown():
+        if delay_seconds > 0:
+            time.sleep(float(delay_seconds))
+        try:
+            registry.close_all(code=1001, reason="PortHound shutting down")
+        except Exception as exc:
+            print(f"[shutdown] error closing websocket clients: {exc}")
+        try:
+            server.request_shutdown()
+        except Exception as exc:
+            print(f"[shutdown] error stopping server socket: {exc}")
+
+    threading.Thread(
+        target=_deferred_shutdown,
+        name="porthound-runtime-shutdown",
+        daemon=True,
+    ).start()
+    return True, "PortHound shutdown scheduled."
 
 
 def shutdown_runtime():
@@ -6653,6 +6786,34 @@ def api_echo(request):
     return {"received": request.text()}
 
 
+@app.api("/api/runtime/shutdown", methods=["POST"])
+def api_runtime_shutdown(request):
+    admin_error = require_admin_access(request)
+    if admin_error:
+        return admin_error
+    if is_example(request):
+        return Response.json(
+            {
+                "status": "ok",
+                "scheduled": True,
+                "message": "PortHound shutdown scheduled.",
+                "example": True,
+            },
+            status=202,
+        )
+    scheduled, message = request_runtime_shutdown(source="frontend")
+    status_code = 202 if scheduled else 503
+    status_text = "ok" if scheduled else "error"
+    return Response.json(
+        {
+            "status": status_text,
+            "scheduled": bool(scheduled),
+            "message": message,
+        },
+        status=status_code,
+    )
+
+
 @app.api("/api/ws/clients", methods=["GET"])
 def api_ws_clients(request):
     admin_error = require_admin_access(request)
@@ -7406,6 +7567,7 @@ def post_json_over_tls(url, payload, ssl_context, timeout_seconds):
 
 
 def run_standalone_mode():
+    server = None
     try:
         app.add_startup(register_frontend_dist_routes)
         app.add_startup(start_geoip_blocks_db)
@@ -7415,8 +7577,11 @@ def run_standalone_mode():
         if not str(getattr(settings, "API_TOKEN", "") or "").strip():
             print("[security] PORTHOUND_API_TOKEN is not set. Protected endpoints will reject writes.")
         print(f"[bootstrap] role=standalone host={settings.HOST} port={settings.PORT}")
-        app.run(settings.HOST, settings.PORT, ssl_context=None)
+        server = RuntimeHTTPServer(settings.HOST, settings.PORT, app, ssl_context=None)
+        _set_runtime_server(server)
+        server.serve_forever()
     finally:
+        _clear_runtime_server(server)
         shutdown_runtime()
 
 

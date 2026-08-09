@@ -139,6 +139,7 @@ Valores por defecto:
 - UI/API: `http://127.0.0.1:45678`
 - Al arrancar, PortHound imprime un codigo de seguridad en la terminal.
 - Abre el chip `Auth`, pegalo y la UI lo conservara solo en memoria del tab actual para reutilizarlo en API y WebSocket mientras esa pagina siga abierta.
+- La vista `Access` tambien puede programar un apagado limpio del proceso local cuando ya no lo necesites.
 
 ## Ejecucion
 

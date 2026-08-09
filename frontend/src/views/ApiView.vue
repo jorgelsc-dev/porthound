@@ -120,6 +120,7 @@ const FALLBACK_ENDPOINTS = [
   { method: "GET", path: "/api/ip/domains/?ip=<ipv4>", desc: "Discover domains associated with an IP." },
   { method: "GET", path: "/api/ip/ttl-path/?ip=<ipv4>", desc: "Estimate hop count and intermediate devices with TTL." },
   { method: "GET", path: "/api/ip/intel/?ip=<ipv4>", desc: "Combined IP intel (domains + TTL path + host profile with HTTP/TLS metrics)." },
+  { method: "POST", path: "/api/runtime/shutdown", desc: "Gracefully stop the local PortHound process." },
   { method: "POST", path: "/api/ws/broadcast", desc: "Broadcast WS message." },
   { method: "POST", path: "/api/chat/clear", desc: "Clear chat log." },
 ];

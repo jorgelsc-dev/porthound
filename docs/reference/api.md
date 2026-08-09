@@ -103,6 +103,7 @@ Payload base para crear target:
 | --- | --- | --- | --- |
 | GET | `/api/hello` | no | Respuesta simple de prueba. |
 | POST | `/api/echo` | no | Devuelve el cuerpo recibido como texto. |
+| POST | `/api/runtime/shutdown` | si | Programa un apagado limpio del proceso local de PortHound. |
 
 ## Catalogos
 

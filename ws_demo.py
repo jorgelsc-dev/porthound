@@ -1328,6 +1328,27 @@ class ClientRegistry:
                 failed.append((cid, str(e)))
         return failed
 
+    def close_all(self, code=1001, reason="PortHound shutting down"):
+        reason_text = str(reason or "").strip()
+        payload = int(code).to_bytes(2, "big")
+        if reason_text:
+            payload += reason_text.encode("utf-8", errors="ignore")
+        with self._lock:
+            items = list(self._clients.items())
+            self._clients.clear()
+        for client_id, info in items:
+            sock = info.get("sock")
+            try:
+                sock.sendall(make_ws_frame_bytes(8, payload))
+            except Exception:
+                pass
+            try:
+                sock.close()
+            except Exception:
+                pass
+            _debug_log(f"[WS] Cliente {client_id} cerrado por shutdown")
+        return len(items)
+
 # ============================================================
 #  ConnectionThread (maneja una conexión TCP)
 # ============================================================

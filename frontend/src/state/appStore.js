@@ -305,6 +305,16 @@ function authenticateApiToken(rawToken) {
     });
 }
 
+function requestRuntimeShutdown() {
+  return fetchJsonPromise("/api/runtime/shutdown", {
+    method: "POST",
+    body: JSON.stringify({ source: "frontend" }),
+  }).then((payload) => {
+    destroyRealtime();
+    return payload;
+  });
+}
+
 function extractArray(payload) {
   if (Array.isArray(payload)) return payload;
   if (payload && Array.isArray(payload.datas)) return payload.datas;
@@ -530,6 +540,7 @@ export default {
   closeAuthPrompt,
   clearAuthToken,
   authenticateApiToken,
+  requestRuntimeShutdown,
   apiUrl,
   fetchJsonPromise,
   fetchJson,

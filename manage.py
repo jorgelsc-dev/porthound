@@ -1090,38 +1090,48 @@ def apply_cli_overrides(args):
         environ[key] = value
 
 
-def _write_terminal_value(value):
-    payload = (str(value) + "\n").encode("utf-8", errors="ignore")
-    fd = None
-    try:
-        fd = os.open("/dev/tty", os.O_WRONLY)
-        os.write(fd, payload)
-    except Exception:
-        os.write(1, payload)
-    finally:
-        if fd is not None:
-            try:
-                os.close(fd)
-            except Exception:
-                pass
-
-
 def ensure_api_access_token():
     api_token = str(environ.get("PORTHOUND_API_TOKEN", "") or "").strip()
     if api_token:
         environ["PORTHOUND_API_REQUIRE_TOKEN"] = str(
             environ.get("PORTHOUND_API_REQUIRE_TOKEN", "1") or "1"
         )
-        print("[security] Using PORTHOUND_API_TOKEN as the frontend security code.")
         return api_token
 
     api_token = secrets.token_urlsafe(32)
     environ["PORTHOUND_API_TOKEN"] = api_token
     environ["PORTHOUND_API_REQUIRE_TOKEN"] = "1"
-    print("[security] PortHound frontend security code:")
-    _write_terminal_value(api_token)
-    print("[security] Paste this code in the frontend authentication dialog.")
     return api_token
+
+
+def render_startup_banner(security_code, host, port):
+    link = f"http://{host}:{port}/"
+    lines = [
+        "PORTHOUND",
+        "",
+        "Starting server",
+        f"Link: {link}",
+        "Auth Required: YES",
+        "",
+        "SECURITY CODE (required to unlock the frontend):",
+        "",
+        f"  {security_code}",
+        "",
+        "Copy the code above and paste it in the auth prompt",
+        "",
+        "Press Ctrl+C to stop",
+    ]
+    inner_width = max(62, max(len(line) for line in lines))
+    border = "+" + "-" * (inner_width + 2) + "+"
+    rendered = [border, f"| {lines[0].center(inner_width)} |", border]
+    for line in lines[1:]:
+        rendered.append(f"| {line.ljust(inner_width)} |")
+    rendered.append(border)
+    return "\n".join(rendered)
+
+
+def print_startup_banner(security_code, host, port):
+    print(render_startup_banner(security_code, host, port))
 
 
 def main():
@@ -1161,7 +1171,7 @@ def main():
     environ["PORTHOUND_HOST"] = str(FIXED_WEB_HOST)
     environ["PORTHOUND_PORT"] = str(FIXED_WEB_MASTER_PORT)
     environ.setdefault("PORTHOUND_TLS_ENABLED", "0")
-    ensure_api_access_token()
+    api_token = ensure_api_access_token()
 
     final_db_path = (
         str(environ.get("PORTHOUND_DB_PATH", "") or "").strip()
@@ -1172,6 +1182,7 @@ def main():
     save_persisted_role_profile("standalone", final_db_path)
     startup_profile = load_persisted_role_profile("standalone", final_db_path)
     materialize_persisted_certificate_files(startup_profile)
+    print_startup_banner(api_token, FIXED_WEB_HOST, FIXED_WEB_MASTER_PORT)
 
     from app import main as app_main
 
