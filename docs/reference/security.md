@@ -17,9 +17,11 @@ El token se acepta en:
 - `Authorization: Bearer <token>`
 - `X-API-Key: <token>`
 
+Ademas, la UI y el WebSocket usan el mismo valor como codigo de seguridad del frontend.
+
 ## UI y navegador
 
-- La UI guarda el token en `sessionStorage`.
+- La UI guarda el codigo de seguridad en `localStorage`.
 - La base de la API se guarda en `localStorage`.
 - Si el backend responde `401`, el dialogo de autenticacion se abre de nuevo.
 

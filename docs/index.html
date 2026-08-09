@@ -261,10 +261,8 @@
       <div class="cmd-grid">
         <div class="cmd">
           <strong>Instalacion recomendada</strong>
-          <pre><code>sudo apt update
-sudo apt install pipx
-pipx ensurepath
-pipx install porthound4</code></pre>
+          <pre><code>./packaging/deb/build.sh
+sudo apt install ./dist/deb/porthound_&lt;version&gt;-1_&lt;arquitectura&gt;.deb</code></pre>
         </div>
         <div class="cmd">
           <strong>Ejecutar</strong>
@@ -272,8 +270,8 @@ pipx install porthound4</code></pre>
         </div>
       </div>
       <p class="footer">
-        Para usuario final, <code>pipx</code> es la ruta recomendada: deja PortHound aislado, evita mezclar dependencias
-        con tu Python principal y no exige gestionar un <code>venv</code> manualmente.
+        Para usuario final, la ruta recomendada es el paquete <code>.deb</code>. El workflow de GitHub Actions tambien
+        lo genera y lo deja disponible como artifact del repositorio.
       </p>
       <p class="footer">
         Bind efectivo: <code>127.0.0.1:45678</code>. El launcher standalone mantiene ese valor y no expone un bind

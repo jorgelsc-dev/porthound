@@ -44,16 +44,17 @@
     >
       <v-card class="auth-dialog-card" rounded="xl">
         <div class="auth-dialog-topline" />
-        <v-card-title class="text-h5 pt-6">API Access Token</v-card-title>
+        <v-card-title class="text-h5 pt-6">Security Code</v-card-title>
         <v-card-text class="pt-4">
           <p class="auth-dialog-copy">
-            Paste the token printed in the PortHound terminal. It stays in sessionStorage and is
-            sent as Authorization Bearer for protected requests.
+            Paste the security code printed in the PortHound terminal. It stays in localStorage,
+            is sent as Authorization Bearer for protected requests, and is also attached to the
+            WebSocket handshake.
           </p>
           <v-text-field
             ref="authInput"
             v-model="accessTokenInput"
-            label="Access token"
+            label="Security code"
             variant="outlined"
             density="comfortable"
             autocapitalize="off"

@@ -99,8 +99,8 @@
             <button type="button" class="connection-option" @click="$emit('open-auth')">
               <span class="connection-option__icon"><v-icon icon="mdi-shield-key-outline" size="19" /></span>
               <span class="connection-option__copy">
-                <strong>Access token</strong>
-                <small>Configure protected requests</small>
+                <strong>Security code</strong>
+                <small>Unlock API and WebSocket access</small>
               </span>
               <v-icon icon="mdi-chevron-right" size="18" />
             </button>
