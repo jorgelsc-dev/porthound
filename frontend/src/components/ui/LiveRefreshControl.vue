@@ -4,14 +4,20 @@
       v-if="showLive"
       size="small"
       variant="outlined"
-      :color="liveEnabled ? 'success' : 'secondary'"
+      :color="liveEnabled ? 'success' : 'error'"
       class="live-refresh-control__chip"
     >
-      <span
-        class="live-refresh-control__dot"
-        :class="{ 'live-refresh-control__dot--on': liveEnabled }"
+      <svg
+        class="live-refresh-control__icon"
+        :class="{ 'live-refresh-control__icon--on': liveEnabled }"
+        viewBox="0 0 24 24"
         aria-hidden="true"
-      />
+      >
+        <path
+          d="M17.65 6.35A7.95 7.95 0 0 0 12 4a8 8 0 1 0 7.45 10.9 1 1 0 0 0-1.86-.74A6 6 0 1 1 12 6c1.3 0 2.54.42 3.56 1.19L13.75 9H20V2.75l-2.35 3.6Z"
+          fill="currentColor"
+        />
+      </svg>
       {{ liveEnabled ? `Live ${selectedIntervalLabel}` : "Live off" }}
     </v-chip>
 
@@ -239,21 +245,23 @@ export default {
 
 <style scoped>
 .live-refresh-control__chip {
-  gap: 6px;
+  gap: 7px;
+  font-weight: 700;
+  letter-spacing: 0;
 }
 
-.live-refresh-control__dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 999px;
-  background: rgba(122, 134, 152, 0.9);
-  box-shadow: 0 0 0 0 rgba(122, 134, 152, 0.18);
+.live-refresh-control__icon {
+  width: 15px;
+  height: 15px;
+  flex: 0 0 15px;
+  color: rgb(var(--v-theme-error));
+  filter: drop-shadow(0 0 4px rgba(var(--v-theme-error), 0.28));
 }
 
-.live-refresh-control__dot--on {
-  background: rgba(76, 201, 240, 0.96);
-  box-shadow: 0 0 0 0 rgba(76, 201, 240, 0.28);
-  animation: live-refresh-pulse 1.9s ease-in-out infinite;
+.live-refresh-control__icon--on {
+  color: rgb(var(--v-theme-success));
+  filter: drop-shadow(0 0 5px rgba(var(--v-theme-success), 0.36));
+  animation: live-refresh-spin 1.6s linear infinite;
 }
 
 .live-refresh-control__menu {
@@ -262,15 +270,9 @@ export default {
   box-shadow: 0 18px 38px rgba(2, 8, 14, 0.34);
 }
 
-@keyframes live-refresh-pulse {
-  0% {
-    box-shadow: 0 0 0 0 rgba(76, 201, 240, 0.28);
-  }
-  70% {
-    box-shadow: 0 0 0 8px rgba(76, 201, 240, 0);
-  }
-  100% {
-    box-shadow: 0 0 0 0 rgba(76, 201, 240, 0);
+@keyframes live-refresh-spin {
+  to {
+    transform: rotate(360deg);
   }
 }
 </style>

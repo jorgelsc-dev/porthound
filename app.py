@@ -3964,21 +3964,6 @@ API_ENDPOINTS = [
     {"method": "POST", "path": "/api/ws/close", "desc": "Close WS client(s)."},
     {"method": "GET", "path": "/api/chat/messages", "desc": "List chat messages."},
     {"method": "POST", "path": "/api/chat/clear", "desc": "Clear chat messages."},
-    {"method": "GET", "path": "/api/agent/status", "desc": "Local agent runtime status snapshot."},
-    {"method": "GET", "path": "/cluster/agents/", "desc": "Cluster agents web view."},
-    {"method": "GET", "path": "/api/cluster/agents", "desc": "List agents and status."},
-    {"method": "GET", "path": "/api/cluster/agent/credentials", "desc": "List agent token credentials."},
-    {"method": "POST", "path": "/api/cluster/agent/credentials", "desc": "Create or rotate an agent token credential."},
-    {"method": "DELETE", "path": "/api/cluster/agent/credentials", "desc": "Disable an agent token credential."},
-    {"method": "POST", "path": "/api/cluster/agent/control", "desc": "Control an agent (stop/delete)."},
-    {"method": "GET", "path": "/api/cluster/ca", "desc": "Deprecated (TLS disabled)."},
-    {"method": "GET", "path": "/api/cluster/ca/raw", "desc": "Deprecated (TLS disabled)."},
-    {"method": "GET", "path": "/api/cluster/ca/oneline", "desc": "Deprecated (TLS disabled)."},
-    {"method": "POST", "path": "/api/cluster/agent/enroll", "desc": "Deprecated (certificate enrollment disabled)."},
-    {"method": "POST", "path": "/api/cluster/agent/register", "desc": "Register an agent (agent_id + token)."},
-    {"method": "POST", "path": "/api/cluster/agent/heartbeat", "desc": "Agent heartbeat and lease renewal while executing task."},
-    {"method": "POST", "path": "/api/cluster/agent/task/pull", "desc": "Agent pulls next scan task."},
-    {"method": "POST", "path": "/api/cluster/agent/task/submit", "desc": "Agent submits scan results."},
 ]
 
 
@@ -5652,12 +5637,13 @@ def attacks_raw_view(request):
 
 @app.view("/cluster/agents/")
 def cluster_agents_view(request):
-    if not is_master_role():
-        return Response.text("Only master role exposes cluster view", status=403)
-    admin_error = require_admin_access(request)
-    if admin_error:
-        return admin_error
-    return Response.html(CLUSTER_AGENTS_HTML)
+    return Response.text("Cluster agents view is no longer available", status=410)
+
+
+@app.view("/agents")
+@app.view("/agents/")
+def agents_view(request):
+    return Response.text("Agents section is no longer available", status=410)
 
 
 @app.api("/protocols/", methods=["GET"])
