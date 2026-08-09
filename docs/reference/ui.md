@@ -1,6 +1,6 @@
 # Aplicacion
 
-PortHound se usa desde una SPA Vue 3 + Vuetify. La barra superior muestra el estado de autenticacion, el estado de WebSocket, la base de API activa y el acceso al token local.
+PortHound se usa desde una SPA Vue 3 + Vuetify. La barra superior muestra el estado del codigo de seguridad, el estado de WebSocket, la base de API activa y el acceso local al backend.
 
 ## Pantalla principal
 
@@ -27,6 +27,6 @@ PortHound se usa desde una SPA Vue 3 + Vuetify. La barra superior muestra el est
 ## Estado local
 
 - `apiBase` se guarda en `localStorage`.
-- `authToken` se guarda en `sessionStorage`.
+- `authToken` vive solo en memoria mientras el tab siga abierto.
 - `wsStatus` cambia en tiempo real.
 - `authStatus` pasa por `open`, `saved`, `checking`, `required` y `authenticated`.

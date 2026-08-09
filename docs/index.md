@@ -34,17 +34,15 @@ La UI controla `Dashboard`, `Targets`, `Ports`, `Banners` y `API`. La API public
 
 ## Instalacion recomendada
 
-Para usuario final, la ruta recomendada es `pipx`:
+Para usuario final, la ruta recomendada es el paquete Debian:
 
 ```bash
-sudo apt update
-sudo apt install pipx
-pipx ensurepath
-pipx install porthound4
+./packaging/deb/build.sh
+sudo apt install ./dist/deb/porthound_<version>-1_<arquitectura>.deb
 porthound
 ```
 
-`pipx` mantiene PortHound aislado sin obligarte a crear ni activar un `venv` manualmente.
+El workflow `deb-package.yml` tambien genera este `.deb` y lo publica como artifact en GitHub Actions.
 
 ## Uso autorizado
 

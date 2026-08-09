@@ -4,7 +4,6 @@ PortHound es un escaner de red en Python para auditorias autorizadas. Esta versi
 
 Sitio oficial: [https://porthound.jorgelsc.dev](https://porthound.jorgelsc.dev)<br>
 Repositorio: [https://github.com/jorgelsc-dev/porthound](https://github.com/jorgelsc-dev/porthound)<br>
-Distribucion PyPI: `porthound4`<br>
 Comando principal: `porthound`<br>
 Palabras clave: `python`, `network-scanner`, `port-scanner`, `cybersecurity`, `banner-grabbing`, `sqlite`, `websocket`.
 
@@ -39,144 +38,50 @@ Reglas:
 1. El trabajo normal entra por ramas auxiliares.
 2. Las PRs normales apuntan a `main`.
 3. `main` queda para releases y estado estable.
-4. Los paquetes se publican desde `main` o desde un release tag.
+4. El workflow Debian genera artifacts `.deb` desde `main` y tambien puede ejecutarse manualmente.
 
 ## Requisitos
 
 - Python 3.12 o superior.
-- `wsbuilder>=0.25.7,<0.26.0`.
+- `wsbuilder>=0.18.4,<0.19.0`.
 - Acceso local al puerto HTTP configurado (por defecto `127.0.0.1:45678`).
 
 ## Instalacion
 
-### Recomendado para usuario final: `pipx`
+### Recomendado para usuario final: paquete Debian
 
-`pipx` es la opcion recomendada si solo quieres instalar y ejecutar `porthound` como herramienta CLI:
+El repo mantiene un empaquetado `.deb` y el workflow [`.github/workflows/deb-package.yml`](.github/workflows/deb-package.yml) lo genera y lo deja disponible como artifact en GitHub Actions.
 
-- aísla dependencias sin que tengas que crear ni activar un `venv`
-- evita mezclar paquetes de PortHound con tu Python global
-- funciona mejor en sistemas donde `pip` bloquea instalaciones globales por PEP 668
+Build local:
+
+```bash
+./packaging/deb/build.sh
+```
 
 Instalacion:
 
 ```bash
-sudo apt update
-sudo apt install pipx
-pipx ensurepath
-pipx install porthound4
-```
-
-Uso inmediato:
-
-```bash
-porthound
-```
-
-Si tienes varias versiones de Python y quieres fijar Python 3.12:
-
-```bash
-pipx install --python python3.12 porthound4
-```
-
-Mantenimiento basico:
-
-```bash
-pipx upgrade porthound4
-pipx uninstall porthound4
-```
-
-Si `porthound` no aparece tras instalar:
-
-- abre una shell nueva despues de `pipx ensurepath`
-- o ejecuta `pipx ensurepath --force`
-- como ultimo recurso, confirma que `~/.local/bin` esta en tu `PATH`
-
-### Alternativa con `venv`
-
-Si no quieres instalar `pipx`, usa un entorno virtual normal:
-
-```bash
-python3 -m venv .venv
-. .venv/bin/activate
-python -m pip install --upgrade pip
-python -m pip install porthound4
-porthound
-```
-
-Si instalas desde el repo local:
-
-```bash
-python -m pip install .
+sudo apt install ./dist/deb/porthound_<version>-1_<arquitectura>.deb
 porthound
 ```
 
 Notas:
 
-- En Kali, Debian y otras distros con PEP 668, `python -m pip install --user ...` puede estar bloqueado.
-- `--break-system-packages` existe, pero no se recomienda para instalar PortHound.
+- Si `frontend/dist` no existe, el script ejecuta `npm ci && npm run build`.
+- El paquete incluye el codigo Python del proyecto y vendorea sus dependencias dentro del `.deb`.
+- Esta es la ruta soportada para distribucion binaria.
 
-### Instalacion directa con `pip`
-
-Solo la recomiendo dentro de un `venv` o en un Python que controles:
-
-```bash
-python -m pip install --upgrade pip setuptools wheel
-python -m pip install porthound4
-```
-
-### Entorno local
+### Entorno local desde el repo
 
 ```bash
 python3 -m venv .venv
 . .venv/bin/activate
-python -m pip install --upgrade pip setuptools wheel
+python -m pip install --upgrade pip
 python -m pip install -e .
 porthound
 ```
 
-Usa esta ruta para desarrollo, pruebas locales y `pip install -e .`, no como recomendacion principal para usuarios finales.
-
-### Build para instalar con `pip` sin internet
-
-Prepara el bundle en una maquina con internet y usalo luego en una maquina compatible sin acceso a red.
-
-La maquina que construye y la maquina que instala deben coincidir en:
-
-- sistema operativo
-- arquitectura
-- version principal/secundaria de Python
-
-Si `frontend/dist` no existe, el build genera el frontend automaticamente. En ese caso, solo la maquina que prepara el bundle necesita Node 22 LTS; la maquina offline no.
-
-El `sdist` de release ya incluye `frontend/dist`, asi que una instalacion desde el tarball publicado no deberia necesitar Node.
-
-1. Genera el wheelhouse:
-
-```bash
-python3 -m venv .venv
-. .venv/bin/activate
-python -m pip install --upgrade pip setuptools wheel build
-python -m build
-mkdir -p wheelhouse
-cp dist/*.whl wheelhouse/
-python -m pip download --dest wheelhouse "wsbuilder>=0.25.7,<0.26.0"
-tar -czf porthound-offline-bundle.tar.gz wheelhouse
-```
-
-2. Copia `porthound-offline-bundle.tar.gz` a la maquina sin internet e instala:
-
-```bash
-tar -xzf porthound-offline-bundle.tar.gz
-python3 -m venv .venv
-. .venv/bin/activate
-python -m pip install --no-index --find-links wheelhouse porthound4
-```
-
-3. Arranca PortHound:
-
-```bash
-porthound
-```
+Usa esta ruta para desarrollo, pruebas locales y `pip install -e .`. Para distribucion, usa el paquete Debian.
 
 ## Inicio rapido
 
@@ -201,8 +106,8 @@ Valores por defecto:
 ### 2. Usar la interfaz local
 
 - UI/API: `http://127.0.0.1:45678`
-- Si tu instancia exige token, abre el chip `Auth` para guardarlo en `sessionStorage` y
-  reutilizarlo en peticiones administrativas.
+- Al arrancar, PortHound imprime un codigo de seguridad en la terminal.
+- Abre el chip `Auth`, pegalo y la UI lo conservara solo en memoria del tab actual para reutilizarlo en API y WebSocket mientras esa pagina siga abierta.
 
 ## Ejecucion
 
@@ -243,8 +148,8 @@ Valores por defecto:
 - WebSocket: `ws://HOST:PORT/ws/`
 - HTTP API: disponible desde el mismo servidor.
 - La API controla scans y vistas de estado locales.
-- El chip `Auth` de la barra superior guarda un token en `sessionStorage` y lo reenvia en
-  peticiones administrativas como `Authorization: Bearer`.
+- El chip `Auth` de la barra superior mantiene el codigo de seguridad solo en memoria del tab, lo reenvia
+  como `Authorization: Bearer` y tambien lo adjunta al handshake de WebSocket.
 
 Comportamientos comunes:
 
@@ -254,9 +159,11 @@ Comportamientos comunes:
 
 ## Seguridad
 
-- Sin `PORTHOUND_API_TOKEN`, las acciones administrativas solo aceptan clientes loopback.
-- `PORTHOUND_API_TOKEN` se envia por `Authorization: Bearer` o `X-API-Key`.
-- `PORTHOUND_API_REQUIRE_TOKEN=1` debe usarse junto con `PORTHOUND_API_TOKEN`.
+- `manage.py` genera un codigo de seguridad al arrancar y lo imprime en la terminal.
+- Sin un codigo valido, la UI no puede hablar con la API ni abrir WebSocket.
+- `PORTHOUND_API_TOKEN` se envia por `Authorization: Bearer` o `X-API-Key` en HTTP.
+- El handshake de WebSocket acepta `security_code` en la query para abrir `/ws/`.
+- `PORTHOUND_API_REQUIRE_TOKEN=1` queda activo junto con `PORTHOUND_API_TOKEN`.
 - `PORTHOUND_CORS_ALLOW_ORIGIN` define el origen permitido para CORS.
 - Si el navegador entra por loopback pero el `Origin` no es loopback, el backend tambien bloquea las acciones administrativas.
 - `PORTHOUND_TLS_ENABLED=0` es el valor por defecto del launcher standalone.
@@ -394,16 +301,7 @@ networksetup -setdnsservers "Wi-Fi" 10.10.0.2 10.10.0.3
 
 ```bash
 ./packaging/deb/build.sh
-sudo apt install ./dist/deb/porthound_<version>-1_all.deb
-```
-
-### ZIP
-
-```bash
-./packaging/zip/build.sh
-unzip dist/zip/porthound_<version>-1.zip
-cd porthound_<version>-1
-python3 manage.py
+sudo apt install ./dist/deb/porthound_<version>-1_<arquitectura>.deb
 ```
 
 ## Desarrollo
@@ -473,7 +371,7 @@ PortHound solo debe usarse en sistemas propios o con autorizacion explicita. El 
 - `dns.py`: resolucion DNS y utilidades de transporte.
 - `data/`: datasets.
 - `docs/`: sitio publico.
-- `packaging/`: scripts de `.deb` y `.zip`.
+- `packaging/`: scripts del empaquetado `.deb`.
 
 ## Soporte
 

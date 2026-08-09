@@ -2,8 +2,8 @@
   <div>
     <ViewHeader
       overline="Access"
-      title="API Access"
-      description="Manage the local token required by protected PortHound requests."
+      title="Frontend Authentication"
+      description="Manage the security code required by PortHound frontend requests."
       :refresh-loading="loading"
       @refresh="load"
     >
@@ -14,7 +14,7 @@
           prepend-icon="mdi-shield-key-outline"
           @click="store.openAuthPrompt()"
         >
-          Token
+          Security code
         </v-btn>
       </template>
     </ViewHeader>
@@ -22,8 +22,8 @@
     <v-row density="comfortable">
       <v-col cols="12" lg="7">
         <DataPanel
-          title="Browser Session"
-          subtitle="The token is stored only for this tab session."
+          title="Current Tab"
+          subtitle="The security code stays only in memory for this browser tab."
           :loading="loading"
           :error="accessError"
           :last-updated="lastUpdated"
@@ -35,7 +35,7 @@
               <strong>{{ apiBaseLabel }}</strong>
             </div>
             <div class="security-metric">
-              <span>Token</span>
+              <span>Code</span>
               <strong>{{ authStateLabel }}</strong>
             </div>
             <div class="security-metric">
@@ -44,7 +44,7 @@
             </div>
             <div class="security-metric">
               <span>Storage</span>
-              <strong>Session</strong>
+              <strong>Memory</strong>
             </div>
           </div>
 
@@ -55,7 +55,7 @@
               prepend-icon="mdi-shield-key-outline"
               @click="store.openAuthPrompt()"
             >
-              Enter token
+              Enter code
             </v-btn>
             <v-btn
               color="warning"
@@ -72,15 +72,15 @@
 
       <v-col cols="12" lg="5">
         <DataPanel
-          title="Terminal Token"
-          subtitle="PortHound prints the access token when it starts."
+          title="Terminal Code"
+          subtitle="PortHound prints the frontend security code when it starts."
           :show-refresh="false"
         >
           <div class="terminal-token-note">
             <v-icon icon="mdi-console" size="22" />
             <div>
-              <strong>Copy the token from your terminal.</strong>
-              <span>Paste it in the token dialog to authorize protected actions in this browser session.</span>
+              <strong>Copy the security code from your terminal.</strong>
+              <span>Paste it in the dialog to unlock API and WebSocket communication in this browser.</span>
             </div>
           </div>
         </DataPanel>
@@ -144,7 +144,7 @@ export default {
           this.lastUpdated = new Date().toLocaleTimeString();
         })
         .catch((err) => {
-          this.accessError = err.message || "Token required";
+          this.accessError = err.message || "Security code required";
         })
         .finally(() => {
           this.loading = false;

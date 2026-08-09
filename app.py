@@ -19,6 +19,7 @@ from pathlib import Path
 from urllib.parse import urlsplit
 import settings
 from wsbuilder import Response, parse_close_payload
+from wsbuilder.security import SecurityDecision
 
 from porthound.paths import resolve_frontend_dist_dir
 from porthound.web.responses import (
@@ -300,6 +301,32 @@ EXAMPLE_CHAT_MESSAGES = [
         "created_at": 0,
     },
 ]
+
+FRONTEND_SECURITY_REQUIRED_MESSAGE = (
+    "Security code required. Paste the code printed in the PortHound terminal."
+)
+FRONTEND_SECURITY_CLOSE_REASON = "Security code required"
+FRONTEND_SECURITY_PROTECTED_PREFIXES = (
+    "/protocols/",
+    "/count/",
+    "/targets/",
+    "/target/",
+    "/port/action/",
+    "/banner/action/",
+    "/ports/",
+    "/tags/",
+    "/banners/",
+    "/favicons/",
+)
+FRONTEND_SECURITY_EXEMPT_PATHS = frozenset(
+    {
+        "/api/agent/status",
+    }
+)
+FRONTEND_SECURITY_EXEMPT_PREFIXES = (
+    "/api/cluster/agent/",
+    "/api/cluster/ca",
+)
 
 ATTACK_SOURCE_NODES = [
     {
@@ -4276,7 +4303,16 @@ def _is_loopback_client(request):
         return raw_ip in {"localhost"}
 
 
-def _extract_request_token(request):
+def _extract_request_query_token(request):
+    query = getattr(request, "query", {}) or {}
+    for key in ("security_code", "securityCode", "api_token", "token"):
+        value = str(query.get(key, "") or "").strip()
+        if value:
+            return value
+    return ""
+
+
+def _extract_request_token(request, *, allow_query=False):
     headers = getattr(request, "headers", {}) or {}
     auth = str(
         headers.get("authorization", "")
@@ -4284,7 +4320,12 @@ def _extract_request_token(request):
     ).strip()
     if auth.lower().startswith("bearer "):
         return auth[7:].strip()
-    return str(headers.get("x-api-key", "") or headers.get("X-API-Key", "")).strip()
+    header_token = str(headers.get("x-api-key", "") or headers.get("X-API-Key", "")).strip()
+    if header_token:
+        return header_token
+    if allow_query:
+        return _extract_request_query_token(request)
+    return ""
 
 
 def _extract_request_origin(request):
@@ -4309,6 +4350,64 @@ def _is_loopback_origin(origin):
         return ip_address(host).is_loopback
     except Exception:
         return host.lower() == "localhost"
+
+
+def _request_path(request):
+    return str(getattr(request, "path", "") or "").strip() or "/"
+
+
+def _is_websocket_upgrade(request):
+    headers = getattr(request, "headers", {}) or {}
+    return str(headers.get("upgrade", "") or headers.get("Upgrade", "")).strip().lower() == "websocket"
+
+
+def is_frontend_security_protected_request(request):
+    path = _request_path(request)
+    if path in FRONTEND_SECURITY_EXEMPT_PATHS:
+        return False
+    if any(path.startswith(prefix) for prefix in FRONTEND_SECURITY_EXEMPT_PREFIXES):
+        return False
+    if path == "/":
+        return not wants_html(request)
+    if path.startswith("/api/"):
+        return True
+    return any(path.startswith(prefix) for prefix in FRONTEND_SECURITY_PROTECTED_PREFIXES)
+
+
+def require_frontend_access(request, *, allow_query=False):
+    if not is_frontend_security_protected_request(request):
+        return None
+
+    configured_token = str(getattr(settings, "API_TOKEN", "") or "").strip()
+    require_token = bool(getattr(settings, "API_REQUIRE_TOKEN", False))
+
+    if configured_token:
+        provided_token = _extract_request_token(request, allow_query=allow_query)
+        if provided_token and hmac.compare_digest(provided_token, configured_token):
+            return None
+        return json_error(FRONTEND_SECURITY_REQUIRED_MESSAGE, status=401)
+
+    if require_token:
+        return json_error(FRONTEND_SECURITY_REQUIRED_MESSAGE, status=401)
+    return None
+
+
+class FrontendSecurityPolicy:
+    def evaluate(self, request):
+        denial = require_frontend_access(request, allow_query=_is_websocket_upgrade(request))
+        if denial is None:
+            return SecurityDecision(
+                allowed=True,
+                status=200,
+                reason="allowed",
+                message="Allowed",
+            )
+        return SecurityDecision(
+            allowed=False,
+            status=int(getattr(denial, "status", 401) or 401),
+            reason="frontend_security_code",
+            message=FRONTEND_SECURITY_REQUIRED_MESSAGE,
+        )
 
 
 def require_admin_access(request):
@@ -4337,6 +4436,9 @@ def require_admin_access(request):
         "Admin access denied for non-loopback client. Configure PORTHOUND_API_TOKEN.",
         status=403,
     )
+
+
+app.security = FrontendSecurityPolicy()
 
 
 def _request_peer_cert(request):
@@ -7136,6 +7238,28 @@ def _handle_text_message(ws, client_id, text, fragmented=False, example=False):
 
 @app.ws("/ws/")
 def ws_handler(ws, request):
+    frontend_access_error = require_frontend_access(request, allow_query=True)
+    if frontend_access_error:
+        try:
+            _send_ws_json(
+                ws,
+                {
+                    "type": "auth_required",
+                    "message": FRONTEND_SECURITY_REQUIRED_MESSAGE,
+                },
+            )
+        except Exception:
+            pass
+        try:
+            payload = (4401).to_bytes(2, "big") + FRONTEND_SECURITY_CLOSE_REASON.encode("utf-8")
+            ws.send_frame(0x8, payload[:125])
+        except Exception:
+            try:
+                ws.sock.close()
+            except Exception:
+                pass
+        return
+
     example_session = is_example(request)
     client_id = str(uuid.uuid4())
     registry.register_client(
