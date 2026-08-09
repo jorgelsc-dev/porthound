@@ -38,7 +38,7 @@ Reglas:
 1. El trabajo normal entra por ramas auxiliares.
 2. Las PRs normales apuntan a `main`.
 3. `main` queda para releases y estado estable.
-4. El workflow Debian genera artifacts `.deb` desde `main` y tambien puede ejecutarse manualmente.
+4. El workflow Debian publica `.deb` en `Releases` desde `main` y tambien puede ejecutarse manualmente.
 
 ## Requisitos
 
@@ -50,7 +50,28 @@ Reglas:
 
 ### Recomendado para usuario final: paquete Debian
 
-El repo mantiene un empaquetado `.deb` y el workflow [`.github/workflows/deb-package.yml`](.github/workflows/deb-package.yml) lo genera y lo deja disponible como artifact en GitHub Actions.
+El repo mantiene un empaquetado `.deb` y el workflow [`.github/workflows/deb-package.yml`](.github/workflows/deb-package.yml) lo publica en **GitHub Releases** como asset descargable. La pestaña **Packages** puede seguir vacia: el canal soportado para distribucion es **Releases**.
+
+Ultima release Debian:
+
+- Navegador: [github.com/jorgelsc-dev/porthound/releases/latest](https://github.com/jorgelsc-dev/porthound/releases/latest)
+- GitHub CLI:
+
+```bash
+mkdir -p /tmp/porthound-release
+gh release download --repo jorgelsc-dev/porthound --pattern '*.deb' --dir /tmp/porthound-release
+sudo apt install /tmp/porthound-release/*.deb
+porthound
+```
+
+- `curl` sin `gh`:
+
+```bash
+DEB_URL="$(curl -fsSL https://api.github.com/repos/jorgelsc-dev/porthound/releases/latest | python3 -c 'import json,sys; data=json.load(sys.stdin); print(next(asset[\"browser_download_url\"] for asset in data[\"assets\"] if asset[\"name\"].endswith(\".deb\")))')"
+curl -fL "$DEB_URL" -o /tmp/porthound-latest.deb
+sudo apt install /tmp/porthound-latest.deb
+porthound
+```
 
 Build local:
 
@@ -65,11 +86,20 @@ sudo apt install ./dist/deb/porthound_<version>-1_<arquitectura>.deb
 porthound
 ```
 
+Actualizar desde el ultimo `.deb` publicado:
+
+```bash
+mkdir -p /tmp/porthound-release
+gh release download --repo jorgelsc-dev/porthound --pattern '*.deb' --dir /tmp/porthound-release --clobber
+sudo apt install /tmp/porthound-release/*.deb
+```
+
 Notas:
 
 - Si `frontend/dist` no existe, el script ejecuta `npm ci && npm run build`.
 - El paquete incluye el codigo Python del proyecto y vendorea sus dependencias dentro del `.deb`.
 - Esta es la ruta soportada para distribucion binaria.
+- El `.sha256` del mismo release permite verificar integridad antes de instalar.
 
 ### Entorno local desde el repo
 

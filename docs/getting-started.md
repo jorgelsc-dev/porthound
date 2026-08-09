@@ -11,7 +11,22 @@ PortHound se distribuye como paquete Debian y tambien puede ejecutarse directame
 
 ### Recomendado para usuario final: paquete Debian
 
-El workflow `.github/workflows/deb-package.yml` genera el `.deb` y lo publica como artifact en GitHub Actions. Tambien puedes construirlo localmente:
+El workflow `.github/workflows/deb-package.yml` genera el `.deb` y lo publica en **GitHub Releases**. Tambien puedes construirlo localmente:
+
+```bash
+mkdir -p /tmp/porthound-release
+gh release download --repo jorgelsc-dev/porthound --pattern '*.deb' --dir /tmp/porthound-release
+sudo apt install /tmp/porthound-release/*.deb
+porthound
+```
+
+La pagina de la ultima release es:
+
+```text
+https://github.com/jorgelsc-dev/porthound/releases/latest
+```
+
+Build local:
 
 ```bash
 ./packaging/deb/build.sh
@@ -23,6 +38,7 @@ Notas:
 
 - Si `frontend/dist` no existe, el build Debian ejecuta `npm ci && npm run build`.
 - El paquete incluye el codigo Python de PortHound y vendorea sus dependencias.
+- La pestaña `Packages` de GitHub puede seguir vacia; el `.deb` se distribuye desde `Releases`.
 
 ### Desde el repositorio
 

@@ -11,7 +11,7 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build-deb:
@@ -65,7 +65,12 @@ jobs:
           PY
           )"
           ARCH="$(dpkg --print-architecture)"
+          SHORT_SHA="${GITHUB_SHA::7}"
           echo "name=porthound-deb-${VERSION}-${ARCH}" >> "${GITHUB_OUTPUT}"
+          echo "version=${VERSION}" >> "${GITHUB_OUTPUT}"
+          echo "arch=${ARCH}" >> "${GITHUB_OUTPUT}"
+          echo "release_tag=main-deb-${GITHUB_RUN_NUMBER}.${GITHUB_RUN_ATTEMPT}-${SHORT_SHA}" >> "${GITHUB_OUTPUT}"
+          echo "release_name=Main Debian build ${GITHUB_RUN_NUMBER}.${GITHUB_RUN_ATTEMPT}" >> "${GITHUB_OUTPUT}"
 
       - name: Upload Debian artifact
         uses: actions/upload-artifact@v4
@@ -75,3 +80,24 @@ jobs:
             dist/deb/*.deb
             dist/deb/*.sha256
           if-no-files-found: error
+
+      - name: Publish Debian release asset
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cat > /tmp/porthound-release-notes.txt <<EOF
+          Debian package release for PortHound ${{ steps.artifact_meta.outputs.version }} (${{ steps.artifact_meta.outputs.arch }}).
+
+          Download the .deb asset from this release and install or update with:
+
+            sudo apt install ./porthound_${{ steps.artifact_meta.outputs.version }}-1_${{ steps.artifact_meta.outputs.arch }}.deb
+          EOF
+
+          gh release create "${{ steps.artifact_meta.outputs.release_tag }}" \
+            dist/deb/*.deb \
+            dist/deb/*.sha256 \
+            --repo "${{ github.repository }}" \
+            --title "${{ steps.artifact_meta.outputs.release_name }}" \
+            --notes-file /tmp/porthound-release-notes.txt \
+            --latest

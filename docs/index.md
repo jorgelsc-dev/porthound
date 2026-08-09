@@ -42,7 +42,8 @@ sudo apt install ./dist/deb/porthound_<version>-1_<arquitectura>.deb
 porthound
 ```
 
-El workflow `deb-package.yml` tambien genera este `.deb` y lo publica como artifact en GitHub Actions.
+El workflow `deb-package.yml` tambien genera este `.deb` y lo publica en `Releases`.
+El canal de descarga soportado para usuario final es `Releases`, no `Packages`.
 
 ## Uso autorizado
 
