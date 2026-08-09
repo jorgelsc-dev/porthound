@@ -107,11 +107,11 @@ Notas:
 python3 -m venv .venv
 . .venv/bin/activate
 python -m pip install --upgrade pip
-python -m pip install -e .
-porthound
+python -m pip install -r requirements.txt
+python -m porthound
 ```
 
-Usa esta ruta para desarrollo, pruebas locales y `pip install -e .`. Para distribucion, usa el paquete Debian.
+Usa esta ruta para desarrollo y pruebas locales desde el codigo fuente. Para distribucion, usa el paquete Debian.
 
 ## Inicio rapido
 

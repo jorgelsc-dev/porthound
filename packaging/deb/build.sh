@@ -75,8 +75,6 @@ app_root = Path(sys.argv[2])
 ignore = shutil.ignore_patterns("__pycache__", "*.pyc", "*.pyo")
 
 for source in sorted(root.glob("*.py")):
-    if source.name == "setup.py":
-        continue
     shutil.copy2(source, app_root / source.name)
 
 for relative in ("porthound", "data"):
@@ -93,14 +91,12 @@ for relative in ("README.md", "LICENSE", "CHANGELOG.md"):
         shutil.copy2(source, app_root / relative)
 PY
 
-mapfile -t PROJECT_DEPENDENCIES < <(python3 - <<'PY'
-import tomllib
-from pathlib import Path
-
-pyproject = tomllib.loads(Path("pyproject.toml").read_text(encoding="utf-8"))
-for dependency in pyproject["project"].get("dependencies", []):
-    print(dependency)
-PY
+mapfile -t PROJECT_DEPENDENCIES < <(
+  awk '
+    /^[[:space:]]*#/ { next }
+    /^[[:space:]]*$/ { next }
+    { print }
+  ' requirements.txt
 )
 
 if (( ${#PROJECT_DEPENDENCIES[@]} > 0 )); then

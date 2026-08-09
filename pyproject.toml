@@ -1,9 +1,5 @@
-[build-system]
-requires = ["setuptools>=82.0.1"]
-build-backend = "setuptools.build_meta"
-
 [project]
-name = "porthound4"
+name = "porthound"
 version = "0.2.7"
 description = "PortHound new-generation network scanner built on wsbuilder."
 readme = "README.md"
@@ -26,43 +22,3 @@ Documentation = "https://porthound.jorgelsc.dev"
 Repository = "https://github.com/jorgelsc-dev/porthound"
 Issues = "https://github.com/jorgelsc-dev/porthound/issues"
 Changelog = "https://github.com/jorgelsc-dev/porthound/blob/main/CHANGELOG.md"
-
-[project.scripts]
-porthound = "manage:main"
-porthound4 = "manage:main"
-
-[tool.setuptools]
-packages = ["porthound", "porthound.web"]
-py-modules = [
-  "agent",
-  "dns",
-  "app",
-  "banner_rules",
-  "country_centroids",
-  "framework",
-  "geoip_seed",
-  "getDBNIC",
-  "manage",
-  "master",
-  "scan_payloads",
-  "runtime_paths",
-  "server",
-  "settings",
-  "utils",
-  "views",
-  "ws_demo",
-]
-include-package-data = true
-
-[tool.setuptools.data-files]
-"porthound/data" = [
-  "data/banner_probe_requests.json",
-  "data/banner_regex_rules.json",
-  "data/country_centroids.json",
-  "data/geoip_blocks.seed.jsonl.gz",
-  "data/ip_presets.json",
-]
-
-[tool.pytest.ini_options]
-pythonpath = ["."]
-testpaths = ["tests"]
