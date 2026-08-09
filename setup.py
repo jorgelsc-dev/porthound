@@ -27,7 +27,7 @@ def _build_frontend_if_needed() -> None:
     npm = shutil.which("npm")
     if npm is None:
         raise DistutilsFileError(
-            "frontend/dist is missing and npm is unavailable. Install Node.js 22 LTS, then run "
+            "frontend/dist is missing and npm is unavailable. Install Node.js 20 LTS or newer, then run "
             "'npm ci && npm run build' in frontend/ before packaging PortHound."
         )
 

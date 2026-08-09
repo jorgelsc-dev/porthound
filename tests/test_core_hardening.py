@@ -949,13 +949,77 @@ class TestManageInteractiveFallback(unittest.TestCase):
         self.assertEqual(fake_env["PORTHOUND_API_TOKEN"], "generated-token")
         self.assertEqual(fake_env["PORTHOUND_API_REQUIRE_TOKEN"], "1")
         printed = "\n".join(str(call.args[0]) for call in mocked_print.call_args_list if call.args)
-        self.assertIn("PortHound access token", printed)
+        self.assertIn("PortHound frontend security code", printed)
         writes = b"".join(
             bytes(call.args[1])
             for call in mocked_write.call_args_list
             if len(call.args) >= 2
         )
         self.assertIn(b"generated-token", writes)
+
+    def test_frontend_security_dispatch_rejects_protected_api_without_code(self):
+        request = framework.Request(
+            method="GET",
+            path="/targets/",
+            query_string="",
+            headers={},
+            body=b"",
+            client=("127.0.0.1", 0),
+        )
+        with mock.patch.object(app.settings, "API_TOKEN", "security-code"), mock.patch.object(
+            app.settings, "API_REQUIRE_TOKEN", True
+        ):
+            response = app.app.dispatch(request)
+        self.assertEqual(response.status, 401)
+        payload = json.loads(response.body.decode("utf-8"))
+        self.assertIn("Security code required", payload["message"])
+
+    def test_frontend_security_dispatch_allows_matching_query_code(self):
+        request = framework.Request(
+            method="GET",
+            path="/ws/",
+            query_string="security_code=security-code",
+            headers={"upgrade": "websocket"},
+            body=b"",
+            client=("127.0.0.1", 0),
+        )
+        with mock.patch.object(app.settings, "API_TOKEN", "security-code"), mock.patch.object(
+            app.settings, "API_REQUIRE_TOKEN", True
+        ):
+            decision = app.app.security.evaluate(request)
+        self.assertTrue(decision.allowed)
+
+    def test_frontend_security_dispatch_rejects_http_query_code(self):
+        request = framework.Request(
+            method="GET",
+            path="/targets/",
+            query_string="security_code=security-code",
+            headers={},
+            body=b"",
+            client=("127.0.0.1", 0),
+        )
+        with mock.patch.object(app.settings, "API_TOKEN", "security-code"), mock.patch.object(
+            app.settings, "API_REQUIRE_TOKEN", True
+        ):
+            response = app.app.dispatch(request)
+        self.assertEqual(response.status, 401)
+        payload = json.loads(response.body.decode("utf-8"))
+        self.assertIn("Security code required", payload["message"])
+
+    def test_frontend_security_allows_html_shell_without_code(self):
+        request = framework.Request(
+            method="GET",
+            path="/",
+            query_string="",
+            headers={"accept": "text/html"},
+            body=b"",
+            client=("127.0.0.1", 0),
+        )
+        with mock.patch.object(app.settings, "API_TOKEN", "security-code"), mock.patch.object(
+            app.settings, "API_REQUIRE_TOKEN", True
+        ), mock.patch.object(app, "_frontend_index_response", return_value=framework.Response.text("ok", status=200)):
+            response = app.app.dispatch(request)
+        self.assertEqual(response.status, 200)
 
     def test_enforce_fixed_web_port_master_role(self):
         args = _make_manage_args(role="master", host="0.0.0.0", port=9999)

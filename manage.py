@@ -1112,15 +1112,15 @@ def ensure_api_access_token():
         environ["PORTHOUND_API_REQUIRE_TOKEN"] = str(
             environ.get("PORTHOUND_API_REQUIRE_TOKEN", "1") or "1"
         )
-        print("[security] Using PORTHOUND_API_TOKEN from environment.")
+        print("[security] Using PORTHOUND_API_TOKEN as the frontend security code.")
         return api_token
 
     api_token = secrets.token_urlsafe(32)
     environ["PORTHOUND_API_TOKEN"] = api_token
     environ["PORTHOUND_API_REQUIRE_TOKEN"] = "1"
-    print("[security] PortHound access token:")
+    print("[security] PortHound frontend security code:")
     _write_terminal_value(api_token)
-    print("[security] Paste this token in the frontend Auth dialog.")
+    print("[security] Paste this code in the frontend authentication dialog.")
     return api_token
 
 

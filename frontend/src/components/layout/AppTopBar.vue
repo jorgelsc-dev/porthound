@@ -100,11 +100,11 @@ export default {
   computed: {
     authStateLabel() {
       const value = String(this.authStatus || "").trim().toLowerCase();
-      if (value === "authenticated") return "Token ready";
-      if (value === "saved") return "Token saved";
-      if (value === "required") return "Token required";
-      if (value === "checking") return "Checking token";
-      return "Token required";
+      if (value === "authenticated") return "Code ready";
+      if (value === "saved") return "Code saved";
+      if (value === "required") return "Code required";
+      if (value === "checking") return "Checking code";
+      return "Code required";
     },
     authStateColor() {
       const value = String(this.authStatus || "").trim().toLowerCase();

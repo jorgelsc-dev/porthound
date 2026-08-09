@@ -17,10 +17,14 @@ El token se acepta en:
 - `Authorization: Bearer <token>`
 - `X-API-Key: <token>`
 
+Ademas, la UI y el WebSocket usan el mismo valor como codigo de seguridad del frontend.
+
 ## UI y navegador
 
-- La UI guarda el token en `sessionStorage`.
+- La UI mantiene el codigo de seguridad solo en memoria del tab activo.
 - La base de la API se guarda en `localStorage`.
+- La API HTTP acepta `Authorization: Bearer <token>` o `X-API-Key: <token>`.
+- El WebSocket acepta `security_code` solo en el handshake hacia `/ws/`.
 - Si el backend responde `401`, el dialogo de autenticacion se abre de nuevo.
 
 ## TLS y CA

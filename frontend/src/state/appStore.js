@@ -10,10 +10,27 @@ const state = reactive({
 });
 
 const STORAGE_KEY_API = "porthound.apiBase";
-const STORAGE_KEY_AUTH = "porthound.apiToken";
+const STORAGE_KEY_AUTH = "porthound.securityCode";
+const LEGACY_STORAGE_KEY_AUTH = "porthound.apiToken";
+const LEGACY_STORAGE_KEY_AUTH_LOCAL = "porthound.securityCode";
 const WS_RECONNECT_DELAY_MS = 1800;
 const WS_REFRESH_THROTTLE_MS = 800;
 const WS_AUTO_TABLE_REFRESH_ENABLED = false;
+const AUTH_REQUIRED_MESSAGE = "Security code required. Paste the code printed in the PortHound terminal.";
+const FRONTEND_SECURITY_PROTECTED_PREFIXES = [
+  "/protocols/",
+  "/count/",
+  "/targets/",
+  "/target/",
+  "/port/action/",
+  "/banner/action/",
+  "/ports/",
+  "/tags/",
+  "/banners/",
+  "/favicons/",
+];
+const FRONTEND_SECURITY_EXEMPT_PATHS = new Set(["/api/agent/status"]);
+const FRONTEND_SECURITY_EXEMPT_PREFIXES = ["/api/cluster/agent/", "/api/cluster/ca"];
 const WS_REFRESH_EVENT_TYPES = new Set([
   "welcome",
   "scan_map_snapshot",
@@ -22,6 +39,7 @@ const WS_REFRESH_EVENT_TYPES = new Set([
 
 const tableRefreshSubscribers = new Set();
 
+let inMemoryAuthToken = "";
 let wsClient = null;
 let wsReconnectTimer = null;
 let wsRefreshTimer = null;
@@ -69,21 +87,28 @@ function setApiBase(value) {
 }
 
 function readStoredAuthToken() {
-  if (typeof window === "undefined" || !window.sessionStorage) {
-    return "";
-  }
-  return String(window.sessionStorage.getItem(STORAGE_KEY_AUTH) || "").trim();
+  clearStoredAuthTokenArtifacts();
+  return String(inMemoryAuthToken || "").trim();
 }
 
 function persistAuthToken(token) {
-  if (typeof window === "undefined" || !window.sessionStorage) {
+  inMemoryAuthToken = String(token || "").trim();
+  clearStoredAuthTokenArtifacts();
+}
+
+function clearStoredAuthTokenArtifacts() {
+  if (typeof window === "undefined") {
     return;
   }
-  if (token) {
-    window.sessionStorage.setItem(STORAGE_KEY_AUTH, token);
-    return;
+  if (window.sessionStorage) {
+    window.sessionStorage.removeItem(STORAGE_KEY_AUTH);
+    window.sessionStorage.removeItem(LEGACY_STORAGE_KEY_AUTH);
   }
-  window.sessionStorage.removeItem(STORAGE_KEY_AUTH);
+  if (window.localStorage) {
+    window.localStorage.removeItem(STORAGE_KEY_AUTH);
+    window.localStorage.removeItem(LEGACY_STORAGE_KEY_AUTH);
+    window.localStorage.removeItem(LEGACY_STORAGE_KEY_AUTH_LOCAL);
+  }
 }
 
 function setAuthToken(token, nextStatus = null) {
@@ -101,14 +126,14 @@ function initAuth() {
   if (typeof window === "undefined") {
     state.authToken = "";
     state.authStatus = "required";
-    state.authError = "";
-    state.authPromptOpen = false;
+    state.authError = AUTH_REQUIRED_MESSAGE;
+    state.authPromptOpen = true;
     return;
   }
   const storedToken = readStoredAuthToken();
   setAuthToken(storedToken, storedToken ? "saved" : "required");
-  state.authError = "";
-  state.authPromptOpen = false;
+  state.authError = storedToken ? "" : AUTH_REQUIRED_MESSAGE;
+  state.authPromptOpen = !storedToken;
 }
 
 function setAuthPromptOpen(value) {
@@ -119,7 +144,8 @@ function setAuthPromptOpen(value) {
 }
 
 function openAuthPrompt(message = "") {
-  state.authError = String(message || "").trim();
+  const normalized = String(message || "").trim();
+  state.authError = normalized || (!String(state.authToken || "").trim() ? AUTH_REQUIRED_MESSAGE : "");
   state.authPromptOpen = true;
 }
 
@@ -129,8 +155,21 @@ function closeAuthPrompt() {
 }
 
 function clearAuthToken() {
+  destroyRealtime();
   setAuthToken("", "required");
   closeAuthPrompt();
+}
+
+function pathRequiresSecurity(path) {
+  const raw = String(path || "").trim() || "/";
+  const pathname = raw.split("?", 1)[0] || "/";
+  if (pathname === "/") return true;
+  if (FRONTEND_SECURITY_EXEMPT_PATHS.has(pathname)) return false;
+  if (FRONTEND_SECURITY_EXEMPT_PREFIXES.some((prefix) => pathname.startsWith(prefix))) {
+    return false;
+  }
+  if (pathname.startsWith("/api/")) return true;
+  return FRONTEND_SECURITY_PROTECTED_PREFIXES.some((prefix) => pathname.startsWith(prefix));
 }
 
 function apiUrl(path) {
@@ -182,14 +221,23 @@ function applyAuthHeader(headers = {}, token = state.authToken) {
 function fetchJsonPromise(path, options = {}) {
   const opts = { ...options };
   const token = Object.prototype.hasOwnProperty.call(opts, "token") ? opts.token : state.authToken;
+  const normalizedToken = String(token || "").trim();
   const attachAuth = opts.attachAuth !== false;
   const handleUnauthorized = opts.handleUnauthorized !== false;
   delete opts.token;
   delete opts.attachAuth;
   delete opts.handleUnauthorized;
   opts.headers = { ...(opts.headers || {}) };
+  if (attachAuth && pathRequiresSecurity(path) && !normalizedToken) {
+    const error = new Error(AUTH_REQUIRED_MESSAGE);
+    error.status = 401;
+    openAuthPrompt(AUTH_REQUIRED_MESSAGE);
+    state.authStatus = "required";
+    state.authError = AUTH_REQUIRED_MESSAGE;
+    return Promise.reject(error);
+  }
   if (attachAuth) {
-    opts.headers = applyAuthHeader(opts.headers, token);
+    opts.headers = applyAuthHeader(opts.headers, normalizedToken);
   }
   if (
     opts.body &&
@@ -226,6 +274,8 @@ function authenticateApiToken(rawToken) {
     clearAuthToken();
     return Promise.resolve(null);
   }
+  state.authStatus = "checking";
+  state.authError = "";
 
   return fetchJsonPromise("/api/ws/clients", {
     method: "GET",
@@ -237,16 +287,19 @@ function authenticateApiToken(rawToken) {
       setAuthToken(token, "authenticated");
       state.authError = "";
       closeAuthPrompt();
+      reconnectRealtime();
       return payload;
     })
     .catch((error) => {
-      const message = String((error && error.message) || "Unable to validate API token").trim();
+      const message = String((error && error.message) || "Unable to validate security code").trim();
       state.authError = message;
       state.authPromptOpen = true;
       if ((error && error.status) === 401 && token === state.authToken) {
         state.authStatus = "required";
       } else if ((error && error.status) === 401 && !state.authToken) {
         state.authStatus = "required";
+      } else {
+        state.authStatus = "saved";
       }
       throw error;
     });
@@ -298,21 +351,35 @@ function scheduleTableRefresh(payload) {
 }
 
 function wsUrl() {
+  const securityCode = String(state.authToken || "").trim();
   let base = state.apiBase;
   if (!base && typeof window !== "undefined") {
     base = window.location.origin;
   }
   try {
     const parsed = new URL(base);
-    const protocol = parsed.protocol === "https:" ? "wss:" : "ws:";
-    return `${protocol}//${parsed.host}/ws/`;
+    parsed.protocol = parsed.protocol === "https:" ? "wss:" : "ws:";
+    parsed.pathname = "/ws/";
+    parsed.search = "";
+    if (securityCode) {
+      parsed.searchParams.set("security_code", securityCode);
+    }
+    return parsed.toString();
   } catch {
     if (typeof window !== "undefined") {
       const protocol = window.location.protocol === "https:" ? "wss" : "ws";
-      return `${protocol}://${window.location.host}/ws/`;
+      const baseUrl = new URL(`${protocol}://${window.location.host}/ws/`);
+      if (securityCode) {
+        baseUrl.searchParams.set("security_code", securityCode);
+      }
+      return baseUrl.toString();
     }
   }
-  return "ws://127.0.0.1:45678/ws/";
+  const fallback = new URL("ws://127.0.0.1:45678/ws/");
+  if (securityCode) {
+    fallback.searchParams.set("security_code", securityCode);
+  }
+  return fallback.toString();
 }
 
 function clearReconnectTimer() {
@@ -365,6 +432,13 @@ function connectRealtime() {
     state.wsStatus = "offline";
     return;
   }
+  if (!String(state.authToken || "").trim()) {
+    state.wsStatus = "offline";
+    if (!state.authPromptOpen) {
+      openAuthPrompt(AUTH_REQUIRED_MESSAGE);
+    }
+    return;
+  }
   if (
     wsClient &&
     (wsClient.readyState === window.WebSocket.OPEN ||
@@ -415,10 +489,17 @@ function connectRealtime() {
     state.wsStatus = "error";
   });
 
-  socket.addEventListener("close", () => {
+  socket.addEventListener("close", (event) => {
     if (wsClient !== socket) return;
     wsClient = null;
     state.wsStatus = "offline";
+    const reason = String((event && event.reason) || "").trim();
+    if (event && event.code === 4401) {
+      state.authStatus = "required";
+      state.authError = reason || AUTH_REQUIRED_MESSAGE;
+      openAuthPrompt(state.authError);
+      return;
+    }
     scheduleReconnect();
   });
 }
