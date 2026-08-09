@@ -107,7 +107,7 @@ Valores por defecto:
 
 - UI/API: `http://127.0.0.1:45678`
 - Al arrancar, PortHound imprime un codigo de seguridad en la terminal.
-- Abre el chip `Auth`, pegalo y la UI lo guardara en `sessionStorage` para reutilizarlo en API y WebSocket durante esa sesion del navegador.
+- Abre el chip `Auth`, pegalo y la UI lo conservara solo en memoria del tab actual para reutilizarlo en API y WebSocket mientras esa pagina siga abierta.
 
 ## Ejecucion
 
@@ -148,7 +148,7 @@ Valores por defecto:
 - WebSocket: `ws://HOST:PORT/ws/`
 - HTTP API: disponible desde el mismo servidor.
 - La API controla scans y vistas de estado locales.
-- El chip `Auth` de la barra superior guarda el codigo de seguridad en `sessionStorage`, lo reenvia
+- El chip `Auth` de la barra superior mantiene el codigo de seguridad solo en memoria del tab, lo reenvia
   como `Authorization: Bearer` y tambien lo adjunta al handshake de WebSocket.
 
 Comportamientos comunes:

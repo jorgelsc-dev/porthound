@@ -39,6 +39,7 @@ const WS_REFRESH_EVENT_TYPES = new Set([
 
 const tableRefreshSubscribers = new Set();
 
+let inMemoryAuthToken = "";
 let wsClient = null;
 let wsReconnectTimer = null;
 let wsRefreshTimer = null;
@@ -86,61 +87,27 @@ function setApiBase(value) {
 }
 
 function readStoredAuthToken() {
-  if (typeof window === "undefined" || !window.sessionStorage) {
-    return "";
-  }
-  const localStorageRef = window.localStorage || null;
-  const sessionStorageRef = window.sessionStorage;
-  const storedCode = String(sessionStorageRef.getItem(STORAGE_KEY_AUTH) || "").trim();
-  if (storedCode) {
-    if (localStorageRef) {
-      localStorageRef.removeItem(STORAGE_KEY_AUTH);
-      localStorageRef.removeItem(LEGACY_STORAGE_KEY_AUTH);
-      localStorageRef.removeItem(LEGACY_STORAGE_KEY_AUTH_LOCAL);
-    }
-    return storedCode;
-  }
-  const legacySession = String(sessionStorageRef.getItem(LEGACY_STORAGE_KEY_AUTH) || "").trim();
-  if (legacySession) {
-    sessionStorageRef.removeItem(LEGACY_STORAGE_KEY_AUTH);
-    sessionStorageRef.setItem(STORAGE_KEY_AUTH, legacySession);
-    if (localStorageRef) {
-      localStorageRef.removeItem(STORAGE_KEY_AUTH);
-      localStorageRef.removeItem(LEGACY_STORAGE_KEY_AUTH);
-      localStorageRef.removeItem(LEGACY_STORAGE_KEY_AUTH_LOCAL);
-    }
-    return legacySession;
-  }
-  if (localStorageRef) {
-    localStorageRef.removeItem(STORAGE_KEY_AUTH);
-    localStorageRef.removeItem(LEGACY_STORAGE_KEY_AUTH);
-    localStorageRef.removeItem(LEGACY_STORAGE_KEY_AUTH_LOCAL);
-  }
-  return "";
+  clearStoredAuthTokenArtifacts();
+  return String(inMemoryAuthToken || "").trim();
 }
 
 function persistAuthToken(token) {
-  if (typeof window === "undefined" || !window.sessionStorage) {
+  inMemoryAuthToken = String(token || "").trim();
+  clearStoredAuthTokenArtifacts();
+}
+
+function clearStoredAuthTokenArtifacts() {
+  if (typeof window === "undefined") {
     return;
   }
-  const sessionStorageRef = window.sessionStorage;
-  const localStorageRef = window.localStorage || null;
-  if (token) {
-    sessionStorageRef.setItem(STORAGE_KEY_AUTH, token);
-    sessionStorageRef.removeItem(LEGACY_STORAGE_KEY_AUTH);
-    if (localStorageRef) {
-      localStorageRef.removeItem(STORAGE_KEY_AUTH);
-      localStorageRef.removeItem(LEGACY_STORAGE_KEY_AUTH);
-      localStorageRef.removeItem(LEGACY_STORAGE_KEY_AUTH_LOCAL);
-    }
-    return;
+  if (window.sessionStorage) {
+    window.sessionStorage.removeItem(STORAGE_KEY_AUTH);
+    window.sessionStorage.removeItem(LEGACY_STORAGE_KEY_AUTH);
   }
-  sessionStorageRef.removeItem(STORAGE_KEY_AUTH);
-  sessionStorageRef.removeItem(LEGACY_STORAGE_KEY_AUTH);
-  if (localStorageRef) {
-    localStorageRef.removeItem(STORAGE_KEY_AUTH);
-    localStorageRef.removeItem(LEGACY_STORAGE_KEY_AUTH);
-    localStorageRef.removeItem(LEGACY_STORAGE_KEY_AUTH_LOCAL);
+  if (window.localStorage) {
+    window.localStorage.removeItem(STORAGE_KEY_AUTH);
+    window.localStorage.removeItem(LEGACY_STORAGE_KEY_AUTH);
+    window.localStorage.removeItem(LEGACY_STORAGE_KEY_AUTH_LOCAL);
   }
 }
 

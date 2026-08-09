@@ -47,9 +47,9 @@
         <v-card-title class="text-h5 pt-6">Security Code</v-card-title>
         <v-card-text class="pt-4">
           <p class="auth-dialog-copy">
-            Paste the security code printed in the PortHound terminal. It stays in sessionStorage,
-            is sent as Authorization Bearer for protected requests, and is also attached to the
-            WebSocket handshake.
+            Paste the security code printed in the PortHound terminal. It stays only in memory for
+            this tab, is sent as Authorization Bearer for protected requests, and is also attached
+            to the WebSocket handshake.
           </p>
           <v-text-field
             ref="authInput"

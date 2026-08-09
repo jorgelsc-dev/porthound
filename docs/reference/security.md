@@ -21,7 +21,7 @@ Ademas, la UI y el WebSocket usan el mismo valor como codigo de seguridad del fr
 
 ## UI y navegador
 
-- La UI guarda el codigo de seguridad en `sessionStorage`.
+- La UI mantiene el codigo de seguridad solo en memoria del tab activo.
 - La base de la API se guarda en `localStorage`.
 - La API HTTP acepta `Authorization: Bearer <token>` o `X-API-Key: <token>`.
 - El WebSocket acepta `security_code` solo en el handshake hacia `/ws/`.
