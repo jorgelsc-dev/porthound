@@ -110,7 +110,7 @@ jobs:
           echo "release_name=PortHound ${VERSION}" >> "${GITHUB_OUTPUT}"
 
       - name: Upload Debian artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ steps.artifact_meta.outputs.name }}
           path: |
