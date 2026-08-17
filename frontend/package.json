@@ -27,7 +27,7 @@
     "eslint": "^10.8.0",
     "eslint-plugin-vue": "^10.10.0",
     "graphemer": "^1.4.0",
-    "globals": "^17.9.0",
+    "globals": "^17.11.0",
     "is-path-inside": "^4.0.0",
     "text-table": "^0.2.0"
   },
